@@ -68,6 +68,12 @@
         // Coordinate del centro storico di Palermo
         const center = [13.3615, 38.1157];
         const zoom = 14;
+        
+        // Bounding box per il centro storico di Palermo
+        const maxBounds = [
+            [13.33, 38.09],  // SW corner
+            [13.39, 38.14]   // NE corner
+        ];
 
         const map = new maplibregl.Map({
             container: 'map',
@@ -93,27 +99,28 @@
                         type: 'raster',
                         source: 'carto-light',
                         minzoom: 0,
-                        maxzoom: 18
+                        maxzoom: 22
                     },
                     {
                         id: 'satellite-layer',
                         type: 'raster',
                         source: 'satellite',
                         minzoom: 0,
-                        maxzoom: 18,
+                        maxzoom: 22,
                         layout: {
                             visibility: 'none' // Inizialmente nascosto
                         }
                     }
                 ]
             },
-            center: [13.33225, 38.14074], // Centro iniziale della mappa
-            zoom: 12, // Zoom iniziale
-            maxBounds: [[13.1, 37.9785], [13.55, 38.2919]], // Bounds della mappa
-            hash: true, // Abilita l'URL hash per condividere la posizione della mappa
+            center: center,
+            zoom: zoom,
+            maxBounds: maxBounds,  // Limite di navigazione
+            maxZoom: 18,           // Zoom massimo consentito
+            minZoom: 12,            // Zoom minimo consentito
+			hash: true, // Abilita l'URL hash per condividere la posizione della mappa
             pitch: 0,
             dragRotate: false // Disabilita la rotazione 3D
-			
         });
 
         map.on('load', function() {
@@ -165,6 +172,16 @@
         // Event listeners
         document.getElementById('carto-btn').addEventListener('click', () => switchBasemap('carto-light-layer'));
         document.getElementById('satellite-btn').addEventListener('click', () => switchBasemap('satellite-layer'));
+        
+        // Blocca il drag oltre i bounds
+        map.on('drag', function() {
+            if (map.getBounds().getWest() < maxBounds[0][0] ||
+                map.getBounds().getSouth() < maxBounds[0][1] ||
+                map.getBounds().getEast() > maxBounds[1][0] ||
+                map.getBounds().getNorth() > maxBounds[1][1]) {
+                map.fitBounds(maxBounds, { linear: true });
+            }
+        });
     </script>
 </body>
 </html>
