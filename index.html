@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mappa con PMTiles</title>
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css " />
+    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js "></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        // Inizializza la mappa
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: {
+                version: 8,
+                sources: {
+                    pmtilesSource: {
+                        type: 'vector',
+                        url: 'pmtiles://https://example.com/data/output.pmtiles '
+                    }
+                },
+                layers: [
+                    {
+                        id: 'background',
+                        type: 'background',
+                        paint: { 'background-color': '#f8f8f8' }
+                    },
+                    {
+                        id: 'territorial-data',
+                        type: 'fill',
+                        source: 'pmtilesSource',
+                        'source-layer': 'layer_name', // Nome del layer nel file PMTiles
+                        paint: {
+                            'fill-color': '#888888',
+                            'fill-opacity': 0.5
+                        }
+                    }
+                ]
+            },
+            center: [12.4964, 41.9028], // Centro su Roma
+            zoom: 6
+        });
+
+        // Aggiungi controlli alla mappa
+        map.addControl(new maplibregl.NavigationControl());
+    </script>
+</body>
+</html>
