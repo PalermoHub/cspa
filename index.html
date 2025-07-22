@@ -1,90 +1,170 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mappa Zornade PACS - Centro Storico Palermo</title>
-    <!-- Includi MapLibre GL CSS -->
-    <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css " rel="stylesheet">
+    <meta charset="utf-8">
+    <title>Zornade PACS - Palermo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Librerie MapLibre -->
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <!-- Libreria PMTiles -->
+    <script src="https://unpkg.com/pmtiles@2.4.0/dist/index.js"></script>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
-        #map {
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        
+        /* Stile migliorato per il selettore */
+        .basemap-selector {
             position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 100%;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.9);
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+        }
+        
+        .basemap-option {
+            display: block;
+            margin: 5px 0;
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.2s;
+            width: 120px;
+        }
+        
+        .basemap-option:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+        
+        .basemap-option.active {
+            background: #4d7fff;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <div class="basemap-selector">
+        <button id="carto-btn" class="basemap-option active">Carto Light</button>
+        <button id="satellite-btn" class="basemap-option">Satellite</button>
+    </div>
 
-    <!-- Includi MapLibre GL JS -->
-    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js "></script>
-    <!-- Includi PMTiles JS -->
-    <script src="https://unpkg.com/pmtiles/dist/pmtiles.js "></script>
     <script>
-        // Initialize the PMTiles protocol
-        const PMTiles = window.PMTiles; // Access the PMTiles class from the global scope
-        maplibregl.addProtocol("pmtiles", (params, callback) => {
-            const pmtiles = new PMTiles(params.url);
-            pmtiles.getTile(params.z, params.x, params.y).then((tile) => {
-                if (tile) {
-                    callback(null, { data: tile.data, headers: {} });
-                } else {
-                    callback(new Error("Tile not found"));
-                }
-            });
-        });
-
+        // Registra il protocollo PMTiles
+        const protocol = new pmtiles.Protocol();
+        maplibregl.addProtocol("pmtiles", protocol.tile);
+        
         // Coordinate del centro storico di Palermo
-        const centerPalermo = [13.361389, 38.115556]; // Longitudine, Latitudine
+        const center = [13.3615, 38.1157];
+        const zoom = 14;
 
-        // Creazione della mappa
         const map = new maplibregl.Map({
-            container: 'map', // ID del contenitore della mappa
+            container: 'map',
             style: {
                 version: 8,
                 sources: {
-                    osm: {
-                        type: "raster",
-                        tiles: ["https://tile.openstreetmap.org/ {z}/{x}/{y}.png"],
+                    'carto-light': {
+                        type: 'raster',
+                        tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'],
                         tileSize: 256,
-                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright ">OpenStreetMap</a> contributors'
+                        attribution: '© OpenStreetMap contributors, © CartoDB'
                     },
-                    zornade_pacs: {
-                        type: "vector",
-                        url: "pmtiles://https://palermohub.github.io/cspa/dati/zornade_pacs.pmtiles "
+                    'satellite': {
+                        type: 'raster',
+                        tiles: ['https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'],
+                        tileSize: 256,
+                        attribution: '© Google'
                     }
                 },
                 layers: [
                     {
-                        id: "osm-layer",
-                        type: "raster",
-                        source: "osm"
+                        id: 'carto-light-layer',
+                        type: 'raster',
+                        source: 'carto-light',
+                        minzoom: 0,
+                        maxzoom: 18
                     },
                     {
-                        id: "catasto",
-                        type: "fill",
-                        source: "zornade_pacs",
-                        "source-layer": "zornade_pacs", // Nome del layer nei dati PMTiles
-                        paint: {
-                            "fill-color": "#ffcc00", // Colore dei poligoni
-                            "fill-opacity": 0.6 // Opacità
+                        id: 'satellite-layer',
+                        type: 'raster',
+                        source: 'satellite',
+                        minzoom: 0,
+                        maxzoom: 18,
+                        layout: {
+                            visibility: 'none' // Inizialmente nascosto
                         }
                     }
                 ]
             },
-            center: centerPalermo, // Centro della mappa
-            zoom: 14 // Livello di zoom iniziale
+            center: [13.33225, 38.14074], // Centro iniziale della mappa
+            zoom: 12, // Zoom iniziale
+            maxBounds: [[13.1, 37.9785], [13.55, 38.2919]], // Bounds della mappa
+            hash: true, // Abilita l'URL hash per condividere la posizione della mappa
+            pitch: 0,
+            dragRotate: false // Disabilita la rotazione 3D
+			
         });
 
-        // Aggiungi controlli alla mappa
-        map.addControl(new maplibregl.NavigationControl());
-        map.addControl(new maplibregl.ScaleControl());
+        map.on('load', function() {
+            // Aggiungi sorgente PMTiles
+            map.addSource('zornade_pacs', {
+                type: 'vector',
+                url: 'pmtiles://https://palermohub.github.io/cspa/dati/zornade_pacs.pmtiles'
+            });
+            
+            // Aggiungi layer poligoni SOPRA TUTTO
+            map.addLayer({
+                id: 'pacs-layer',
+                type: 'fill',
+                source: 'zornade_pacs',
+                'source-layer': 'zornade_pacs',
+                paint: {
+                    'fill-color': '#5a3fc0',
+                    'fill-opacity': 0.6,
+                    'fill-outline-color': '#000'
+                }
+            }, 'satellite-layer'); // Inserito sopra l'ultimo layer
+            
+            // Aggiungi controlli di navigazione
+            map.addControl(new maplibregl.NavigationControl());
+            
+            // Forza il layer PACS in cima alla pila
+            map.moveLayer('pacs-layer');
+        });
+
+        // Gestione avanzata cambio basemap
+        function switchBasemap(activeId) {
+            const layers = ['carto-light-layer', 'satellite-layer'];
+            
+            layers.forEach(layerId => {
+                const visibility = (layerId === activeId) ? 'visible' : 'none';
+                map.setLayoutProperty(layerId, 'visibility', visibility);
+            });
+            
+            // Aggiorna stato pulsanti
+            document.getElementById('carto-btn').classList.toggle('active', activeId === 'carto-light-layer');
+            document.getElementById('satellite-btn').classList.toggle('active', activeId === 'satellite-layer');
+            
+            // Forza il layer PACS in cima
+            if (map.getLayer('pacs-layer')) {
+                map.moveLayer('pacs-layer');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('carto-btn').addEventListener('click', () => switchBasemap('carto-light-layer'));
+        document.getElementById('satellite-btn').addEventListener('click', () => switchBasemap('satellite-layer'));
     </script>
 </body>
 </html>
