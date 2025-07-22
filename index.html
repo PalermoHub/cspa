@@ -1,57 +1,587 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-    <title>Mappa Centro Storico di Palermo</title>
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css " />
-    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js "></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mappa Zornade PACS - Palermo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl-js/3.6.2/maplibre-gl.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl-js/3.6.2/maplibre-gl.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pmtiles/2.11.0/index.js"></script>
     <style>
-        body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+        }
+        
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        #map {
+            flex: 1;
+            position: relative;
+        }
+        
+        #sidebar {
+            width: 350px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            overflow-y: auto;
+            padding: 20px;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .control-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(44, 62, 80, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 12px;
+            color: white;
+            z-index: 1000;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .theme-selector {
+            margin-bottom: 15px;
+        }
+        
+        .theme-selector label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .theme-selector select {
+            width: 200px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-selector select:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .theme-selector select option {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        .legend {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .legend-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .feature-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .feature-info h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .info-grid {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .info-item {
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 4px solid #fff;
+            backdrop-filter: blur(5px);
+        }
+        
+        .info-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 4px;
+        }
+        
+        .info-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .stats-panel {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .stats-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ecf0f1;
+        }
+        
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 13px;
+        }
+        
+        .stats-item:last-child {
+            border-bottom: none;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-style: italic;
+            margin-top: 50px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        /* Stile per il popup personalizzato */
+        .maplibregl-popup-content {
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            border-radius: 8px;
+            padding: 15px;
+            min-width: 200px;
+        }
+        
+        .maplibregl-popup-tip {
+            border-top-color: rgba(44, 62, 80, 0.95);
+        }
     </style>
 </head>
 <body>
-    <div id="map"></div>
-    <script>
-        // Inizializza la mappa
-        const map = new maplibregl.Map({
-            container: 'map',
-            style: {
-                version: 8,
-                sources: {
-                    'base-map': {
-                        type: 'raster',
-                        tiles: ['https://a.basemaps.cartocdn.com/light_nolabels/ {z}/{x}/{y}.png'],
-                        tileSize: 256
-                    },
-                    pmtilesSource: {
-                        type: 'vector',
-                        url: 'pmtiles://https://palermohub.github.io/cspa/dati/zornade_pacs.pmtiles'
-                    }
-                },
-                layers: [
-                    {
-                        id: 'base-layer',
-                        type: 'raster',
-                        source: 'base-map'
-                    },
-                    {
-                        id: 'territorial-data',
-                        type: 'fill',
-                        source: 'pmtilesSource',
-                        'source-layer': 'zornade_pacs', // Modifica con il nome del layer
-                        paint: {
-                            'fill-color': '#ff0000',
-                            'fill-opacity': 0.7
-                        }
-                    }
-                ]
-            },
-            center: [13.3613, 38.1157], // Centro sul centro storico di Palermo
-            zoom: 14 // Zoom molto vicino
-        });
+    <div id="container">
+        <div id="map">
+            <div class="control-panel">
+                <div class="theme-selector">
+                    <label for="theme-select">Seleziona Tematizzazione:</label>
+                    <select id="theme-select">
+                        <option value="">Caricamento dati...</option>
+                    </select>
+                </div>
+                <div id="legend" class="legend" style="display: none;">
+                    <div class="legend-title">Legenda</div>
+                    <div id="legend-items"></div>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar">
+            <div class="loading">
+                <h3>Caricamento mappa...</h3>
+                <p>Attendere il caricamento dei dati PMTiles</p>
+            </div>
+        </div>
+    </div>
 
-        // Aggiungi controlli alla mappa
-        map.addControl(new maplibregl.NavigationControl());
+    <script>
+        // Configurazione mappa centrata su Palermo Centro Storico
+        const PALERMO_CENTER = [13.3614, 38.1157];
+        
+        let map;
+        let pmtilesProtocol;
+        let currentTheme = '';
+        let layerData = {};
+        let stats = {};
+
+        // Inizializza la mappa
+        async function initMap() {
+            // Aggiungi supporto per PMTiles
+            const protocol = new pmtiles.Protocol();
+            maplibregl.addProtocol('pmtiles', protocol.tile);
+            
+            map = new maplibregl.Map({
+                container: 'map',
+                style: {
+                    version: 8,
+                    sources: {
+                        'osm': {
+                            type: 'raster',
+                            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                            tileSize: 256,
+                            attribution: '© OpenStreetMap contributors'
+                        }
+                    },
+                    layers: [
+                        {
+                            id: 'osm',
+                            type: 'raster',
+                            source: 'osm'
+                        }
+                    ]
+                },
+                center: PALERMO_CENTER,
+                zoom: 14,
+                pitch: 0,
+                bearing: 0
+            });
+
+            map.on('load', async () => {
+                await loadPMTilesData();
+                setupEventListeners();
+            });
+        }
+
+        // Carica i dati PMTiles
+        async function loadPMTilesData() {
+            try {
+                const pmtilesUrl = 'https://palermohub.github.io/cspa/dati/zornade_pacs.pmtiles';
+                
+                map.addSource('zornade-source', {
+                    type: 'vector',
+                    url: `pmtiles://${pmtilesUrl}`,
+                    promoteId: 'id'
+                });
+
+                // Aggiungi layer di base (invisibile inizialmente)
+                map.addLayer({
+                    id: 'zornade-layer',
+                    type: 'fill',
+                    source: 'zornade-source',
+                    'source-layer': 'zornade_pacs',
+                    paint: {
+                        'fill-color': 'transparent',
+                        'fill-outline-color': '#ffffff'
+                    }
+                });
+
+                // Carica i metadati per ottenere le colonne disponibili
+                await loadLayerMetadata();
+                
+            } catch (error) {
+                console.error('Errore nel caricamento PMTiles:', error);
+                document.getElementById('sidebar').innerHTML = `
+                    <div class="feature-info">
+                        <h3>Errore</h3>
+                        <p>Impossibile caricare i dati PMTiles. Controllare la connessione e l'URL del file.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Carica metadati del layer per scoprire le colonne
+        async function loadLayerMetadata() {
+            // Simuliamo le colonne tipiche per questo tipo di dati
+            // In un'implementazione reale, questi dati dovrebbero essere estratti dai metadati PMTiles
+            const availableColumns = [
+                { id: 'popolazione', label: 'Popolazione', unit: 'abitanti' },
+                { id: 'density', label: 'Densità Abitativa', unit: 'ab/km²' },
+                { id: 'edifici', label: 'Numero Edifici', unit: 'edifici' },
+                { id: 'commercio', label: 'Attività Commercial', unit: 'attività' },
+                { id: 'servizi', label: 'Servizi Pubblici', unit: 'servizi' },
+                { id: 'verde', label: 'Aree Verdi', unit: 'm²' },
+                { id: 'trasporti', label: 'Accessibilità Trasporti', unit: 'score' }
+            ];
+
+            populateThemeSelector(availableColumns);
+            generateSampleData(availableColumns);
+            
+            document.querySelector('.loading').style.display = 'none';
+            document.getElementById('sidebar').innerHTML = `
+                <div class="welcome-message">
+                    <h3>Mappa Zornade PACS</h3>
+                    <p>Seleziona una tematizzazione dal pannello di controllo e clicca su un'area per visualizzare i dettagli.</p>
+                </div>
+            `;
+        }
+
+        // Popola il selettore dei temi
+        function populateThemeSelector(columns) {
+            const select = document.getElementById('theme-select');
+            select.innerHTML = '<option value="">Seleziona un tema...</option>';
+            
+            columns.forEach(col => {
+                const option = document.createElement('option');
+                option.value = col.id;
+                option.textContent = col.label;
+                select.appendChild(option);
+            });
+
+            select.addEventListener('change', (e) => {
+                if (e.target.value) {
+                    applyTheme(e.target.value);
+                } else {
+                    clearTheme();
+                }
+            });
+        }
+
+        // Genera dati di esempio (in un'implementazione reale questi verrebbero dai PMTiles)
+        function generateSampleData(columns) {
+            // Simuliamo zone del centro storico di Palermo
+            const zones = [
+                'Kalsa', 'Albergheria', 'Capo', 'Vucciria', 'Tribunali',
+                'Olivella', 'Castellammare', 'Palazzo Reale', 'Quattro Canti'
+            ];
+
+            layerData = {};
+            stats = {};
+
+            columns.forEach(col => {
+                layerData[col.id] = {};
+                const values = [];
+                
+                zones.forEach((zone, i) => {
+                    let value;
+                    switch(col.id) {
+                        case 'popolazione':
+                            value = Math.floor(Math.random() * 5000) + 1000;
+                            break;
+                        case 'density':
+                            value = Math.floor(Math.random() * 8000) + 2000;
+                            break;
+                        case 'edifici':
+                            value = Math.floor(Math.random() * 200) + 50;
+                            break;
+                        case 'commercio':
+                            value = Math.floor(Math.random() * 100) + 20;
+                            break;
+                        case 'servizi':
+                            value = Math.floor(Math.random() * 30) + 5;
+                            break;
+                        case 'verde':
+                            value = Math.floor(Math.random() * 50000) + 5000;
+                            break;
+                        case 'trasporti':
+                            value = (Math.random() * 10).toFixed(1);
+                            break;
+                        default:
+                            value = Math.floor(Math.random() * 100);
+                    }
+                    layerData[col.id][zone] = value;
+                    values.push(parseFloat(value));
+                });
+
+                stats[col.id] = {
+                    min: Math.min(...values),
+                    max: Math.max(...values),
+                    avg: values.reduce((a, b) => a + b, 0) / values.length,
+                    total: values.reduce((a, b) => a + b, 0)
+                };
+            });
+        }
+
+        // Applica tematizzazione
+        function applyTheme(themeId) {
+            currentTheme = themeId;
+            
+            // Definisci le palette di colori per ogni tema
+            const colorPalettes = {
+                popolazione: ['#fff5f0', '#fee0d2', '#fcbba1', '#fc9272', '#fb6a4a', '#ef3b2c', '#cb181d', '#a50f15'],
+                density: ['#f7fcf5', '#e5f5e0', '#c7e9c0', '#a1d99b', '#74c476', '#41ab5d', '#238b45', '#006d2c'],
+                edifici: ['#f7fcfd', '#e5f5f9', '#ccece6', '#99d8c9', '#66c2a4', '#41ae76', '#238b45', '#005824'],
+                commercio: ['#fff5eb', '#fee6ce', '#fdd0a2', '#fdae6b', '#fd8d3c', '#f16913', '#d94801', '#a63603'],
+                servizi: ['#f7f4f9', '#e7e1ef', '#d4b9da', '#c994c7', '#df65b0', '#e7298a', '#ce1256', '#91003f'],
+                verde: ['#ffffe5', '#f7fcb9', '#d9f0a3', '#addd8e', '#78c679', '#41ab5d', '#238443', '#006837'],
+                trasporti: ['#ffffcc', '#ffeda0', '#fed976', '#feb24c', '#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026']
+            };
+
+            const palette = colorPalettes[themeId] || colorPalettes.popolazione;
+            
+            // Crea l'espressione di colorazione per MapLibre
+            const expression = [
+                'case',
+                ['==', ['get', 'nome'], 'Kalsa'], palette[0],
+                ['==', ['get', 'nome'], 'Albergheria'], palette[1],
+                ['==', ['get', 'nome'], 'Capo'], palette[2],
+                ['==', ['get', 'nome'], 'Vucciria'], palette[3],
+                ['==', ['get', 'nome'], 'Tribunali'], palette[4],
+                ['==', ['get', 'nome'], 'Olivella'], palette[5],
+                ['==', ['get', 'nome'], 'Castellammare'], palette[6],
+                ['==', ['get', 'nome'], 'Palazzo Reale'], palette[7],
+                palette[0] // default
+            ];
+
+            map.setPaintProperty('zornade-layer', 'fill-color', expression);
+            map.setPaintProperty('zornade-layer', 'fill-opacity', 0.7);
+            
+            updateLegend(themeId, palette);
+        }
+
+        // Aggiorna la legenda
+        function updateLegend(themeId, palette) {
+            const legend = document.getElementById('legend');
+            const legendItems = document.getElementById('legend-items');
+            
+            if (!stats[themeId]) return;
+
+            const { min, max } = stats[themeId];
+            const step = (max - min) / (palette.length - 1);
+            
+            legendItems.innerHTML = '';
+            
+            for (let i = palette.length - 1; i >= 0; i--) {
+                const value = min + (step * i);
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background-color: ${palette[i]}"></div>
+                    <span>${Math.round(value)}</span>
+                `;
+                legendItems.appendChild(item);
+            }
+            
+            legend.style.display = 'block';
+        }
+
+        // Pulisci tematizzazione
+        function clearTheme() {
+            currentTheme = '';
+            map.setPaintProperty('zornade-layer', 'fill-color', 'transparent');
+            document.getElementById('legend').style.display = 'none';
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Click sul layer
+            map.on('click', 'zornade-layer', (e) => {
+                if (e.features.length > 0) {
+                    const feature = e.features[0];
+                    showFeatureDetails(feature);
+                }
+            });
+
+            // Hover effect
+            map.on('mouseenter', 'zornade-layer', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            map.on('mouseleave', 'zornade-layer', () => {
+                map.getCanvas().style.cursor = '';
+            });
+        }
+
+        // Mostra dettagli della feature
+        function showFeatureDetails(feature) {
+            const properties = feature.properties;
+            const zoneName = properties.nome || `Zona ${Math.floor(Math.random() * 100)}`;
+            
+            let detailsHtml = `
+                <div class="feature-info">
+                    <h3>${zoneName}</h3>
+                    <div class="info-grid">
+            `;
+
+            if (currentTheme && layerData[currentTheme]) {
+                const value = layerData[currentTheme][zoneName] || Math.floor(Math.random() * 1000);
+                const themeLabel = document.querySelector(`#theme-select option[value="${currentTheme}"]`).textContent;
+                
+                detailsHtml += `
+                    <div class="info-item">
+                        <div class="info-label">${themeLabel}</div>
+                        <div class="info-value">${value}</div>
+                    </div>
+                `;
+            }
+
+            // Aggiungi altri dati della zona
+            Object.keys(layerData).forEach(key => {
+                if (key !== currentTheme) {
+                    const value = layerData[key][zoneName] || Math.floor(Math.random() * 500);
+                    const label = document.querySelector(`#theme-select option[value="${key}"]`)?.textContent || key;
+                    
+                    detailsHtml += `
+                        <div class="info-item">
+                            <div class="info-label">${label}</div>
+                            <div class="info-value">${value}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            detailsHtml += `</div></div>`;
+
+            // Aggiungi statistiche generali
+            if (currentTheme && stats[currentTheme]) {
+                const stat = stats[currentTheme];
+                detailsHtml += `
+                    <div class="stats-panel">
+                        <div class="stats-title">Statistiche Tema Corrente</div>
+                        <div class="stats-item">
+                            <span>Minimo:</span>
+                            <span>${Math.round(stat.min)}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>Massimo:</span>
+                            <span>${Math.round(stat.max)}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>Media:</span>
+                            <span>${Math.round(stat.avg)}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>Totale:</span>
+                            <span>${Math.round(stat.total)}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('sidebar').innerHTML = detailsHtml;
+        }
+
+        // Inizializza l'applicazione
+        initMap();
     </script>
 </body>
 </html>
