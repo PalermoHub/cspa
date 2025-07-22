@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mappa con PMTiles</title>
+    <title>Mappa Centro Storico di Palermo</title>
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css " />
     <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js "></script>
     <style>
@@ -33,20 +33,49 @@
                         id: 'territorial-data',
                         type: 'fill',
                         source: 'pmtilesSource',
-                        'source-layer': 'layer_name', // Nome del layer nel file PMTiles
+                        'source-layer': 'nome_corretto_del_layer', // Modifica con il nome del layer
                         paint: {
-                            'fill-color': '#888888',
-                            'fill-opacity': 0.5
+                            'fill-color': '#ff0000', // Cambia il colore per evidenziare i dati
+                            'fill-opacity': 0.7
                         }
                     }
                 ]
             },
-            center: [13.36435, 38.11144], // Centro su Palermo
-            zoom: 10
+            center: [13.3613, 38.1157], // Centro sul centro storico di Palermo
+            zoom: 10 // Zoom molto vicino
         });
 
         // Aggiungi controlli alla mappa
         map.addControl(new maplibregl.NavigationControl());
+
+        // Evidenzia il centro storico (opzionale)
+        map.on('load', () => {
+            map.addLayer({
+                id: 'highlight-center',
+                type: 'circle',
+                source: {
+                    type: 'geojson',
+                    data: {
+                        type: 'FeatureCollection',
+                        features: [
+                            {
+                                type: 'Feature',
+                                geometry: {
+                                    type: 'Point',
+                                    coordinates: [13.3613, 38.1157] // Centro storico di Palermo
+                                }
+                            }
+                        ]
+                    }
+                },
+                paint: {
+                    'circle-radius': 10,
+                    'circle-color': '#0000ff',
+                    'circle-stroke-width': 2,
+                    'circle-stroke-color': '#ffffff'
+                }
+            });
+        });
     </script>
 </body>
 </html>
