@@ -300,6 +300,43 @@
             [13.39, 38.14]
         ];
 
+        // Definizione stili dal file QML (preso da index_base_deepseek.html)
+        const classStyles = {
+            "developed": "rgba(250,240,230,0.75)",
+            "horticulture": "rgba(192,192,192,0.75)",
+            "military": "rgba(85,107,47,0.75)",
+            "park": "rgba(124,252,0,0.75)",
+            "pedestrian": "rgba(192,192,192,0.75)",
+            "protected": "rgba(192,192,192,0.75)",
+            "recreation": "rgba(255,182,193,0.75)",
+            "religious": "rgba(230,230,250,0.75)",
+            "residential": "rgba(255,230,153,0.75)",
+            "agriculture": "rgba(31,235,103,0.75)",
+            "education": "rgba(255,239,213,0.75)",
+            "entertainment": "rgba(192,192,192,0.75)",
+            "medical": "rgba(222,37,37,0.75)",
+            "transportation": "rgba(128,128,128,0.75)",
+            "": "rgba(240,240,240,0.75)"  // No Classification Data
+        };
+
+        const classLabels = {
+            "developed": "Sviluppato",
+            "horticulture": "Orticoltura",
+            "military": "Militare",
+            "park": "Parco",
+            "pedestrian": "Pedonale",
+            "protected": "Protetto",
+            "recreation": "Ricreativo",
+            "religious": "Religioso",
+            "residential": "Residenziale",
+            "agriculture": "Agricolo",
+            "education": "Educazione",
+            "entertainment": "Intrattenimento",
+            "medical": "Medico",
+            "transportation": "Trasporti",
+            "": "Dati mancanti"
+        };
+
         // Inizializza mappa
         const map = new maplibregl.Map({
             container: 'map',
@@ -346,10 +383,6 @@
             pitch: 0,
             dragRotate: false
         });
-
-
-
-
 
         // Configurazioni tematizzazioni con colori distinti e gradienti corretti
         const themes = {
@@ -422,15 +455,34 @@
                 url: 'pmtiles://https://palermohub.github.io/cspa/dati/zornade_pacs.pmtiles'
             });
             
-            // Layer base - bianco con trasparenza 50% e bordo nero sottile
+            // Layer base - tematizzazione originale (sostituito con versione da index_base_deepseek.html)
             map.addLayer({
                 id: 'pacs-base',
                 type: 'fill',
                 source: 'zornade_pacs',
                 'source-layer': 'zornade_pacs',
                 paint: {
-                    'fill-color': '#ffffff',
-                    'fill-opacity': 0.5
+                    'fill-color': [
+                        'match',
+                        ['get', 'class'],
+                        'developed', classStyles.developed,
+                        'horticulture', classStyles.horticulture,
+                        'military', classStyles.military,
+                        'park', classStyles.park,
+                        'pedestrian', classStyles.pedestrian,
+                        'protected', classStyles.protected,
+                        'recreation', classStyles.recreation,
+                        'religious', classStyles.religious,
+                        'residential', classStyles.residential,
+                        'agriculture', classStyles.agriculture,
+                        'education', classStyles.education,
+                        'entertainment', classStyles.entertainment,
+                        'medical', classStyles.medical,
+                        'transportation', classStyles.transportation,
+                        classStyles[''] // default
+                    ],
+                    'fill-opacity': 0.75,
+                    'fill-antialias': true
                 }
             });
 
@@ -510,10 +562,6 @@
         });
 
         // Funzioni tematizzazione - corrette per gradienti dinamici
-		
-		
-		
-		
         function applyTheme(themeKey) {
             const theme = themes[themeKey];
             if (!theme) return;
@@ -579,7 +627,7 @@
             }
             
             // Ripristina il layer base
-            map.setPaintProperty('pacs-base', 'fill-opacity', 0.5);
+            map.setPaintProperty('pacs-base', 'fill-opacity', 0.75);
             currentTheme = null;
             hideLegenda();
         }
@@ -622,9 +670,56 @@
             legend.classList.add('visible');
         }
 
-        function hideLegenda() {
+function hideLegenda() {
             document.getElementById('legend').classList.remove('visible');
         }
+        
+        // Nuova funzione per mostrare la legenda di base
+        function showBaseLegend() {
+            const legend = document.getElementById('legend');
+            const title = document.getElementById('legend-title');
+            const items = document.getElementById('legend-items');
+            
+            title.textContent = 'Classi di Utilizzo';
+            items.innerHTML = '';
+            
+            for (const [className, color] of Object.entries(classStyles)) {
+                const label = classLabels[className];
+                
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                
+                item.innerHTML = `
+                    <div class="legend-color" style="background-color: ${color}"></div>
+                    <span class="legend-label">${label}</span>
+                `;
+                items.appendChild(item);
+            }
+            
+            legend.classList.add('visible');
+        }
+
+        function removeTheme() {
+            // Rimuovi il layer tematico se esiste
+            if (map.getLayer('pacs-thematic')) {
+                map.removeLayer('pacs-thematic');
+            }
+            
+            // Ripristina il layer base
+            map.setPaintProperty('pacs-base', 'fill-opacity', 0.75);
+            currentTheme = null;
+            
+            // Mostra la legenda di base
+            showBaseLegend();
+        }
+
+        // Nel caricamento della mappa, aggiungi questo alla fine:
+        map.on('load', function() {
+            // Codice precedente invariato...
+            
+            // Mostra la legenda di base all'inizializzazione
+            showBaseLegend();
+        });
 
         // Pannello informazioni
         function showFeatureInfo(feature) {

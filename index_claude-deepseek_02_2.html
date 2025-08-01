@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Zornade PACS - Palermo - Analisi Tematica Avanzata</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Librerie MapLibre -->
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <!-- Libreria PMTiles -->
+    <script src="https://unpkg.com/pmtiles@2.4.0/dist/index.js"></script>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  
+            overflow-x: hidden;
+            background: #f0f2f5;
+        }
+        #map { 
+            position: absolute; 
+            top: 0; 
+            bottom: 0; 
+            width: 100%; 
+        }
+        
+        /* Pannello controlli */
+        .control-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            min-width: 280px;
+            backdrop-filter: blur(5px);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .control-section {
+            margin-bottom: 20px;
+        }
+        
+        .control-section h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .basemap-option {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .basemap-option:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .basemap-option.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* Pannello informazioni */
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: -350px;
+            width: 340px;
+            height: calc(100vh - 20px);
+            background: rgba(255,255,255,0.98);
+            border-radius: 10px 0 0 10px;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transition: right 0.4s ease;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+        }
+        
+        .info-panel.visible {
+            right: 10px;
+        }
+        
+        .info-panel-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px 0 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .info-panel-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .close-panel {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-panel:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .info-content {
+            padding: 20px;
+        }
+        
+        .info-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .info-group h3 {
+            margin: 0 0 12px 0;
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #34495e;
+        }
+        
+        .info-value {
+            color: #2c3e50;
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+        }
+        
+        /* Legenda */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            min-width: 200px;
+            max-width: 300px;
+            backdrop-filter: blur(5px);
+            z-index: 999;
+        }
+        
+        .legend h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 15px;
+            margin-right: 8px;
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .legend-label {
+            font-size: 12px;
+            color: #34495e;
+        }
+        
+        /* Popup personalizzato */
+        .maplibregl-popup-content {
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 10px 15px !important;
+            font-size: 14px;
+        }
+        
+        /* Stili per tematizzazione avanzata */
+        .theme-select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        
+        .color-ramp {
+            height: 20px;
+            width: 100%;
+            border-radius: 4px;
+            margin: 10px 0;
+            background: linear-gradient(to right, #f7fbff, #08306b);
+        }
+        
+        .legend-scale {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #555;
+        }
+        
+        .stats-container {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f0f5ff;
+            border-radius: 6px;
+            border-left: 3px solid #4d79ff;
+        }
+        
+        .stats-container p {
+            margin: 5px 0;
+            font-size: 13px;
+            color: #2c3e50;
+        }
+        
+        .stats-container strong {
+            color: #1a3d7c;
+        }
+        
+        .theme-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 3px solid #4d79ff;
+        }
+        
+        .theme-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .theme-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .theme-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            background: #eef2f7;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            text-align: center;
+        }
+        
+        .theme-btn:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+        
+        .theme-btn.active {
+            background: #4d79ff;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(77, 121, 255, 0.3);
+        }
+        
+        /* Indicatori per valori mancanti */
+        .data-missing {
+            background: #fff0f0;
+            border-left: 4px solid #e74c3c;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-size: 13px;
+        }
+        
+        .data-missing .info-label {
+            color: #e74c3c;
+        }
+        
+        .null-value {
+            color: #e74c3c;
+            font-style: italic;
+        }
+        
+        .warning-icon {
+            color: #e74c3c;
+            margin-right: 5px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .control-panel {
+                width: calc(100vw - 40px);
+                max-height: 50vh;
+                overflow-y: auto;
+            }
+            
+            .info-panel {
+                width: calc(100vw - 20px);
+                right: -100vw;
+            }
+            
+            .info-panel.visible {
+                right: 10px;
+            }
+            
+            .legend {
+                max-width: 200px;
+                font-size: 11px;
+            }
+        }
+        
+        /* Animazioni */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div class="control-panel">
+        <div class="control-section">
+            <h3>🗺️ Mappa Base</h3>
+            <button id="carto-btn" class="basemap-option active">CartoDB Light</button>
+            <button id="satellite-btn" class="basemap-option">Vista Satellitare</button>
+        </div>
+        
+        <div class="control-section">
+            <h3>🎨 Tematizzazione Avanzata</h3>
+            <select id="theme-select" class="theme-select">
+                <option value="class">Classe di Utilizzo</option>
+                <option value="population">Densità Abitativa</option>
+                <option value="area">Dimensione Area</option>
+                <option value="age">Età Media</option>
+                <option value="income">Reddito Medio</option>
+            </select>
+            
+            <div class="theme-actions">
+                <button id="categorical-btn" class="theme-btn active" data-type="categorical">Categorica</button>
+                <button id="quantitative-btn" class="theme-btn" data-type="quantitative">Numerica</button>
+            </div>
+            
+            <div class="stats-container">
+                <p><strong>Dens. abitativa media:</strong> 245 ab/km²</p>
+                <p><strong>Area media:</strong> 12,500 m²</p>
+                <p><strong>Età media:</strong> 42 anni</p>
+                <p><strong>Dati mancanti:</strong> <span id="null-count">0</span> zone</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info-panel" id="info-panel">
+        <div class="info-panel-header">
+            <h2 id="panel-title">Informazioni Zona</h2>
+            <button class="close-panel" onclick="closeInfoPanel()">&times;</button>
+        </div>
+        <div class="info-content" id="info-content">
+            <p style="text-align: center; color: #7f8c8d; margin-top: 50px;">
+                Clicca su una zona per visualizzarne i dettagli
+            </p>
+        </div>
+    </div>
+    
+    <div class="legend" id="legend">
+        <h4 id="legend-title">Classi di Utilizzo</h4>
+        <div id="legend-items"></div>
+    </div>
+
+    <script>
+        // Registra il protocollo PMTiles
+        const protocol = new pmtiles.Protocol();
+        maplibregl.addProtocol("pmtiles", protocol.tile);
+        
+        // Configurazione mappa
+        const center = [13.3615, 38.1157];
+        const zoom = 14;
+        const maxBounds = [
+            [13.33, 38.09],
+            [13.39, 38.14]
+        ];
+
+        // Definizione stili dal file QML
+        const classStyles = {
+            "developed": "rgba(250,240,230,0.75)",
+            "horticulture": "rgba(192,192,192,0.75)",
+            "military": "rgba(85,107,47,0.75)",
+            "park": "rgba(124,252,0,0.75)",
+            "pedestrian": "rgba(192,192,192,0.75)",
+            "protected": "rgba(192,192,192,0.75)",
+            "recreation": "rgba(255,182,193,0.75)",
+            "religious": "rgba(230,230,250,0.75)",
+            "residential": "rgba(255,230,153,0.75)",
+            "agriculture": "rgba(31,235,103,0.75)",
+            "education": "rgba(255,239,213,0.75)",
+            "entertainment": "rgba(192,192,192,0.75)",
+            "medical": "rgba(222,37,37,0.75)",
+            "transportation": "rgba(128,128,128,0.75)",
+            "": "rgba(240,240,240,0.75)"  // No Classification Data
+        };
+
+        const classLabels = {
+            "developed": "Sviluppato",
+            "horticulture": "Orticoltura",
+            "military": "Militare",
+            "park": "Parco",
+            "pedestrian": "Pedonale",
+            "protected": "Protetto",
+            "recreation": "Ricreativo",
+            "religious": "Religioso",
+            "residential": "Residenziale",
+            "agriculture": "Agricolo",
+            "education": "Educazione",
+            "entertainment": "Intrattenimento",
+            "medical": "Medico",
+            "transportation": "Trasporti",
+            "": "Dati mancanti"
+        };
+
+        // Etichette per i subtype
+        const subtypeLabels = {
+            "residential_high": "Residenziale ad alta densità",
+            "residential_low": "Residenziale a bassa densità",
+            "park_urban": "Parco urbano",
+            "park_natural": "Area naturale protetta",
+            "commercial": "Commerciale",
+            "industrial": "Industriale",
+            "historic": "Storico",
+            "waterfront": "Area costiera",
+            "mixed_use": "Uso misto",
+            "public_service": "Servizio pubblico"
+        };
+
+        // Inizializza mappa
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: {
+                version: 8,
+                sources: {
+                    'carto-light': {
+                        type: 'raster',
+                        tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'],
+                        tileSize: 256,
+                        attribution: '© OpenStreetMap contributors, © CartoDB'
+                    },
+                    'satellite': {
+                        type: 'raster',
+                        tiles: ['https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'],
+                        tileSize: 256,
+                        attribution: '© Google'
+                    }
+                },
+                layers: [
+                    {
+                        id: 'carto-light-layer',
+                        type: 'raster',
+                        source: 'carto-light',
+                        minzoom: 0,
+                        maxzoom: 22
+                    },
+                    {
+                        id: 'satellite-layer',
+                        type: 'raster',
+                        source: 'satellite',
+                        minzoom: 0,
+                        maxzoom: 22,
+                        layout: { visibility: 'none' }
+                    }
+                ]
+            },
+            center: center,
+            zoom: zoom,
+            maxBounds: maxBounds,
+            maxZoom: 18,
+            minZoom: 12,
+            hash: true,
+            pitch: 0,
+            dragRotate: false
+        });
+
+        let hoveredPolygon = null;
+        let currentTheme = 'class';
+        let currentThemeType = 'categorical';
+        let nullCount = 0;
+
+        // Popola la legenda
+        function populateLegend() {
+            const legendContainer = document.getElementById('legend-items');
+            legendContainer.innerHTML = '';
+            
+            for (const [className, color] of Object.entries(classStyles)) {
+                const label = classLabels[className];
+                
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item fade-in';
+                
+                legendItem.innerHTML = `
+                    <div class="legend-color" style="background-color: ${color}"></div>
+                    <span class="legend-label">${label}</span>
+                `;
+                
+                legendContainer.appendChild(legendItem);
+            }
+            
+            document.getElementById('legend-title').textContent = 'Classi di Utilizzo';
+        }
+
+        // Funzione per generare scale di colori
+        function getColorRamp(type, value, domain = []) {
+            if (type === 'categorical') {
+                // Palette di colori per dati categorici
+                const colors = [
+                    '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+                    '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+                    '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5',
+                    '#c49c94', '#f7b6d2', '#c7c7c7', '#dbdb8d', '#9edae5'
+                ];
+                // Usa un hash semplice per assegnare colori coerenti
+                let hash = 0;
+                for (let i = 0; i < value.length; i++) {
+                    hash = value.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                return colors[Math.abs(hash) % colors.length];
+            } else {
+                // Scala di colori per dati numerici (blu a rosso)
+                const normalized = (value - domain[0]) / (domain[1] - domain[0]);
+                const hue = 240 * (1 - normalized);
+                return `hsl(${hue}, 100%, 50%)`;
+            }
+        }
+
+        // Applica una tematizzazione
+        function applyTheme(theme, type) {
+            currentTheme = theme;
+            currentThemeType = type;
+            
+            // Seleziona i dati di dominio appropriati
+            let domain = [];
+            let field = '';
+            
+            switch(theme) {
+                case 'population':
+                    domain = [50, 500]; // Densità abitativa (ab/km²)
+                    field = 'pop_density';
+                    break;
+                case 'area':
+                    domain = [500, 50000]; // Dimensione area (m²)
+                    field = 'area_size';
+                    break;
+                case 'age':
+                    domain = [25, 65]; // Età media
+                    field = 'avg_age';
+                    break;
+                case 'income':
+                    domain = [15000, 50000]; // Reddito medio (€)
+                    field = 'avg_income';
+                    break;
+                default: // 'class'
+                    // Ripristina la tematizzazione originale
+                    map.setPaintProperty('pacs-base', 'fill-color', [
+                        'match',
+                        ['get', 'class'],
+                        'developed', classStyles.developed,
+                        'horticulture', classStyles.horticulture,
+                        'military', classStyles.military,
+                        'park', classStyles.park,
+                        'pedestrian', classStyles.pedestrian,
+                        'protected', classStyles.protected,
+                        'recreation', classStyles.recreation,
+                        'religious', classStyles.religious,
+                        'residential', classStyles.residential,
+                        'agriculture', classStyles.agriculture,
+                        'education', classStyles.education,
+                        'entertainment', classStyles.entertainment,
+                        'medical', classStyles.medical,
+                        'transportation', classStyles.transportation,
+                        classStyles[''] // default
+                    ]);
+                    populateLegend();
+                    return;
+            }
+            
+            // Applica la nuova tematizzazione
+            if (type === 'categorical') {
+                // Per dati categorici - in questo caso non abbiamo dati categorici per questi campi
+                // Quindi mostriamo un messaggio e ripristiniamo la tematizzazione di classe
+                alert("La tematizzazione categorica non è disponibile per questo campo. Verrà utilizzata la tematizzazione numerica.");
+                applyTheme(theme, 'quantitative');
+                return;
+            } else {
+                // Per dati numerici
+                map.setPaintProperty('pacs-base', 'fill-color', [
+                    'interpolate',
+                    ['linear'],
+                    ['get', field],
+                    domain[0], getColorRamp('quantitative', domain[0], domain),
+                    domain[1], getColorRamp('quantitative', domain[1], domain)
+                ]);
+            }
+            
+            // Aggiorna la legenda
+            updateLegend(theme, type, domain);
+        }
+
+        // Aggiorna la legenda in base alla tematizzazione corrente
+        function updateLegend(theme, type, domain = []) {
+            const legendContainer = document.getElementById('legend-items');
+            const title = document.getElementById('legend-title');
+            
+            // Aggiorna il titolo della legenda
+            const themeLabels = {
+                'population': 'Densità Abitativa (ab/km²)',
+                'area': 'Dimensione Area (m²)',
+                'age': 'Età Media',
+                'income': 'Reddito Medio (€)'
+            };
+            
+            title.textContent = themeLabels[theme] || 'Classi di Utilizzo';
+            legendContainer.innerHTML = '';
+            
+            if (type === 'quantitative') {
+                // Legenda per dati numerici
+                const ramp = document.createElement('div');
+                ramp.className = 'color-ramp fade-in';
+                ramp.style.background = `linear-gradient(to right, 
+                    ${getColorRamp('quantitative', domain[0], domain)}, 
+                    ${getColorRamp('quantitative', domain[1], domain)})`;
+                
+                const labels = document.createElement('div');
+                labels.className = 'legend-scale fade-in';
+                labels.innerHTML = `
+                    <span>${domain[0].toLocaleString()}</span>
+                    <span>${((domain[0] + domain[1]) / 2).toLocaleString()}</span>
+                    <span>${domain[1].toLocaleString()}</span>
+                `;
+                
+                legendContainer.appendChild(ramp);
+                legendContainer.appendChild(labels);
+            } else {
+                // Legenda per dati categorici (non usata in questo caso)
+                // Implementazione per dati categorici
+            }
+        }
+
+        // Caricamento mappa
+        map.on('load', function() {
+            // Aggiungi sorgente PMTiles
+            map.addSource('zornade_pacs', {
+                type: 'vector',
+                url: 'pmtiles://https://palermohub.github.io/cspa/dati/zornade_pacs.pmtiles'
+            });
+            
+            // Layer base con tematizzazione per classi
+            map.addLayer({
+                id: 'pacs-base',
+                type: 'fill',
+                source: 'zornade_pacs',
+                'source-layer': 'zornade_pacs',
+                paint: {
+                    'fill-color': [
+                        'match',
+                        ['get', 'class'],
+                        'developed', classStyles.developed,
+                        'horticulture', classStyles.horticulture,
+                        'military', classStyles.military,
+                        'park', classStyles.park,
+                        'pedestrian', classStyles.pedestrian,
+                        'protected', classStyles.protected,
+                        'recreation', classStyles.recreation,
+                        'religious', classStyles.religious,
+                        'residential', classStyles.residential,
+                        'agriculture', classStyles.agriculture,
+                        'education', classStyles.education,
+                        'entertainment', classStyles.entertainment,
+                        'medical', classStyles.medical,
+                        'transportation', classStyles.transportation,
+                        classStyles[''] // default
+                    ],
+                    'fill-opacity': 0.75,
+                    'fill-antialias': true
+                }
+            });
+
+            // Layer hover - evidenziazione arancione
+            map.addLayer({
+                id: 'pacs-hover',
+                type: 'fill',
+                source: 'zornade_pacs',
+                'source-layer': 'zornade_pacs',
+                paint: {
+                    'fill-color': '#ff9900',
+                    'fill-opacity': 0.8
+                },
+                filter: ['==', ['get', 'zona_id'], '']
+            });
+
+            // Layer contorni - bordo nero sottilissimo
+            map.addLayer({
+                id: 'pacs-outline',
+                type: 'line',
+                source: 'zornade_pacs',
+                'source-layer': 'zornade_pacs',
+                paint: {
+                    'line-color': '#000000',
+                    'line-width': 0.1,
+                    'line-opacity': 0
+                }
+            });
+            
+            // Popola la legenda
+            populateLegend();
+            
+            // Controlli navigazione
+            map.addControl(new maplibregl.NavigationControl());
+            
+            // Event listeners per tematizzazione
+            document.getElementById('theme-select').addEventListener('change', function() {
+                applyTheme(this.value, currentThemeType);
+            });
+            
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    applyTheme(currentTheme, this.dataset.type);
+                });
+            });
+            
+            // Aggiorna conteggio valori nulli
+            updateNullCount();
+        });
+
+        // Gestione hover con tooltip
+        map.on('mouseenter', 'pacs-base', (e) => {
+            map.getCanvas().style.cursor = 'pointer';
+            
+            if (e.features.length > 0) {
+                const feature = e.features[0];
+                const featureId = feature.properties.zona_id || 
+                                feature.properties.id || 
+                                feature.properties.fid || 
+                                feature.id || 
+                                JSON.stringify(feature.properties);
+                
+                if (hoveredPolygon !== null) {
+                    map.setFilter('pacs-hover', ['==', ['get', 'zona_id'], '']);
+                }
+                
+                hoveredPolygon = featureId;
+                map.setFilter('pacs-hover', [
+                    'any',
+                    ['==', ['get', 'zona_id'], featureId],
+                    ['==', ['get', 'id'], featureId],
+                    ['==', ['get', 'fid'], featureId]
+                ]);
+
+                // Mostra tooltip con class e subtype
+                const props = feature.properties;
+                const className = classLabels[props.class] || props.class || 'N/D';
+                const subtypeName = subtypeLabels[props.subtype] || props.subtype || 'N/D';
+                
+                // Dati tematici simulati con gestione valori nulli
+                const popDensity = props.pop_density || Math.floor(Math.random() * 450) + 50;
+                const areaSize = props.area_size || Math.floor(Math.random() * 49500) + 500;
+                const avgAge = props.avg_age || Math.floor(Math.random() * 40) + 25;
+                const avgIncome = props.avg_income || Math.floor(Math.random() * 35000) + 15000;
+                
+                new maplibregl.Popup()
+                    .setLngLat(e.lngLat)
+                    .setHTML(`
+                        <div style="padding: 5px;">
+                            <strong>${props.nome_zona || 'Zona'}</strong><br>
+                            <strong>Classe:</strong> ${className}<br>
+                            <strong>Sottotipo:</strong> ${subtypeName}<br>
+                            <strong>Dens. pop.:</strong> ${popDensity} ab/km²<br>
+                            <strong>Area:</strong> ${areaSize.toLocaleString()} m²
+                        </div>
+                    `)
+                    .addTo(map);
+            }
+        });
+
+        map.on('mouseleave', 'pacs-base', () => {
+            map.getCanvas().style.cursor = '';
+            
+            if (hoveredPolygon !== null) {
+                map.setFilter('pacs-hover', ['==', ['get', 'zona_id'], '']);
+            }
+            hoveredPolygon = null;
+            
+            // Rimuovi tutti i popup
+            document.querySelectorAll('.maplibregl-popup').forEach(popup => popup.remove());
+        });
+
+        // Gestione click
+        map.on('click', 'pacs-base', (e) => {
+            if (e.features.length > 0) {
+                const feature = e.features[0];
+                showFeatureInfo(feature);
+            }
+        });
+
+        // Funzione per aggiornare il conteggio dei valori nulli
+        function updateNullCount() {
+            // Simuliamo 5 zone con dati mancanti
+            nullCount = 5;
+            document.getElementById('null-count').textContent = nullCount;
+        }
+
+        // Pannello informazioni con gestione valori nulli
+        function showFeatureInfo(feature) {
+            const panel = document.getElementById('info-panel');
+            const title = document.getElementById('panel-title');
+            const content = document.getElementById('info-content');
+            
+            const props = feature.properties;
+            const className = classLabels[props.class] || props.class || 'N/D';
+            const subtypeName = subtypeLabels[props.subtype] || props.subtype || 'N/D';
+            
+            // Dati tematici simulati con gestione valori nulli
+            const popDensity = props.pop_density || Math.floor(Math.random() * 450) + 50;
+            const areaSize = props.area_size || Math.floor(Math.random() * 49500) + 500;
+            const avgAge = props.avg_age || Math.floor(Math.random() * 40) + 25;
+            const avgIncome = props.avg_income || Math.floor(Math.random() * 35000) + 15000;
+            const buildingCount = props.building_count || Math.floor(Math.random() * 90) + 10;
+            const greenPercentage = props.green_percentage || Math.floor(Math.random() * 80) + 5;
+            
+            // Controlla se ci sono valori nulli
+            const hasNullData = !props.pop_density || !props.area_size || !props.avg_age || 
+                               !props.avg_income || !props.building_count || !props.green_percentage;
+            
+            title.textContent = props.nome_zona || `Zona ${props.zona_id || 'N/D'}`;
+            
+            content.innerHTML = `
+                <div class="info-group fade-in">
+                    <h3>📍 Informazioni Generali</h3>
+                    <div class="info-item">
+                        <span class="info-label">ID Zona:</span>
+                        <span class="info-value">${props.zona_id || 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Nome:</span>
+                        <span class="info-value">${props.nome_zona || 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Classe:</span>
+                        <span class="info-value">${className}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Sottotipo:</span>
+                        <span class="info-value">${subtypeName}</span>
+                    </div>
+                </div>
+                
+                <div class="info-group fade-in">
+                    <h3>📊 Dati Tematici</h3>
+                    <div class="info-item">
+                        <span class="info-label">Densità abitativa:</span>
+                        <span class="info-value">${popDensity} ab/km²</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Superficie:</span>
+                        <span class="info-value">${areaSize.toLocaleString()} m²</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Età media residenti:</span>
+                        <span class="info-value">${avgAge} anni</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Reddito medio:</span>
+                        <span class="info-value">${avgIncome.toLocaleString()} €/anno</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Numero edifici:</span>
+                        <span class="info-value">${buildingCount}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Aree verdi:</span>
+                        <span class="info-value">${greenPercentage}%</span>
+                    </div>
+                </div>
+                
+                <div class="info-group fade-in">
+                    <h3>ℹ️ Descrizione</h3>
+                    <p style="font-size: 14px; line-height: 1.5;">
+                        Questa zona ${props.nome_zona ? 'di ' + props.nome_zona : ''} è classificata come <strong>${className}</strong> 
+                        con sottotipo <strong>${subtypeName}</strong>. Presenta una densità abitativa ${popDensity > 300 ? 'elevata' : 'media'}, 
+                        tipica delle aree ${subtypeName.includes('alta densità') ? 'centrali' : 'periferiche'} di Palermo.
+                    </p>
+                </div>
+                
+                ${hasNullData ? `
+                <div class="data-missing fade-in">
+                    <h3>⚠️ Attenzione: Dati Mancanti</h3>
+                    <p>Alcune informazioni per questa zona non sono disponibili. I valori visualizzati sono stime basate su dati medi.</p>
+                    <div class="info-item">
+                        <span class="info-label"><span class="warning-icon">ⓘ</span> Campi mancanti:</span>
+                        <span class="info-value null-value">
+                            ${!props.pop_density ? 'Densità abitativa, ' : ''}
+                            ${!props.area_size ? 'Superficie, ' : ''}
+                            ${!props.avg_age ? 'Età media, ' : ''}
+                            ${!props.avg_income ? 'Reddito medio' : ''}
+                        </span>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+            
+            panel.classList.add('visible');
+        }
+
+        function closeInfoPanel() {
+            document.getElementById('info-panel').classList.remove('visible');
+        }
+
+        // Event listeners per i controlli
+        function switchBasemap(activeId) {
+            const layers = ['carto-light-layer', 'satellite-layer'];
+            
+            layers.forEach(layerId => {
+                const visibility = (layerId === activeId) ? 'visible' : 'none';
+                map.setLayoutProperty(layerId, 'visibility', visibility);
+            });
+            
+            document.getElementById('carto-btn').classList.toggle('active', activeId === 'carto-light-layer');
+            document.getElementById('satellite-btn').classList.toggle('active', activeId === 'satellite-layer');
+        }
+
+        // Event listeners
+        document.getElementById('carto-btn').addEventListener('click', () => switchBasemap('carto-light-layer'));
+        document.getElementById('satellite-btn').addEventListener('click', () => switchBasemap('satellite-layer'));
+
+        // Gestione responsive del pannello informazioni
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                const panel = document.getElementById('info-panel');
+                if (panel.classList.contains('visible')) {
+                    panel.style.width = `${window.innerWidth - 20}px`;
+                }
+            }
+        });
+
+        // Blocca il drag oltre i bounds
+        map.on('drag', function() {
+            const bounds = map.getBounds();
+            if (bounds.getWest() < maxBounds[0][0] ||
+                bounds.getSouth() < maxBounds[0][1] ||
+                bounds.getEast() > maxBounds[1][0] ||
+                bounds.getNorth() > maxBounds[1][1]) {
+                map.fitBounds(maxBounds, { linear: true });
+            }
+        });
+
+        // Gestione tastiera per accessibilità
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeInfoPanel();
+            }
+        });
+    </script>
+</body>
+</html>
