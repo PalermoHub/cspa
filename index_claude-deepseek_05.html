@@ -9,11 +9,14 @@
     <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
     <!-- Libreria PMTiles -->
     <script src="https://unpkg.com/pmtiles@2.4.0/dist/index.js"></script>
+    <!-- Libreria per calcoli statistici -->
+    <script src="https://unpkg.com/simple-statistics@7.8.0/dist/simple-statistics.min.js"></script>
     <style>
         body { 
             margin: 0; 
             padding: 0; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;     
+            overflow-x: hidden;
         }
         #map { 
             position: absolute; 
@@ -29,10 +32,10 @@
             left: 10px;
             z-index: 1000;
             background: rgba(255,255,255,0.95);
-            padding: 15px;
+            padding: 10px;
             border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            min-width: 280px;
+            min-width: 130px;
             backdrop-filter: blur(5px);
         }
         
@@ -53,12 +56,12 @@
             display: block;
             width: 100%;
             margin: 5px 0;
-            padding: 10px 15px;
+            padding: 6px 15px;
             background: #f8f9fa;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 10px;
             text-align: left;
             transition: all 0.3s ease;
             position: relative;
@@ -83,7 +86,7 @@
             top: 10px;
             right: -350px;
             width: 340px;
-            height: calc(100vh - 20px);
+            height: calc(100vh - 40px);
             background: rgba(255,255,255,0.98);
             border-radius: 10px 0 0 10px;
             box-shadow: -5px 0 25px rgba(0,0,0,0.15);
@@ -183,10 +186,10 @@
             bottom: 20px;
             left: 20px;
             background: rgba(255,255,255,0.95);
-            padding: 15px;
+            padding: 6px;
             border-radius: 8px;
             box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-            min-width: 200px;
+            min-width: 130px;
             backdrop-filter: blur(5px);
             display: none;
         }
@@ -217,7 +220,7 @@
         }
         
         .legend-label {
-            font-size: 12px;
+            font-size: 10px;
             color: #34495e;
         }
         
@@ -300,58 +303,44 @@
             [13.39, 38.14]
         ];
 
-        // Inizializza mappa
-        const map = new maplibregl.Map({
-            container: 'map',
-            style: {
-                version: 8,
-                sources: {
-                    'carto-light': {
-                        type: 'raster',
-                        tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'],
-                        tileSize: 256,
-                        attribution: '© OpenStreetMap contributors, © CartoDB'
-                    },
-                    'satellite': {
-                        type: 'raster',
-                        tiles: ['https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'],
-                        tileSize: 256,
-                        attribution: '© Google'
-                    }
-                },
-                layers: [
-                    {
-                        id: 'carto-light-layer',
-                        type: 'raster',
-                        source: 'carto-light',
-                        minzoom: 0,
-                        maxzoom: 18
-                    },
-                    {
-                        id: 'satellite-layer',
-                        type: 'raster',
-                        source: 'satellite',
-                        minzoom: 0,
-                        maxzoom: 18,
-                        layout: { visibility: 'none' }
-                    }
-                ]
-            },
-            center: center,
-            zoom: zoom,
-            maxBounds: maxBounds,
-            maxZoom: 18,
-            minZoom: 12,
-            hash: true,
-            pitch: 0,
-            dragRotate: false
-        });
+        // Definizione stili dal file QML
+        const classStyles = {
+            "developed": "rgba(250,240,230,0.75)",
+            "horticulture": "rgba(192,192,192,0.75)",
+            "military": "rgba(85,107,47,0.75)",
+            "park": "rgba(124,252,0,0.75)",
+            "pedestrian": "rgba(192,192,192,0.75)",
+            "protected": "rgba(192,192,192,0.75)",
+            "recreation": "rgba(255,182,193,0.75)",
+            "religious": "rgba(230,230,250,0.75)",
+            "residential": "rgba(255,230,153,0.75)",
+            "agriculture": "rgba(31,235,103,0.75)",
+            "education": "rgba(255,239,213,0.75)",
+            "entertainment": "rgba(192,192,192,0.75)",
+            "medical": "rgba(222,37,37,0.75)",
+            "transportation": "rgba(128,128,128,0.75)",
+            "": "rgba(240,240,240,0.75)"  // No Classification Data
+        };
 
+        const classLabels = {
+            "developed": "Sviluppato",
+            "horticulture": "Orticoltura",
+            "military": "Militare",
+            "park": "Parco",
+            "pedestrian": "Pedonale",
+            "protected": "Protetto",
+            "recreation": "Ricreativo",
+            "religious": "Religioso",
+            "residential": "Residenziale",
+            "agriculture": "Agricolo",
+            "education": "Educazione",
+            "entertainment": "Intrattenimento",
+            "medical": "Medico",
+            "transportation": "Trasporti",
+            "": "Dati mancanti"
+        };
 
-
-
-
-        // Configurazioni tematizzazioni con colori distinti e gradienti corretti
+        // Configurazioni tematizzazioni con colori distinti
         const themes = {
             population: {
                 name: 'Densità Popolazione',
@@ -414,6 +403,196 @@
         let currentTheme = null;
         let hoveredPolygon = null;
 
+        // Inizializza mappa
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: {
+                version: 8,
+                sources: {
+                    'carto-light': {
+                        type: 'raster',
+                        tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'],
+                        tileSize: 256,
+                        attribution: '© OpenStreetMap contributors, © CartoDB'
+                    },
+                    'satellite': {
+                        type: 'raster',
+                        tiles: ['https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'],
+                        tileSize: 256,
+                        attribution: '© Google'
+                    }
+                },
+                layers: [
+                    {
+                        id: 'carto-light-layer',
+                        type: 'raster',
+                        source: 'carto-light',
+                        minzoom: 0,
+                        maxzoom: 18
+                    },
+                    {
+                        id: 'satellite-layer',
+                        type: 'raster',
+                        source: 'satellite',
+                        minzoom: 0,
+                        maxzoom: 18,
+                        layout: { visibility: 'none' }
+                    }
+                ]
+            },
+            center: center,
+            zoom: zoom,
+            maxBounds: maxBounds,
+            maxZoom: 18,
+            minZoom: 12,
+            hash: true,
+            pitch: 0,
+            dragRotate: false
+        });
+
+        // Funzione per estrarre i valori da tutte le feature
+        async function getPropertyValues(property) {
+            const values = [];
+            const features = await map.querySourceFeatures('zornade_pacs', {
+                sourceLayer: 'zornade_pacs'
+            });
+            
+            features.forEach(feature => {
+                const value = feature.properties[property];
+                if (value !== null && value !== undefined) {
+                    values.push(Number(value));
+                }
+            });
+            
+            return values;
+        }
+
+        // Funzione per calcolare gli intervalli naturali (Jenks)
+        function calculateJenksBreaks(values, numClasses) {
+            if (values.length < numClasses) return null;
+            return ss.jenks(values, numClasses);
+        }
+
+        // Funzione per applicare le tematizzazioni con intervalli naturali
+        async function applyTheme(themeKey) {
+            const theme = themes[themeKey];
+            if (!theme) return;
+
+            // Ottieni valori reali e calcola breaks
+            const values = await getPropertyValues(theme.property);
+            const numClasses = theme.colors.length;
+            const breaks = calculateJenksBreaks(values, numClasses);
+            
+            if (!breaks || breaks.length < 2) {
+                console.error("Impossibile calcolare gli intervalli per:", themeKey);
+                return;
+            }
+
+            // Costruisci l'espressione step
+            const stepExpression = ['step', ['coalesce', ['get', theme.property], breaks[0]]];
+            for (let i = 0; i < numClasses; i++) {
+                stepExpression.push(theme.colors[i]);
+                if (i < numClasses - 1) {
+                    stepExpression.push(breaks[i + 1]);
+                }
+            }
+
+            // Rimuovi il layer tematico esistente
+            if (map.getLayer('pacs-thematic')) {
+                map.removeLayer('pacs-thematic');
+            }
+
+            // Aggiungi nuovo layer tematico
+            map.addLayer({
+                id: 'pacs-thematic',
+                type: 'fill',
+                source: 'zornade_pacs',
+                'source-layer': 'zornade_pacs',
+                paint: {
+                    'fill-color': stepExpression,
+                    'fill-opacity': 0.8
+                }
+            }, 'pacs-outline');
+
+            // Aggiorna interfaccia
+            map.setPaintProperty('pacs-base', 'fill-opacity', 0);
+            currentTheme = themeKey;
+            showLegend(theme, breaks);
+        }
+
+        // Funzione per mostrare la legenda
+        function showLegend(theme, breaks) {
+            const legend = document.getElementById('legend');
+            const title = document.getElementById('legend-title');
+            const items = document.getElementById('legend-items');
+            
+            title.textContent = theme.name;
+            items.innerHTML = '';
+            
+            for (let i = 0; i < theme.colors.length; i++) {
+                const minVal = i === 0 ? breaks[0] : breaks[i];
+                const maxVal = i === theme.colors.length - 1 ? 
+                    breaks[breaks.length - 1] : breaks[i + 1];
+                
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                
+                let label;
+                if (theme.unit === '€') {
+                    label = `€${Math.round(minVal).toLocaleString()} - €${Math.round(maxVal).toLocaleString()}`;
+                } else {
+                    label = `${Math.round(minVal)} - ${Math.round(maxVal)} ${theme.unit}`;
+                }
+                
+                item.innerHTML = `
+                    <div class="legend-color" style="background-color: ${theme.colors[i]}"></div>
+                    <span class="legend-label">${label}</span>
+                `;
+                items.appendChild(item);
+            }
+            
+            legend.classList.add('visible');
+        }
+
+        // Funzione per mostrare la legenda di base
+        function showBaseLegend() {
+            const legend = document.getElementById('legend');
+            const title = document.getElementById('legend-title');
+            const items = document.getElementById('legend-items');
+            
+            title.textContent = 'Classi di Utilizzo';
+            items.innerHTML = '';
+            
+            for (const [className, color] of Object.entries(classStyles)) {
+                const label = classLabels[className];
+                
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                
+                item.innerHTML = `
+                    <div class="legend-color" style="background-color: ${color}"></div>
+                    <span class="legend-label">${label}</span>
+                `;
+                items.appendChild(item);
+            }
+            
+            legend.classList.add('visible');
+        }
+
+        function removeTheme() {
+            // Rimuovi il layer tematico se esiste
+            if (map.getLayer('pacs-thematic')) {
+                map.removeLayer('pacs-thematic');
+            }
+            
+            // Ripristina il layer base
+            map.setPaintProperty('pacs-base', 'fill-opacity', 0.75);
+            currentTheme = null;
+            
+            // Mostra la legenda di base
+            showBaseLegend();
+        }
+
         // Caricamento mappa
         map.on('load', function() {
             // Aggiungi sorgente PMTiles
@@ -422,15 +601,34 @@
                 url: 'pmtiles://https://palermohub.github.io/cspa/dati/zornade_pacs.pmtiles'
             });
             
-            // Layer base - bianco con trasparenza 50% e bordo nero sottile
+            // Layer base - tematizzazione originale
             map.addLayer({
                 id: 'pacs-base',
                 type: 'fill',
                 source: 'zornade_pacs',
                 'source-layer': 'zornade_pacs',
                 paint: {
-                    'fill-color': '#ffffff',
-                    'fill-opacity': 0.5
+                    'fill-color': [
+                        'match',
+                        ['get', 'class'],
+                        'developed', classStyles.developed,
+                        'horticulture', classStyles.horticulture,
+                        'military', classStyles.military,
+                        'park', classStyles.park,
+                        'pedestrian', classStyles.pedestrian,
+                        'protected', classStyles.protected,
+                        'recreation', classStyles.recreation,
+                        'religious', classStyles.religious,
+                        'residential', classStyles.residential,
+                        'agriculture', classStyles.agriculture,
+                        'education', classStyles.education,
+                        'entertainment', classStyles.entertainment,
+                        'medical', classStyles.medical,
+                        'transportation', classStyles.transportation,
+                        classStyles[''] // default
+                    ],
+                    'fill-opacity': 0.75,
+                    'fill-antialias': true
                 }
             });
 
@@ -441,7 +639,7 @@
                 source: 'zornade_pacs',
                 'source-layer': 'zornade_pacs',
                 paint: {
-                    'fill-color': '#ffff00',
+                    'fill-color': '#ff9900',
                     'fill-opacity': 0.8
                 },
                 filter: ['==', ['get', 'zona_id'], '']
@@ -462,15 +660,17 @@
             
             // Controlli navigazione
             map.addControl(new maplibregl.NavigationControl());
+            
+            // Mostra la legenda di base all'inizializzazione
+            showBaseLegend();
         });
 
-        // Gestione hover - corretto per funzionare con qualsiasi proprietà ID
+        // Gestione hover
         map.on('mouseenter', 'pacs-base', (e) => {
             map.getCanvas().style.cursor = 'pointer';
             
             if (e.features.length > 0) {
                 const feature = e.features[0];
-                // Prova diverse proprietà per l'ID
                 const featureId = feature.properties.zona_id || 
                                 feature.properties.id || 
                                 feature.properties.fid || 
@@ -482,7 +682,6 @@
                 }
                 
                 hoveredPolygon = featureId;
-                // Usa un filtro più robusto che funzioni con diverse strutture dati
                 map.setFilter('pacs-hover', [
                     'any',
                     ['==', ['get', 'zona_id'], featureId],
@@ -509,123 +708,6 @@
             }
         });
 
-        // Funzioni tematizzazione - corrette per gradienti dinamici
-		
-		
-		
-		
-        function applyTheme(themeKey) {
-            const theme = themes[themeKey];
-            if (!theme) return;
-
-            // Prima ottieni i valori min e max effettivi dai dati (simulati per ora)
-            // In un ambiente reale, questi dovrebbero essere calcolati dai dati reali
-            const valueRanges = {
-                population: { min: 30, max: 200 },
-                income: { min: 15000, max: 50000 },
-                green: { min: 10, max: 90 },
-                services: { min: 3, max: 10 },
-                air: { min: 20, max: 100 },
-                noise: { min: 40, max: 80 },
-                age: { min: 25, max: 65 },
-                safety: { min: 4, max: 10 }
-            };
-
-            const range = valueRanges[themeKey];
-            const step = (range.max - range.min) / (theme.colors.length - 1);
-
-            // Rimuovi il layer tematico se esiste già
-            if (map.getLayer('pacs-thematic')) {
-                map.removeLayer('pacs-thematic');
-            }
-
-            // Aggiungi un nuovo layer tematico con la colorazione graduata
-            map.addLayer({
-                id: 'pacs-thematic',
-                type: 'fill',
-                source: 'zornade_pacs',
-                'source-layer': 'zornade_pacs',
-                paint: {
-                    'fill-color': [
-                        'interpolate',
-                        ['linear'],
-                        ['coalesce', ['get', theme.property], range.min],
-                        range.min, theme.colors[0],
-                        range.min + step, theme.colors[1],
-                        range.min + (step * 2), theme.colors[2],
-                        range.min + (step * 3), theme.colors[3],
-                        range.min + (step * 4), theme.colors[4],
-                        range.min + (step * 5), theme.colors[5],
-                        range.min + (step * 6), theme.colors[6],
-                        range.max, theme.colors[7]
-                    ],
-                    'fill-opacity': 0.8
-                }
-            }, 'pacs-outline'); // Posiziona sopra i contorni
-
-            // Nascondi il layer base
-            map.setPaintProperty('pacs-base', 'fill-opacity', 0);
-            
-            currentTheme = themeKey;
-            
-            // Mostra legenda
-            showLegend(theme, range);
-        }
-
-        function removeTheme() {
-            // Rimuovi il layer tematico se esiste
-            if (map.getLayer('pacs-thematic')) {
-                map.removeLayer('pacs-thematic');
-            }
-            
-            // Ripristina il layer base
-            map.setPaintProperty('pacs-base', 'fill-opacity', 0.5);
-            currentTheme = null;
-            hideLegenda();
-        }
-
-        function showLegend(theme, range) {
-            const legend = document.getElementById('legend');
-            const title = document.getElementById('legend-title');
-            const items = document.getElementById('legend-items');
-            
-            title.textContent = theme.name;
-            items.innerHTML = '';
-            
-            const step = (range.max - range.min) / (theme.colors.length - 1);
-            
-            theme.colors.forEach((color, i) => {
-                const minVal = Math.round(range.min + (step * i));
-                const maxVal = i === theme.colors.length - 1 ? 
-                    range.max : 
-                    Math.round(range.min + (step * (i + 1)));
-                
-                const item = document.createElement('div');
-                item.className = 'legend-item';
-                
-                let label;
-                if (theme.unit === '€') {
-                    label = `€${minVal.toLocaleString()} - €${maxVal.toLocaleString()}`;
-                } else if (theme.unit === 'ab/km²') {
-                    label = `${minVal} - ${maxVal} ${theme.unit}`;
-                } else {
-                    label = `${minVal} - ${maxVal} ${theme.unit}`;
-                }
-                
-                item.innerHTML = `
-                    <div class="legend-color" style="background-color: ${color}"></div>
-                    <span class="legend-label">${label}</span>
-                `;
-                items.appendChild(item);
-            });
-            
-            legend.classList.add('visible');
-        }
-
-        function hideLegenda() {
-            document.getElementById('legend').classList.remove('visible');
-        }
-
         // Pannello informazioni
         function showFeatureInfo(feature) {
             const panel = document.getElementById('info-panel');
@@ -633,42 +715,39 @@
             const content = document.getElementById('info-content');
             
             const props = feature.properties;
-            
-            title.textContent = props.nome_zona || `Zona ${props.zona_id || 'N/D'}`;
-            
-            // Genera dati di esempio se non presenti
-            const mockData = generateMockData(props);
+            const safeGet = (prop, fallback) => 
+                props[prop] !== null && props[prop] !== undefined ? props[prop] : fallback;
             
             content.innerHTML = `
                 <div class="info-group">
                     <h3>📍 Informazioni Generali</h3>
                     <div class="info-item">
                         <span class="info-label">ID Zona:</span>
-                        <span class="info-value">${mockData.zona_id}</span>
+                        <span class="info-value">${safeGet('zona_id', 'N/D')}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Nome:</span>
-                        <span class="info-value">${mockData.nome_zona}</span>
+                        <span class="info-value">${safeGet('nome_zona', 'N/D')}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Superficie:</span>
-                        <span class="info-value">${mockData.superficie_mq.toLocaleString()} m²</span>
+                        <span class="info-value">${safeGet('superficie_mq', 'N/D').toLocaleString()} m²</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Classificazione:</span>
+                        <span class="info-value">${classLabels[safeGet('class', '')]}</span>
                     </div>
                 </div>
 
                 <div class="info-group">
                     <h3>👥 Demografia</h3>
                     <div class="info-item">
-                        <span class="info-label">Popolazione:</span>
-                        <span class="info-value">${mockData.popolazione.toLocaleString()}</span>
-                    </div>
-                    <div class="info-item">
                         <span class="info-label">Densità:</span>
-                        <span class="info-value">${mockData.densita_abitativa} ab/km²</span>
+                        <span class="info-value">${safeGet('densita_abitativa', 'N/D')} ab/km²</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Età Media:</span>
-                        <span class="info-value">${mockData.eta_media} anni</span>
+                        <span class="info-value">${safeGet('eta_media', 'N/D')} anni</span>
                     </div>
                 </div>
 
@@ -676,7 +755,7 @@
                     <h3>💰 Economia</h3>
                     <div class="info-item">
                         <span class="info-label">Reddito Medio:</span>
-                        <span class="info-value">€${mockData.reddito_medio.toLocaleString()}</span>
+                        <span class="info-value">€${safeGet('reddito_medio', 'N/D').toLocaleString()}</span>
                     </div>
                 </div>
 
@@ -684,52 +763,32 @@
                     <h3>🌱 Ambiente</h3>
                     <div class="info-item">
                         <span class="info-label">Indice Verde:</span>
-                        <span class="info-value">${mockData.indice_verde}%</span>
+                        <span class="info-value">${safeGet('indice_verde', 'N/D')}%</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Qualità Aria:</span>
-                        <span class="info-value">IQA ${mockData.qualita_aria}</span>
+                        <span class="info-value">IQA ${safeGet('qualita_aria', 'N/D')}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Rumore:</span>
-                        <span class="info-value">${mockData.rumore_db} dB</span>
+                        <span class="info-value">${safeGet('rumore_db', 'N/D')} dB</span>
                     </div>
                 </div>
 
                 <div class="info-group">
-                    <h3>🏥 Servizi e Sicurezza</h3>
+                    <h3>🏥 Servizi</h3>
                     <div class="info-item">
-                        <span class="info-label">Accessibilità Servizi:</span>
-                        <span class="info-value">${mockData.accessibilita_servizi}/10</span>
+                        <span class="info-label">Accessibilità:</span>
+                        <span class="info-value">${safeGet('accessibilita_servizi', 'N/D')}/10</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Indice Sicurezza:</span>
-                        <span class="info-value">${mockData.indice_sicurezza}/10</span>
+                        <span class="info-label">Sicurezza:</span>
+                        <span class="info-value">${safeGet('indice_sicurezza', 'N/D')}/10</span>
                     </div>
                 </div>
             `;
             
             panel.classList.add('visible');
-        }
-
-        function generateMockData(props) {
-            const baseId = props.zona_id || Math.random().toString();
-            const seed = baseId.toString().split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-            
-            return {
-                zona_id: props.zona_id || `Z${Math.floor(seed % 1000)}`,
-                nome_zona: props.nome_zona || `Zona ${Math.floor(seed % 100)}`,
-                popolazione: Math.floor(2000 + (seed * 123) % 8000),
-                superficie_mq: Math.floor(50000 + (seed * 456) % 200000),
-                densita_abitativa: Math.floor(30 + (seed * 789) % 170),
-                reddito_medio: Math.floor(15000 + (seed * 234) % 35000),
-                indice_verde: Math.floor(10 + (seed * 567) % 80),
-                accessibilita_servizi: Math.floor(3 + (seed * 890) % 7),
-                qualita_aria: Math.floor(20 + (seed * 345) % 80),
-                rumore_db: Math.floor(40 + (seed * 678) % 40),
-                eta_media: Math.floor(25 + (seed * 901) % 40),
-                indice_sicurezza: Math.floor(4 + (seed * 432) % 6)
-            };
         }
 
         function closeInfoPanel() {
