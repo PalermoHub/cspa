@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Studio Demografico e Socio-Economico del Centro Storico di Palermo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="https://palermohub.opendatasicilia.it/favicon.ico"/> 
+    <link rel="icon" href="https://palermohub.opendatasicilia.it/favicon.png" type="image/png"/> 
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Librerie MapLibre -->
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <!-- Libreria PMTiles -->
+    <script src="https://unpkg.com/pmtiles@2.4.0/dist/index.js"></script>
+    <style>
+        #ods { position:fixed; bottom:40px; right:20px; z-index: 1500;}
+        #beta { position:fixed; bottom:90px; right:20px; z-index: 1500;}
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+        #map { 
+            position: absolute; 
+            top: 0; 
+            bottom: 0; 
+            width: 100%; 
+        }
+        
+        /* Pannello controlli */
+        .control-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.70);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            min-width: 230px;
+            backdrop-filter: blur(5px);
+            max-height: calc(100vh - 20px);
+            overflow-y: auto;
+        }
+        
+        .control-section {
+            margin-bottom: 20px;
+        }
+        
+        .control-section h3 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 1px solid #ff9900;
+            padding-bottom: 5px;
+        }
+        
+        .control-section h3 i {
+            margin-right: 8px;
+            color: #313131;
+        }
+        
+        .basemap-option, .theme-option, .form-control {
+            display: block;
+            width: 100%;
+            margin: 6px 0;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            text-align: left;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .basemap-option:hover, .theme-option:hover, .form-control:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .basemap-option.active, .theme-option.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Checkbox personalizzato */
+        .checkbox-container {
+            display: block;
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            font-size: 11px;
+            user-select: none;
+            color: #495057;
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 16px;
+            width: 16px;
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .checkbox-container .checkmark:after {
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        
+        /* Pannello informazioni */
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: -380px;
+            width: 370px;
+            height: calc(100vh - 40px);
+            background: rgba(255,255,255,0.98);
+            border-radius: 12px 0 0 12px;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transition: right 0.4s ease;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+        }
+        
+        .info-panel.visible {
+            right: 10px;
+        }
+        
+        .info-panel-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 0 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .info-panel-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .close-panel {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-panel:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .info-content {
+            padding: 20px;
+        }
+        
+        .info-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-group h3 {
+            margin: 0 0 12px 0;
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .info-group h3 i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #34495e;
+            flex: 1;
+			font-size: 12px;
+        }
+        
+        .info-value {
+            color: #2c3e50;
+            font-weight: 600;
+            text-align: right;
+			font-size: 12px;
+        }
+        
+        /* Legenda */
+        .legend {
+            position: absolute;
+            bottom: 10px;
+            left: 280px;
+            background: rgba(255,255,255,0.70);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            min-width: 120px;
+            backdrop-filter: blur(5px);
+            display: none;
+        }
+        
+        .legend.visible {
+            display: block;
+        }
+        
+        .legend h4 {
+            margin: 0 0 12px 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 15px;
+            margin-right: 10px;
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .legend-label {
+            font-size: 12px;
+            color: #34495e;
+        }
+        
+        /* Header */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            color: white;
+            padding: 15px 20px;
+            z-index: 999;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+			color: #313131;
+			display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header h1 i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+		
+		.header h1 img {
+            transform: rotate(-125deg);
+        }
+        
+        #map {
+            top: 60px;
+            height: calc(100vh - 60px);
+        }
+        
+        .control-panel {
+            top: 80px;
+        }
+        
+        .info-panel {
+            top: 80px;
+            height: calc(100vh - 100px);
+        }
+        
+        /* MapLibre controls */
+        .maplibregl-ctrl-top-right {
+            top: 90px !important;
+        }
+
+        .mapboxgl-ctrl-top-right .mapboxgl-ctrl, .maplibregl-ctrl-top-right .maplibregl-ctrl {
+            float: right;
+            margin: 20px 10px 0 0;
+        }
+        
+        /* Debug info */
+        .debug-info {
+            position: fixed;
+            bottom: 10px;
+            right: 100px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            display: none;
+            z-index: 2000;
+            max-width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .control-panel {
+                width: calc(100vw - 40px);
+                max-height: 40vh;
+                overflow-y: auto;
+            }
+            
+            .info-panel {
+                width: calc(100vw - 20px);
+                right: -100vw;
+            }
+            
+            .info-panel.visible {
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><img src="img/logo_cs.svg" alt="cspa" width="40" height="40"/> Studio Demografico e Socio-Economico del Centro Storico di Palermo</h1>
+    </div>
+
+    <div id="map"></div>
+    
+    <div class="control-panel">
+        <div class="control-section">
+            <h3><img src="img/map_01.svg" alt="cspa" width="20" height="20"/> Seleziona la mappa base</h3>
+            <select id="basemap-select" class="form-control">
+                <option value="carto-light">CartoDB Light</option>
+                <option value="satellite">Vista Satellitare</option>
+            </select>
+        </div>
+        
+        <div class="control-section">
+            <h3><img src="img/logo_cs.svg" alt="cspa" width="20" height="20"/>Filtra per Mandamenti</h3>
+            <select id="mandamento-filter" class="form-control">
+                <option value="">Tutti i Mandamenti</option>
+                <option value="Castellammare">Castellammare</option>
+                <option value="Tribunali">Tribunali</option>
+                <option value="Palazzo Reale">Palazzo Reale</option>
+                <option value="Monte di Pietà">Monte di Pietà</option>
+            </select>
+        </div>
+        
+        <div class="control-section">
+            <h3><img src="img/people.svg" alt="cspa" width="20" height="20"/> Indicatori Demografici</h3>
+            <select id="demographic-select" class="form-control">
+                <option value="">Seleziona indicatore...</option>
+                <option value="population">Popolazione Stimata</option>
+                <option value="age">Età Media</option>
+                <option value="elderly">Tasso Anziani</option>
+                <option value="density">Densità Abitativa</option>
+                <option value="foreign">Popolazione Straniera</option>
+            </select>
+        </div>
+        
+        <div class="control-section">
+            <h3><img src="img/people_02.svg" alt="cspa" width="20" height="20"/> Indicatori Socio-Economici</h3>
+            <select id="economic-select" class="form-control">
+                <option value="">Seleziona indicatore...</option>
+                <option value="employment">Tasso Occupazione</option>
+                <option value="genderGap">Divario Genere</option>
+                <option value="education">Istruzione Superiore</option>
+                <option value="resilience">Resilienza Economica</option>
+                <option value="cohesion">Coesione Sociale</option>
+            </select>
+        </div>
+        
+        <div class="control-section">
+            <h3><img src="img/chart-area.svg" alt="cspa" width="20" height="20"/> Indicatori Territoriali</h3>
+            <select id="territorial-select" class="form-control">
+                <option value="">Seleziona indicatore...</option>
+                <option value="buildings">Numero Edifici</option>
+                <option value="landuse" selected>Particelle catastali di base</option>
+                <option value="land_cover">Copertura del suolo</option>
+                <option value="flood_risk">Rischio alluvione</option>
+                <option value="landslide_risk">Rischio di frana</option>
+                <option value="coastal_erosion">Rischio erosione costiera</option>
+                <option value="seismic_risk">Rischio sismico</option>
+            </select>
+        </div>
+        
+        <div class="control-section">
+            <h3><img src="img/logo_cs_01.svg" alt="cspa" width="20" height="20"/> Perimetri</h3>
+            <label class="checkbox-container">
+                <input type="checkbox" id="palermo-perimeter">
+                <span class="checkmark"></span>
+                Limite Amministrativo Palermo
+            </label>
+            <label class="checkbox-container">
+                <input type="checkbox" id="centro-storico-perimeter" >
+                <span class="checkmark"></span>
+                Centro Storico
+            </label>
+            <label class="checkbox-container">
+                <input type="checkbox" id="upl-cs-perimeter" checked>
+                <span class="checkmark"></span>
+                Mandamenti
+            </label>
+        </div>
+        
+        <div class="control-section">
+            <h3><img src="img/gear.svg" alt="cspa" width="20" height="20"/> Visualizzazione</h3>
+            <label class="checkbox-container">
+                <input type="checkbox" id="borders-toggle">
+                <span class="checkmark"></span>
+                Mostra bordi poligoni
+            </label>
+            <label class="checkbox-container">
+                <input type="checkbox" id="debug-toggle">
+                <span class="checkmark"></span>
+                Debug mode
+            </label>
+        </div>
+    </div>
+    
+    <div class="info-panel" id="info-panel">
+        <div class="info-panel-header">
+            <div>
+                <h2 id="panel-title">Dettagli Particella</h2>
+                <div id="panel-subtitle" style="font-size: 14px; opacity: 0.9; margin-top: 4px;"></div>
+            </div>
+            <button class="close-panel" onclick="closeInfoPanel()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="info-content" id="info-content">
+            <p style="text-align: center; color: #7f8c8d; margin-top: 50px;">
+                Clicca su una particella per visualizzarne i dettagli
+            </p>
+        </div>
+    </div>
+    
+    <div class="legend" id="legend">
+        <h4 id="legend-title">Legenda</h4>
+        <div id="legend-items"></div>
+    </div>
+
+    <div class="debug-info" id="debug-info">
+        <div id="debug-content"></div>
+    </div>
+
+    <script>
+        // Registra il protocollo PMTiles
+        const protocol = new pmtiles.Protocol();
+        maplibregl.addProtocol("pmtiles", protocol.tile);
+        
+        // Configurazione mappa
+        const center = [13.3614, 38.1157];
+        const zoom = 14;
+        const maxBounds = [
+            [13.32, 38.09],
+            [13.40, 38.14]
+        ];
+
+        // Colori uso del suolo
+        const landUseColors = {
+            "servizi": "rgba(250,240,230,0.75)",
+            "military": "rgba(85,107,47,0.75)",
+            "park": "rgba(124,252,0,0.75)",
+            "pedestrian": "rgba(123,123,123,0.75)",
+            "protected": "rgba(255,192,192,0.75)",
+            "recreation": "rgba(111, 167, 183, 0.75)",
+            "religious": "rgba(221,101,251,1.0)",
+            "residential": "rgba(255,230,153,0.75)",
+            "education": "rgba(226,160,54,0.75)",
+            "medical": "rgba(222,37,37,0.75)",
+            "transportation": "rgba(192,192,192,0.75)",
+            "": "rgba(240,240,240,0.75)"
+        };
+
+        const landUseLabels = {
+            "servizi": "Servizi",
+            "military": "Militare",
+            "park": "Verde Pubblico",
+            "pedestrian": "Pedonale",
+            "protected": "Storico",
+            "recreation": "Ricreativo",
+            "religious": "Religioso",
+            "residential": "Residenziale",
+            "education": "Educativo",
+            "medical": "Ospedale",
+            "transportation": "Trasporti",
+            "": "Non Classificato"
+        };
+
+        // CORREZIONE: Gestione estesa per tutti i possibili valori di rischio alluvione
+        const floodRiskColors = {
+            "alto": "#FF0000",
+            "ALTO": "#FF0000",
+            "Alto": "#FF0000",
+            "high": "#FF0000",
+            "HIGH": "#FF0000",
+            "si": "#FF6600",
+            "SI": "#FF6600",
+            "yes": "#FF6600",
+            "YES": "#FF6600",
+            "medio": "#FFFF00",
+            "MEDIO": "#FFFF00",
+            "medium": "#FFFF00",
+            "MEDIUM": "#FFFF00",
+            "basso": "#00FF00",
+            "BASSO": "#00FF00",
+            "low": "#00FF00",
+            "LOW": "#00FF00",
+            "no": "#C0C0C0",
+            "NO": "#C0C0C0",
+            "nessuno": "#C0C0C0",
+            "NESSUNO": "#C0C0C0",
+            "none": "#C0C0C0",
+            "NONE": "#C0C0C0",
+            "": "#C0C0C0"
+        };
+
+        const floodRiskLabels = {
+            "alto": "Alto rischio",
+            "ALTO": "Alto rischio",
+            "si": "Rischio presente",
+            "SI": "Rischio presente",
+            "medio": "Medio rischio",
+            "MEDIO": "Medio rischio",
+            "basso": "Basso rischio",
+            "BASSO": "Basso rischio",
+            "no": "Nessun rischio",
+            "NO": "Nessun rischio",
+            "none": "Nessun rischio",
+            "NONE": "Nessun rischio",
+            "": "Nessun rischio"
+        };
+
+        // Altri colori per mappe tematiche
+        const landCoverColors = {
+            "1110": "#FFFF64",
+            "2111": "#228B22",
+            "2112": "#90EE90",
+            "2212": "#006400"
+        };
+
+        const landCoverLabels = {
+            "1110": "Aree urbane",
+            "2111": "Colture permanenti",
+            "2112": "Colture temporanee",
+            "2212": "Foreste"
+        };
+
+        // Configurazioni tematizzazioni
+        const themes = {
+            population: {
+                name: 'Popolazione Stimata',
+                property: 'popolazione_stimata',
+                colors: ['#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1e88e5', '#1976d2'],
+                unit: 'abitanti'
+            },
+            age: {
+                name: 'Età Media',
+                property: 'età_media',
+                colors: ['#fff3e0', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#fb8c00', '#f57c00'],
+                unit: 'anni'
+            },
+            elderly: {
+                name: 'Tasso Anziani',
+                property: 'tasso_anziani',
+                colors: ['#f1f8e9', '#dcedc8', '#c5e1a5', '#aed581', '#9ccc65', '#8bc34a', '#7cb342', '#689f38'],
+                unit: '%'
+            },
+            density: {
+                name: 'Densità Abitativa',
+                property: 'densità abitativa',
+                colors: ['#fce4ec', '#f8bbd9', '#f48fb1', '#f06292', '#ec407a', '#e91e63', '#d81b60', '#c2185b'],
+                unit: 'ab/km²'
+            },
+            foreign: {
+                name: 'Popolazione Straniera',
+                property: 'tasso_di_popolazione_straniera',
+                colors: ['#e0f2f1', '#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#009688', '#00897b', '#00695c'],
+                unit: '%'
+            },
+            employment: {
+                name: 'Tasso Occupazione',
+                property: 'tasso_di_occupazione',
+                colors: ['#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#8e24aa', '#7b1fa2'],
+                unit: '%'
+            },
+            genderGap: {
+                name: 'Divario Genere Occupazione',
+                property: 'divario di genere nell\'occupazione',
+                colors: ['#fce4e4', '#f5c6c6', '#eea5a5', '#e78383', '#e06262', '#d84141', '#d12020', '#ca0000'],
+                unit: '%'
+            },
+            education: {
+                name: 'Istruzione Superiore',
+                property: 'tasso di istruzione superiore',
+                colors: ['#e8f5e8', '#c8e6c8', '#a5d6a5', '#82c782', '#5fb85f', '#3ca83c', '#2e7d32', '#1b5e20'],
+                unit: '%'
+            },
+            resilience: {
+                name: 'Resilienza Economica',
+                property: 'indice_di_resilienza_economica',
+                colors: ['#fff8e1', '#ffecb3', '#ffe082', '#ffd54f', '#ffca28', '#ffc107', '#ffb300', '#ffa000'],
+                unit: 'indice'
+            },
+            cohesion: {
+                name: 'Coesione Sociale',
+                property: 'indice_coesione_sociale',
+                colors: ['#e1f5fe', '#b3e5fc', '#81d4fa', '#4fc3f7', '#29b6f6', '#03a9f4', '#039be5', '#0288d1'],
+                unit: 'indice'
+            },
+            buildings: {
+                name: 'Numero Edifici',
+                property: 'buildings_count',
+                colors: ['#efebe9', '#d7ccc8', '#bcaaa4', '#a1887f', '#8d6e63', '#795548', '#6d4c41', '#5d4037'],
+                unit: 'edifici'
+            },
+            flood_risk: {
+                name: 'Rischio alluvione',
+                property: 'rischio_alluvione',
+                type: 'categorical'
+            },
+            land_cover: {
+                name: 'Copertura del suolo',
+                property: 'copertura del suolo',
+                type: 'categorical'
+            },
+            landslide_risk: {
+                name: 'Rischio di frana',
+                property: 'rischio di frana',
+                type: 'categorical'
+            },
+            coastal_erosion: {
+                name: 'Rischio erosione costiera',
+                property: 'rischio di erosione costiera',
+                type: 'categorical'
+            },
+            seismic_risk: {
+                name: 'Rischio sismico',
+                property: 'rischio sismico',
+                type: 'categorical'
+            }
+        };
+
+        let currentTheme = 'landuse';
+        let hoveredPolygon = null;
+        let currentMandamentoFilter = null;
+        let debugMode = false;
+
+        // Funzioni di debug
+        function debugLog(message, data = null) {
+            if (debugMode) {
+                console.log(`[DEBUG] ${message}`, data);
+                updateDebugInfo(message, data);
+            }
+        }
+
+        function updateDebugInfo(message, data) {
+            const debugDiv = document.getElementById('debug-content');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}${data ? ': ' + JSON.stringify(data, null, 2) : ''}`;
+            debugDiv.innerHTML = logEntry + '<br>' + debugDiv.innerHTML;
+        }
+
+        // Inizializza mappa
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: {
+                version: 8,
+                sources: {
+                    'carto-light': {
+                        type: 'raster',
+                        tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'],
+                        tileSize: 256,
+                        attribution: '© OpenStreetMap contributors, © CartoDB'
+                    },
+                    'satellite': {
+                        type: 'raster',
+                        tiles: ['https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'],
+                        tileSize: 256,
+                        attribution: '© Google'
+                    }
+                },
+                layers: [
+                    {
+                        id: 'carto-light-layer',
+                        type: 'raster',
+                        source: 'carto-light',
+                        minzoom: 0,
+                        maxzoom: 18
+                    },
+                    {
+                        id: 'satellite-layer',
+                        type: 'raster',
+                        source: 'satellite',
+                        minzoom: 0,
+                        maxzoom: 17,
+                        layout: { visibility: 'none' }
+                    }
+                ]
+            },
+            center: center,
+            zoom: zoom,
+            maxBounds: maxBounds,
+            maxZoom: 17,
+            minZoom: 12,
+            hash: true,
+            pitch: 0,
+            dragRotate: false
+        });
+
+        // Caricamento mappa
+        map.on('load', function() {
+            debugLog('Mappa caricata, aggiungendo sorgente PMTiles');
+            
+            // Aggiungi sorgente PMTiles
+            map.addSource('palermo_catastale', {
+                type: 'vector',
+                url: 'pmtiles://https://palermohub.github.io/cspa/dati/pacs.pmtiles'
+            });
+            
+            // Layer base - uso del suolo
+            map.addLayer({
+                id: 'catastale-base',
+                type: 'fill',
+                source: 'palermo_catastale',
+                'source-layer': 'catastale',
+                paint: {
+                    'fill-color': [
+                        'match',
+                        ['get', 'class'],
+                        'servizi', landUseColors.servizi,
+                        'military', landUseColors.military,
+                        'park', landUseColors.park,
+                        'pedestrian', landUseColors.pedestrian,
+                        'protected', landUseColors.protected,
+                        'recreation', landUseColors.recreation,
+                        'religious', landUseColors.religious,
+                        'residential', landUseColors.residential,
+                        'education', landUseColors.education,
+                        'medical', landUseColors.medical,
+                        'transportation', landUseColors.transportation,
+                        landUseColors['']
+                    ],
+                    'fill-opacity': 0.75,
+                    'fill-antialias': true
+                }
+            });
+
+            // Layer hover
+            map.addLayer({
+                id: 'catastale-hover',
+                type: 'fill',
+                source: 'palermo_catastale',
+                'source-layer': 'catastale',
+                paint: {
+                    'fill-color': '#ff9900',
+                    'fill-opacity': 0.8
+                },
+                filter: ['==', ['get', 'fid'], '']
+            });
+
+            // Layer contorni
+            map.addLayer({
+                id: 'catastale-outline',
+                type: 'line',
+                source: 'palermo_catastale',
+                'source-layer': 'catastale',
+                paint: {
+                    'line-color': '#333333',
+                    'line-width': 0.5,
+                    'line-opacity': 0.6
+                },
+                layout: {
+                    'visibility': 'none'
+                }
+            });
+
+            // Perimetri
+            map.addLayer({
+                id: 'palermo-perimeter',
+                type: 'line',
+                source: 'palermo_catastale',
+                'source-layer': 'Palermo',
+                paint: {
+                    'line-color': '#ff0000',
+                    'line-width': 2,
+                    'line-opacity': 0.8,
+                    'line-dasharray': [12, 8]
+                },
+                layout: {
+                    'visibility': 'none'
+                }
+            }, 'catastale-hover');
+
+            map.addLayer({
+                id: 'centro-storico-perimeter',
+                type: 'line',
+                source: 'palermo_catastale',
+                'source-layer': 'centro_storico',
+                paint: {
+                    'line-color': '#4a4a4a',
+                    'line-width': 1.5,
+                    'line-opacity': 0.8,
+                    'line-dasharray': [8, 6]
+                },
+                layout: {
+                    'visibility': 'none'
+                }
+            }, 'catastale-hover');
+
+            map.addLayer({
+                id: 'upl-cs-perimeter',
+                type: 'line',
+                source: 'palermo_catastale',
+                'source-layer': 'upl_cs',
+                paint: {
+                    'line-color': '#4a4a4a',
+                    'line-width': 1,
+                    'line-opacity': 0.8,
+                    'line-dasharray': [4, 4]
+                },
+                layout: {
+                    'visibility': 'visible'
+                }
+            }, 'catastale-hover');
+            
+            // Controlli navigazione
+            map.addControl(new maplibregl.NavigationControl());
+            
+            debugLog('Layer creati con successo');
+            showBaseLegend();
+
+            // Test caricamento dati
+            setTimeout(() => {
+                testDataLoading();
+            }, 2000);
+        });
+
+        // Test caricamento dati
+        function testDataLoading() {
+            debugLog('Testando caricamento dati...');
+            
+            const features = map.querySourceFeatures('palermo_catastale', {
+                sourceLayer: 'catastale'
+            });
+            
+            debugLog(`Trovate ${features.length} features`);
+            
+            if (features.length > 0) {
+                const sampleFeatures = features.slice(0, 5);
+                sampleFeatures.forEach((feature, index) => {
+                    debugLog(`Feature ${index + 1} properties:`, Object.keys(feature.properties));
+                    debugLog(`Feature ${index + 1} rischio_alluvione:`, feature.properties.rischio_alluvione);
+                });
+                
+                const uniqueFloodValues = [...new Set(features.map(f => f.properties.rischio_alluvione))];
+                debugLog('Valori unici per rischio_alluvione:', uniqueFloodValues);
+            }
+        }
+
+        // Gestione hover
+        map.on('mouseenter', 'catastale-base', (e) => {
+            map.getCanvas().style.cursor = 'pointer';
+            
+            if (e.features.length > 0) {
+                const feature = e.features[0];
+                const featureId = feature.properties.fid || feature.properties.particella || feature.id;
+                
+                if (hoveredPolygon !== null) {
+                    map.setFilter('catastale-hover', ['==', ['get', 'fid'], '']);
+                }
+                
+                hoveredPolygon = featureId;
+                map.setFilter('catastale-hover', [
+                    'any',
+                    ['==', ['get', 'fid'], featureId],
+                    ['==', ['get', 'particella'], featureId]
+                ]);
+
+                if (debugMode) {
+                    debugLog('Hover feature:', {
+                        fid: feature.properties.fid,
+                        particella: feature.properties.particella,
+                        rischio_alluvione: feature.properties.rischio_alluvione
+                    });
+                }
+            }
+        });
+
+        map.on('mouseleave', 'catastale-base', () => {
+            map.getCanvas().style.cursor = '';
+            if (hoveredPolygon !== null) {
+                map.setFilter('catastale-hover', ['==', ['get', 'fid'], '']);
+            }
+            hoveredPolygon = null;
+        });
+
+        // Gestione click
+        map.on('click', 'catastale-base', (e) => {
+            if (e.features.length > 0) {
+                const feature = e.features[0];
+                debugLog('Click feature properties:', feature.properties);
+                showFeatureInfo(feature);
+            }
+        });
+
+        // CORREZIONE: Funzione per applicare tema con gestione robusta del rischio alluvione
+        function applyTheme(themeKey) {
+            debugLog(`Applicando tema: ${themeKey}`);
+            
+            const theme = themes[themeKey];
+            if (!theme) {
+                debugLog(`Tema ${themeKey} non trovato`);
+                return;
+            }
+
+            if (map.getLayer('catastale-thematic')) {
+                map.removeLayer('catastale-thematic');
+            }
+
+            const currentFilter = getCurrentFilter();
+            let layerConfig = {
+                id: 'catastale-thematic',
+                type: 'fill',
+                source: 'palermo_catastale',
+                'source-layer': 'catastale',
+                paint: {
+                    'fill-opacity': 0.8
+                }
+            };
+
+            if (themeKey === 'flood_risk') {
+                debugLog('Configurando layer per rischio alluvione');
+                
+                // CORREZIONE: Usa case expression molto più robusta
+                layerConfig.paint['fill-color'] = [
+                    'case',
+                    // Alto rischio - tutte le varianti
+                    [
+                        'any',
+                        ['==', ['get', 'rischio_alluvione'], 'alto'],
+                        ['==', ['get', 'rischio_alluvione'], 'ALTO'],
+                        ['==', ['get', 'rischio_alluvione'], 'Alto'],
+                        ['==', ['get', 'rischio_alluvione'], 'high'],
+                        ['==', ['get', 'rischio_alluvione'], 'HIGH']
+                    ],
+                    floodRiskColors['alto'],
+                    
+                    // Rischio presente
+                    [
+                        'any',
+                        ['==', ['get', 'rischio_alluvione'], 'si'],
+                        ['==', ['get', 'rischio_alluvione'], 'SI'],
+                        ['==', ['get', 'rischio_alluvione'], 'yes'],
+                        ['==', ['get', 'rischio_alluvione'], 'YES']
+                    ],
+                    floodRiskColors['si'],
+                    
+                    // Medio rischio
+                    [
+                        'any',
+                        ['==', ['get', 'rischio_alluvione'], 'medio'],
+                        ['==', ['get', 'rischio_alluvione'], 'MEDIO'],
+                        ['==', ['get', 'rischio_alluvione'], 'medium'],
+                        ['==', ['get', 'rischio_alluvione'], 'MEDIUM']
+                    ],
+                    floodRiskColors['medio'],
+                    
+                    // Basso rischio
+                    [
+                        'any',
+                        ['==', ['get', 'rischio_alluvione'], 'basso'],
+                        ['==', ['get', 'rischio_alluvione'], 'BASSO'],
+                        ['==', ['get', 'rischio_alluvione'], 'low'],
+                        ['==', ['get', 'rischio_alluvione'], 'LOW']
+                    ],
+                    floodRiskColors['basso'],
+                    
+                    // Nessun rischio (default)
+                    floodRiskColors['no']
+                ];
+                
+            } else if (themeKey === 'land_cover') {
+                layerConfig.paint['fill-color'] = [
+                    'match',
+                    ['get', 'copertura del suolo'],
+                    '1110', landCoverColors['1110'],
+                    '2111', landCoverColors['2111'],
+                    '2112', landCoverColors['2112'],
+                    '2212', landCoverColors['2212'],
+                    '#C0C0C0'
+                ];
+            } else if (theme.type === 'categorical') {
+                // Gestione generica per altri temi categorici
+                layerConfig.paint['fill-color'] = '#C0C0C0';
+            } else {
+                // Tema numerico
+                const range = getStaticRange(themeKey);
+                const step = (range.max - range.min) / (theme.colors.length - 1);
+                layerConfig.paint['fill-color'] = [
+                    'interpolate',
+                    ['linear'],
+                    ['coalesce', ['get', theme.property], range.min],
+                    range.min, theme.colors[0],
+                    range.min + step, theme.colors[1],
+                    range.min + (step * 2), theme.colors[2],
+                    range.min + (step * 3), theme.colors[3],
+                    range.min + (step * 4), theme.colors[4],
+                    range.min + (step * 5), theme.colors[5],
+                    range.min + (step * 6), theme.colors[6],
+                    range.max, theme.colors[7]
+                ];
+            }
+
+            if (currentFilter) {
+                layerConfig.filter = currentFilter;
+            }
+
+            map.addLayer(layerConfig, 'catastale-outline');
+            map.setPaintProperty('catastale-base', 'fill-opacity', 0);
+            
+            currentTheme = themeKey;
+            showLegend(theme);
+            
+            debugLog(`Tema ${themeKey} applicato con successo`);
+        }
+
+        function getStaticRange(themeKey) {
+            const valueRanges = {
+                population: { min: 0, max: 1000 },
+                age: { min: 0, max: 100 },
+                elderly: { min: 0, max: 100 },
+                density: { min: 0, max: 20000 },
+                foreign: { min: 0, max: 100 },
+                employment: { min: 0, max: 100 },
+                genderGap: { min: 0, max: 100 },
+                education: { min: 0, max: 100 },
+                resilience: { min: 0, max: 100 },
+                cohesion: { min: 0, max: 100 },
+                buildings: { min: 0, max: 50 }
+            };
+            return valueRanges[themeKey];
+        }
+
+        function getCurrentFilter() {
+            if (currentMandamentoFilter && currentMandamentoFilter !== '') {
+                let dbMandamento = currentMandamentoFilter;
+                if (currentMandamentoFilter === 'Castellammare') {
+                    dbMandamento = 'Castellamare';
+                }
+                return ['==', ['get', 'Mandamento'], dbMandamento];
+            }
+            return null;
+        }
+
+        function applyMandamentoFilter(mandamento) {
+            debugLog(`Applicando filtro mandamento: ${mandamento}`);
+            
+            const activeTheme = currentTheme;
+            currentMandamentoFilter = mandamento || null;
+            
+            let dbMandamento = mandamento;
+            if (mandamento === 'Castellammare') {
+                dbMandamento = 'Castellamare';
+            }
+            
+            const filter = dbMandamento ? ['==', ['get', 'Mandamento'], dbMandamento] : null;
+            
+            map.setFilter('catastale-base', filter);
+            map.setFilter('catastale-hover', ['==', ['get', 'fid'], '']);
+            map.setFilter('catastale-outline', filter);
+            
+            if (activeTheme && activeTheme !== 'landuse') {
+                applyTheme(activeTheme);
+            } else {
+                if (map.getLayer('catastale-thematic')) {
+                    map.removeLayer('catastale-thematic');
+                }
+                map.setPaintProperty('catastale-base', 'fill-opacity', 0.75);
+                showBaseLegend();
+            }
+        }
+
+        function removeTheme() {
+            if (map.getLayer('catastale-thematic')) {
+                map.removeLayer('catastale-thematic');
+            }
+            
+            map.setPaintProperty('catastale-base', 'fill-opacity', 0.75);
+            const filter = getCurrentFilter();
+            map.setFilter('catastale-base', filter);
+            
+            currentTheme = 'landuse';
+            showBaseLegend();
+        }
+
+        function showLegend(theme, range) {
+            const legend = document.getElementById('legend');
+            const title = document.getElementById('legend-title');
+            const items = document.getElementById('legend-items');
+            
+            let titleText = theme.name;
+            if (currentMandamentoFilter) {
+                titleText += ` - ${currentMandamentoFilter}`;
+            }
+            title.textContent = titleText;
+            
+            items.innerHTML = '';
+            
+            if (theme.type === 'categorical') {
+                if (currentTheme === 'flood_risk') {
+                    const categories = [
+                        { color: floodRiskColors['alto'], label: 'Alto rischio' },
+                        { color: floodRiskColors['si'], label: 'Rischio presente' },
+                        { color: floodRiskColors['medio'], label: 'Medio rischio' },
+                        { color: floodRiskColors['basso'], label: 'Basso rischio' },
+                        { color: floodRiskColors['no'], label: 'Nessun rischio' }
+                    ];
+                    
+                    categories.forEach(cat => {
+                        const item = document.createElement('div');
+                        item.className = 'legend-item';
+                        item.innerHTML = `
+                            <div class="legend-color" style="background-color: ${cat.color}"></div>
+                            <span class="legend-label">${cat.label}</span>
+                        `;
+                        items.appendChild(item);
+                    });
+                } else if (currentTheme === 'land_cover') {
+                    Object.entries(landCoverLabels).forEach(([code, label]) => {
+                        const item = document.createElement('div');
+                        item.className = 'legend-item';
+                        item.innerHTML = `
+                            <div class="legend-color" style="background-color: ${landCoverColors[code]}"></div>
+                            <span class="legend-label">${label}</span>
+                        `;
+                        items.appendChild(item);
+                    });
+                }
+            } else {
+                const range = getStaticRange(currentTheme);
+                if (range) {
+                    const step = (range.max - range.min) / (theme.colors.length - 1);
+                    
+                    theme.colors.forEach((color, i) => {
+                        const minVal = Math.round(range.min + (step * i));
+                        const maxVal = i === theme.colors.length - 1 ? 
+                            range.max : 
+                            Math.round(range.min + (step * (i + 1)));
+                        
+                        const item = document.createElement('div');
+                        item.className = 'legend-item';
+                        item.innerHTML = `
+                            <div class="legend-color" style="background-color: ${color}"></div>
+                            <span class="legend-label">${minVal} - ${maxVal} ${theme.unit}</span>
+                        `;
+                        items.appendChild(item);
+                    });
+                }
+            }
+            
+            legend.classList.add('visible');
+        }
+
+        function showBaseLegend() {
+            const legend = document.getElementById('legend');
+            const title = document.getElementById('legend-title');
+            const items = document.getElementById('legend-items');
+            
+            let titleText = 'Base catastale';
+            if (currentMandamentoFilter) {
+                titleText += ` - ${currentMandamentoFilter}`;
+            }
+            title.textContent = titleText;
+            
+            items.innerHTML = '';
+            
+            for (const [className, color] of Object.entries(landUseColors)) {
+                if (className === '') continue;
+                
+                const label = landUseLabels[className];
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background-color: ${color}"></div>
+                    <span class="legend-label">${label}</span>
+                `;
+                items.appendChild(item);
+            }
+            
+            legend.classList.add('visible');
+        }
+
+        function showFeatureInfo(feature) {
+            const panel = document.getElementById('info-panel');
+            const title = document.getElementById('panel-title');
+            const subtitle = document.getElementById('panel-subtitle');
+            const content = document.getElementById('info-content');
+            
+            const props = feature.properties;
+            debugLog('Mostrando info per feature:', props);
+            
+            let mandamentoDisplay = props.Mandamento || 'N/D';
+            if (mandamentoDisplay === 'Castellamare') {
+                mandamentoDisplay = 'Castellammare';
+            }
+            
+            title.textContent = `Particella ${props.particella || props.fid || 'N/D'}`;
+            subtitle.textContent = `Foglio: ${props.foglio || 'N/D'}`;
+            
+            const floodRiskValue = props.rischio_alluvione;
+            const floodRiskDisplay = floodRiskLabels[floodRiskValue] || floodRiskValue || 'N/D';
+            
+            content.innerHTML = `
+                <div class="info-group">
+                    <h3><i class="fas fa-map-marker-alt"></i> Informazioni Generali</h3>
+                    <div class="info-item">
+                        <span class="info-label">Particella:</span>
+                        <span class="info-value">${props.particella || 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Foglio:</span>
+                        <span class="info-value">${props.foglio || 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Mandamento:</span>
+                        <span class="info-value">${mandamentoDisplay}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Superficie:</span>
+                        <span class="info-value">${props['superfice mq'] ? parseFloat(props['superfice mq']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' m²' : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Classe:</span>
+                        <span class="info-value">${landUseLabels[props.class] || props.class || 'N/D'}</span>
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <h3><i class="fas fa-users"></i> Demografia</h3>
+                    <div class="info-item">
+                        <span class="info-label">Popolazione Stimata:</span>
+                        <span class="info-value">${props.popolazione_stimata ? parseFloat(props.popolazione_stimata).toLocaleString('it-IT', {maximumFractionDigits: 2}) : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Età Media:</span>
+                        <span class="info-value">${props['età_media'] ? parseFloat(props['età_media']).toFixed(2) + ' anni' : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Tasso Anziani:</span>
+                        <span class="info-value">${props.tasso_anziani ? parseFloat(props.tasso_anziani).toFixed(2) + '%' : 'N/D'}</span>
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <h3><i class="fas fa-hammer"></i> Territoriali</h3>
+                    <div class="info-item">
+                        <span class="info-label">Rischio alluvione:</span>
+                        <span class="info-value" style="font-weight: bold; color: ${floodRiskValue === 'alto' || floodRiskValue === 'ALTO' ? '#ff0000' : '#666'};">${floodRiskDisplay}</span>
+                    </div>
+                    ${debugMode ? `
+                    <div class="info-item">
+                        <span class="info-label">Valore originale:</span>
+                        <span class="info-value" style="font-size: 10px; color: #999;">${floodRiskValue || 'N/D'}</span>
+                    </div>` : ''}
+                </div>
+            `;
+            
+            panel.classList.add('visible');
+        }
+
+        function closeInfoPanel() {
+            document.getElementById('info-panel').classList.remove('visible');
+        }
+
+        function togglePerimeter(layerId, show) {
+            const visibility = show ? 'visible' : 'none';
+            map.setLayoutProperty(layerId, 'visibility', visibility);
+        }
+
+        function toggleBorders(show) {
+            const visibility = show ? 'visible' : 'none';
+            map.setLayoutProperty('catastale-outline', 'visibility', visibility);
+        }
+
+        function switchBasemap(value) {
+            const layers = ['carto-light-layer', 'satellite-layer'];
+            const targetLayer = value === 'carto-light' ? 'carto-light-layer' : 'satellite-layer';
+            
+            layers.forEach(layerId => {
+                const visibility = (layerId === targetLayer) ? 'visible' : 'none';
+                map.setLayoutProperty(layerId, 'visibility', visibility);
+            });
+        }
+
+        function resetAllSelects(exceptId) {
+            const selects = ['demographic-select', 'economic-select', 'territorial-select'];
+            selects.forEach(selectId => {
+                if (selectId !== exceptId) {
+                    document.getElementById(selectId).value = '';
+                }
+            });
+        }
+
+        function activateTheme(themeKey) {
+            if (themeKey === 'landuse' || themeKey === '' || !themeKey) {
+                removeTheme();
+            } else {
+                applyTheme(themeKey);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('basemap-select').addEventListener('change', (e) => {
+            switchBasemap(e.target.value);
+        });
+
+        document.getElementById('mandamento-filter').addEventListener('change', (e) => {
+            applyMandamentoFilter(e.target.value);
+        });
+
+        document.getElementById('borders-toggle').addEventListener('change', (e) => {
+            toggleBorders(e.target.checked);
+        });
+
+        document.getElementById('debug-toggle').addEventListener('change', (e) => {
+            debugMode = e.target.checked;
+            const debugInfo = document.getElementById('debug-info');
+            debugInfo.style.display = debugMode ? 'block' : 'none';
+            
+            if (debugMode) {
+                debugLog('Debug mode attivato');
+                testDataLoading();
+            }
+        });
+
+        document.getElementById('palermo-perimeter').addEventListener('change', (e) => {
+            togglePerimeter('palermo-perimeter', e.target.checked);
+        });
+
+        document.getElementById('centro-storico-perimeter').addEventListener('change', (e) => {
+            togglePerimeter('centro-storico-perimeter', e.target.checked);
+        });
+
+        document.getElementById('upl-cs-perimeter').addEventListener('change', (e) => {
+            togglePerimeter('upl-cs-perimeter', e.target.checked);
+        });
+
+        document.getElementById('demographic-select').addEventListener('change', (e) => {
+            if (e.target.value) {
+                resetAllSelects('demographic-select');
+                activateTheme(e.target.value);
+            } else {
+                activateTheme('landuse');
+            }
+        });
+
+        document.getElementById('economic-select').addEventListener('change', (e) => {
+            if (e.target.value) {
+                resetAllSelects('economic-select');
+                activateTheme(e.target.value);
+            } else {
+                activateTheme('landuse');
+            }
+        });
+
+        document.getElementById('territorial-select').addEventListener('change', (e) => {
+            if (e.target.value) {
+                resetAllSelects('territorial-select');
+                activateTheme(e.target.value);
+            } else {
+                activateTheme('landuse');
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                const panel = document.getElementById('info-panel');
+                if (panel.classList.contains('visible')) {
+                    panel.style.width = `${window.innerWidth - 20}px`;
+                }
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeInfoPanel();
+            }
+        });
+    </script>
+    
+    <!-- Loghi -->
+    <div id="ods">
+        <a href="https://opendatasicilia.it/" title="opendatasicilia.it" target="_blank"> 
+            <img src="https://palermohub.opendatasicilia.it/lib/images/opendatasicilia_dredits.png" alt="opendatasicilia" width="40" border="0" title="opendatasicilia.it">
+        </a>
+    </div>    
+    <div id="beta">
+        <img src="https://palermohub.opendatasicilia.it/legend/beta.png" width="40" title="beta version" alt="beta version">
+    </div>
+</body>
+</html>

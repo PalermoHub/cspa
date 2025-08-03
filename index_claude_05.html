@@ -51,16 +51,16 @@
         
         .control-section h3 {
             margin: 0 0 12px 0;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 600;
             color: #2c3e50;
-            border-bottom: 2px solid #667eea;
+            border-bottom: 1px solid #ff9900;
             padding-bottom: 5px;
         }
         
         .control-section h3 i {
             margin-right: 8px;
-            color: #667eea;
+            color: #313131;
         }
         
         .basemap-option, .theme-option, .form-control {
@@ -317,6 +317,17 @@
             color: #34495e;
         }
         
+		<style>
+/* Aggiungi questo stile in fondo alla sezione CSS */
+.maplibregl-ctrl-top-right {
+    top: 90px !important; /* 70px originale + 10px = 80px */
+}
+
+.mapboxgl-ctrl-top-right .mapboxgl-ctrl, .maplibregl-ctrl-top-right .maplibregl-ctrl {
+    float: right;
+    margin: 20px 10px 0 0;
+}
+		
         /* Header */
         .header {
             position: absolute;
@@ -327,7 +338,7 @@
             color: white;
             padding: 15px 20px;
             z-index: 999;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
         }
         
         .header h1 {
@@ -335,12 +346,19 @@
             font-size: 20px;
             font-weight: 600;
 			color: #313131;
+			display: flex;
+    align-items: center; /* Allinea logo e testo sulla stessa linea */
+    gap: 10px; /* Spazio tra logo e testo */
         }
         
         .header h1 i {
             margin-right: 10px;
             color: #667eea;
         }
+		
+		.header h1 img {
+    transform: rotate(-125deg);
+}
         
         #map {
             top: 60px;
@@ -348,7 +366,7 @@
         }
         
         .control-panel {
-            top: 70px;
+            top: 80px;
         }
         
         .info-panel {
@@ -377,14 +395,14 @@
 </head>
 <body>
     <div class="header">
-        <h1><i class="fas fa-university"></i> Studio Demografico e Socio-Economico del Centro Storico di  Palermo</h1>
+        <h1><img src="img/logo_cs.svg" alt="cspa" width="40" height="40"/> Studio Demografico e Socio-Economico del Centro Storico di  Palermo</h1>
     </div>
 
     <div id="map"></div>
     
     <div class="control-panel">
         <div class="control-section">
-            <h3><i class="fas fa-map"></i> Mappa Base</h3>
+            <h3><img src="img/map_01.svg" alt="cspa" width="20" height="20"/> Seleziona la mappa base</h3>
             <select id="basemap-select" class="form-control">
                 <option value="carto-light">CartoDB Light</option>
                 <option value="satellite">Vista Satellitare</option>
@@ -392,7 +410,7 @@
         </div>
         
         <div class="control-section">
-            <h3><i class="fas fa-university"></i> Filtri Mandamenti</h3>
+            <h3><img src="img/logo_cs.svg" alt="cspa" width="20" height="20"/>Filtra per Mandamenti</h3>
             <select id="mandamento-filter" class="form-control">
                 <option value="">Tutti i Mandamenti</option>
                 <option value="Castellammare">Castellammare</option>
@@ -403,7 +421,7 @@
         </div>
         
         <div class="control-section">
-            <h3><i class="fas fa-chart-bar"></i> Indicatori Demografici</h3>
+            <h3><img src="img/people.svg" alt="cspa" width="20" height="20"/> Indicatori Demografici</h3>
             <select id="demographic-select" class="form-control">
                 <option value="">Seleziona indicatore...</option>
                 <option value="population"><i class="fas fa-users"></i> Popolazione Stimata</option>
@@ -415,7 +433,7 @@
         </div>
         
         <div class="control-section">
-            <h3><i class="fas fa-briefcase"></i> Indicatori Socio-Economici</h3>
+            <h3><img src="img/people_02.svg" alt="cspa" width="20" height="20"/> Indicatori Socio-Economici</h3>
             <select id="economic-select" class="form-control">
                 <option value="">Seleziona indicatore...</option>
                 <option value="employment"><i class="fas fa-briefcase"></i> Tasso Occupazione</option>
@@ -427,7 +445,7 @@
         </div>
         
         <div class="control-section">
-            <h3><i class="fas fa-hammer"></i> Indicatori Territoriali</h3>
+            <h3><img src="img/chart-area.svg" alt="cspa" width="20" height="20"/> Indicatori Territoriali</h3>
             <select id="territorial-select" class="form-control">
                 <option value="">Seleziona indicatore...</option>
                 <option value="buildings"><i class="fas fa-building"></i> Numero Edifici</option>
@@ -441,7 +459,7 @@
         </div>
         
         <div class="control-section">
-            <h3><i class="fas fa-map-marked-alt"></i> Perimetri</h3>
+            <h3><img src="img/logo_cs_01.svg" alt="cspa" width="20" height="20"/> Perimetri</h3>
             <label class="checkbox-container">
                 <input type="checkbox" id="palermo-perimeter">
                 <span class="checkmark"></span>
@@ -460,7 +478,7 @@
         </div>
         
         <div class="control-section">
-            <h3><i class="fas fa-cog"></i> Visualizzazione</h3>
+            <h3><img src="img/gear.svg" alt="cspa" width="20" height="20"/> Visualizzazione</h3>
             <label class="checkbox-container">
                 <input type="checkbox" id="borders-toggle">
                 <span class="checkmark"></span>
@@ -829,7 +847,7 @@
                 source: 'palermo_catastale',
                 'source-layer': 'Palermo',
                 paint: {
-                    'line-color': '#4a4a4a',
+                    'line-color': '#ff0000',
                     'line-width': 2,
                     'line-opacity': 0.8,
                     'line-dasharray': [12, 8]
@@ -971,27 +989,14 @@
                     'rgba(200,200,200,0.5)' // Default per valori non classificati
                 ];
             } 
-            else if (themeKey === 'flood_risk') {
-                // CORREZIONE: Gestione robusta per rischio alluvione con normalizzazione dei valori
-                layerConfig.paint['fill-color'] = [
-                    'case',
-                    [
-                        'any',
-                        ['==', ['downcase', ['to-string', ['get', 'rischio_alluvione']]], 'alto'],
-                        ['==', ['get', 'rischio_alluvione'], 'alto'],
-                        ['==', ['get', 'rischio_alluvione'], 'ALTO']
-                    ],
-                    floodRiskColors['alto'],
-					[
-                        'any',
-                        ['==', ['downcase', ['to-string', ['get', 'rischio_alluvione']]], 'no'],
-                        ['==', ['get', 'rischio_alluvione'], 'no'],
-                        ['==', ['get', 'rischio_alluvione'], 'NO'],
-                        ['==', ['get', 'rischio_alluvione'], null],
-                        ['==', ['get', 'rischio_alluvione'], '']
-                    ],
-                    floodRiskColors['no'],
-                    'rgba(200,200,200,0.5)' // Default per valori non riconosciuti
+           else if (themeKey === 'flood_risk') {
+            // CORREZIONE: Gestione robusta per rischio alluvione con normalizzazione dei valori
+            layerConfig.paint['fill-color'] = [
+                'match',
+                ['downcase', ['coalesce', ['get', 'rischio_alluvione'], '']],
+                'alto', floodRiskColors['alto'],
+                'no', floodRiskColors['no'],
+                floodRiskColors['no']  // Default per valori non riconosciuti
                 ];
             } 
             else if (themeKey === 'landslide_risk') {
