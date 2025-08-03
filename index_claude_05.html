@@ -549,13 +549,13 @@
         };
 
         const floodRiskColors = {
-            "high": "rgba(255,0,0,0.7)",      // Rosso per alto rischio
-            "none": "rgba(200,200,200,0.5)"    // Grigio per nessun rischio
+            "alto": "rgba(255,0,0,0.7)",      // Rosso per alto rischio
+            "no": "rgba(200,200,200,0.5)"    // Grigio per nessun rischio
         };
 
         const floodRiskLabels = {
-            "high": "Alto rischio",
-            "none": "Nessun rischio"
+            "alto": "Alto rischio",
+            "no": "Nessun rischio"
         };
 
         const landslideRiskColors = {
@@ -990,7 +990,7 @@
                         ['==', ['get', 'rischio_alluvione'], null],
                         ['==', ['get', 'rischio_alluvione'], '']
                     ],
-                    floodRiskColors['none'],
+                    floodRiskColors['no'],
                     'rgba(200,200,200,0.5)' // Default per valori non riconosciuti
                 ];
             } 
