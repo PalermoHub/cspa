@@ -109,8 +109,8 @@
                 <span class="checkmark"></span>
                 Mostra bordi poligoni
             </label>
-			    <button id="reset-map" class="reset-button">
-        <i class="fas fa-sync-alt" ></i> Ripristina mappa di base
+			    <button id="reset-map" class="reset-button" title="RESET Vista predefinita">
+        <i class="fas fa-sync-alt" title="RESET Vista predefinita"></i> Vista predefinita
     </button>
         </div>
     </div>
@@ -1330,52 +1330,11 @@ function switchBasemap(value) {
                 closeInfoPanel();
             }
         });
-		// Aggiungi Reset mappa
-function resetMap() {
-    // Ripristina i selettori
-    document.getElementById('demographic-select').value = '';
-    document.getElementById('economic-select').value = '';
-    document.getElementById('territorial-select').value = 'landuse';
-    document.getElementById('mandamento-filter').value = '';
-    
-    // Ripristina i checkbox
-    document.getElementById('borders-toggle').checked = false;
-    document.getElementById('palermo-perimeter').checked = false;
-    document.getElementById('centro-storico-perimeter').checked = false;
-    document.getElementById('upl-cs-perimeter').checked = true;
-    
-    // Ripristina la mappa base
-    switchBasemap('carto-light');
-    
-    // Ripristina i layer tematici
-    removeTheme();
-    
-    // Ripristina i bordi
-    toggleBorders(false);
-    
-    // Ripristina i perimetri
-    togglePerimeter('palermo-perimeter', false);
-    togglePerimeter('centro-storico-perimeter', false);
-    togglePerimeter('upl-cs-perimeter', true);
-    
-    // Chiudi il pannello informazioni
-    closeInfoPanel();
-    
-    // Rimuovi eventuali feature hover
-    if (hoveredPolygon !== null) {
-        map.setFilter('catastale-hover', ['==', ['get', 'fid'], '']);
-        hoveredPolygon = null;
-    }
-    
-    // Ripristina il filtro mandamento
-    currentMandamentoFilter = null;
-    map.setFilter('catastale-base', null);
-}
-
-// Aggiungi l'event listener per il pulsante
-document.getElementById('reset-map').addEventListener('click', resetMap);
-		
+	
     </script>
+<!-- RESET Vista predefinita -->	
+<script src="script/reset.js"></script>
+
 	   <!-- loghi  --> 
 <div id="tavolab"></div>           
 <div id="ods"><a href="https://opendatasicilia.it/" title="opendatasicilia.it" target="_blank"> 
