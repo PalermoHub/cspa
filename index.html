@@ -72,8 +72,8 @@
         <div class="control-section">
             <h3><img src="img/chart-area.svg" alt="cspa" width="20" height="20"/> Indicatori Territoriali</h3>
             <select id="territorial-select" class="form-control">
-                <option value="">Seleziona indicatore...</option>
-				<option value="landuse" selected><i class="fas fa-map-marked-alt"></i> Particelle catastali di base</option>
+                <option value="landuse">Seleziona indicatore...</option>
+				<!-- <option value="landuse" selected><i class="fas fa-map-marked-alt"></i> Particelle catastali di base</option> -->
                 <option value="buildings"><i class="fas fa-building"></i> Numero Edifici per particella</option>
                  <option value="flood_risk"><i class="fas fa-water"></i> Rischio alluvione</option>
                 <option value="land_cover"><i class="fas fa-leaf"></i> Copertura del suolo</option>
@@ -109,6 +109,9 @@
                 <span class="checkmark"></span>
                 Mostra bordi poligoni
             </label>
+			    <button id="reset-map" class="reset-button">
+        <i class="fas fa-sync-alt" ></i> Ripristina mappa di base
+    </button>
         </div>
     </div>
     
@@ -883,21 +886,21 @@
             map.setLayoutProperty('catastale-outline', 'visibility', visibility);
         }
 
-        function removeTheme() {
-            if (map.getLayer('catastale-thematic')) {
-                map.removeLayer('catastale-thematic');
-            }
-            
-            // Ripristina layer base con opacità corretta
-            map.setPaintProperty('catastale-base', 'fill-opacity', 0.75);
-            
-            // Applica il filtro mandamento corrente al layer base
-            const filter = getCurrentFilter();
-            map.setFilter('catastale-base', filter);
-            
-            currentTheme = 'landuse';
-            showBaseLegend();
-        }
+function removeTheme() {
+    if (map.getLayer('catastale-thematic')) {
+        map.removeLayer('catastale-thematic');
+    }
+    
+    // Ripristina layer base con opacità corretta
+    map.setPaintProperty('catastale-base', 'fill-opacity', 0.75);
+    
+    // Applica il filtro mandamento corrente al layer base
+    const filter = getCurrentFilter();
+    map.setFilter('catastale-base', filter);
+    
+    currentTheme = 'landuse';
+    showBaseLegend();
+}
 
         // Funzione per mostrare legenda Jenks-Fisher per buildings, popolazione, età e tasso anziani
         function showJenksLegend(theme) {
@@ -1327,6 +1330,51 @@ function switchBasemap(value) {
                 closeInfoPanel();
             }
         });
+		// Aggiungi Reset mappa
+function resetMap() {
+    // Ripristina i selettori
+    document.getElementById('demographic-select').value = '';
+    document.getElementById('economic-select').value = '';
+    document.getElementById('territorial-select').value = 'landuse';
+    document.getElementById('mandamento-filter').value = '';
+    
+    // Ripristina i checkbox
+    document.getElementById('borders-toggle').checked = false;
+    document.getElementById('palermo-perimeter').checked = false;
+    document.getElementById('centro-storico-perimeter').checked = false;
+    document.getElementById('upl-cs-perimeter').checked = true;
+    
+    // Ripristina la mappa base
+    switchBasemap('carto-light');
+    
+    // Ripristina i layer tematici
+    removeTheme();
+    
+    // Ripristina i bordi
+    toggleBorders(false);
+    
+    // Ripristina i perimetri
+    togglePerimeter('palermo-perimeter', false);
+    togglePerimeter('centro-storico-perimeter', false);
+    togglePerimeter('upl-cs-perimeter', true);
+    
+    // Chiudi il pannello informazioni
+    closeInfoPanel();
+    
+    // Rimuovi eventuali feature hover
+    if (hoveredPolygon !== null) {
+        map.setFilter('catastale-hover', ['==', ['get', 'fid'], '']);
+        hoveredPolygon = null;
+    }
+    
+    // Ripristina il filtro mandamento
+    currentMandamentoFilter = null;
+    map.setFilter('catastale-base', null);
+}
+
+// Aggiungi l'event listener per il pulsante
+document.getElementById('reset-map').addEventListener('click', resetMap);
+		
     </script>
 	   <!-- loghi  --> 
 <div id="tavolab"></div>           

@@ -468,8 +468,33 @@
 /*extra*/		
 #ods { position:fixed; bottom:40px; right:20px; z-index: 1500;}
 #beta { position:fixed; bottom:90px; right:20px; z-index: 1500;}
+
 hr  {border: 0;
     height: 1px;
     background: #ff9900;
     background-image: linear-gradient(to right,  #eee, #ff9900,  #eee);
 	margin-top:20px;margin-bottom:20px;}
+	
+.reset-button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.reset-button:hover {
+    background-color: #e0e0e0;
+}
+
+.reset-button:active {
+    background-color: #d0d0d0;
+}	
