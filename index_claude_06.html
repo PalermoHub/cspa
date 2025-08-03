@@ -2,10 +2,10 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Studio Demografico e Socio-Economico del Centro Storico di Palermo</title>
+    <title>Studio Demografico e Socio-Economico del Centro Storico di  Palermo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="https://palermohub.opendatasicilia.it/favicon.ico"/> 
-    <link rel="icon" href="https://palermohub.opendatasicilia.it/favicon.png" type="image/png"/> 
+	        <link rel="shortcut icon" href="https://palermohub.opendatasicilia.it/favicon.ico"/> 
+        <link rel="icon" href="https://palermohub.opendatasicilia.it/favicon.png" type="image/png"/> 
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Librerie MapLibre -->
@@ -14,8 +14,14 @@
     <!-- Libreria PMTiles -->
     <script src="https://unpkg.com/pmtiles@2.4.0/dist/index.js"></script>
     <style>
-        #ods { position:fixed; bottom:40px; right:20px; z-index: 1500;}
-        #beta { position:fixed; bottom:90px; right:20px; z-index: 1500;}
+#ods { position:fixed; bottom:40px; right:20px; z-index: 1500;}
+#beta { position:fixed; bottom:90px; right:20px; z-index: 1500;}
+hr  {border: 0;
+    height: 1px;
+    background: #ff9900;
+    background-image: linear-gradient(to right,  #eee, #ff9900,  #eee);
+	margin-top:20px;margin-bottom:20px;
+}
         body { 
             margin: 0; 
             padding: 0; 
@@ -30,33 +36,52 @@
         }
         
         /* Pannello controlli */
-        .control-panel {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            background: rgba(255,255,255,0.70);
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            min-width: 230px;
-            backdrop-filter: blur(5px);
-            max-height: calc(100vh - 20px);
-            overflow-y: auto;
-        }
-        
+.control-panel {
+    position: absolute;
+    top: 80px; /* Mantiene la posizione superiore */
+    left: 10px;
+    bottom: 10px; /* Nuova posizione inferiore */
+    z-index: 1000;
+    background: rgba(255,255,255,0.70);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    min-width: 230px;
+    backdrop-filter: blur(5px);
+    overflow-y: auto;
+    max-height: none; /* Rimuove l'altezza massima fissa */
+}
+        /* Adattamento per dispositivi mobili */
+@media (max-width: 768px) {
+    .control-panel {
+        width: calc(100vw - 40px);
+        top: 70px; /* Posizione superiore ridotta */
+        bottom: 10px; /* Mantiene 10px dal fondo */
+    }
+    
+    /* Regola la mappa per lo spazio aggiuntivo */
+    #map {
+        top: 60px;
+        height: calc(100vh - 60px);
+    }
+}
         .control-section {
             margin-bottom: 20px;
         }
         
-        .control-section h3 {
-            margin: 0 0 12px 0;
-            font-size: 14px;
-            font-weight: 600;
-            color: #2c3e50;
-            border-bottom: 1px solid #ff9900;
-            padding-bottom: 5px;
-        }
+.control-section h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    padding-bottom: 10px;
+    /* Sostituito il bordo solido con un gradiente lineare bicolore */
+    background-image: linear-gradient(to right,  #eee, #ff9900,  #eee);
+    background-size: 100% 1px;
+    background-position: bottom;
+    background-repeat: no-repeat;
+    border-bottom: none; /* Rimuove il vecchio bordo */
+}
         
         .control-section h3 i {
             margin-right: 8px;
@@ -97,6 +122,11 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        /* Icone negli option */
+        .form-control option {
+            padding: 5px;
+        }
+
         /* Checkbox personalizzato */
         .checkbox-container {
             display: block;
@@ -121,8 +151,8 @@
             position: absolute;
             top: 0;
             left: 0;
-            height: 16px;
-            width: 16px;
+            height: 12px;
+            width: 12px;
             background-color: #f8f9fa;
             border: 2px solid #dee2e6;
             border-radius: 4px;
@@ -150,10 +180,10 @@
         }
 
         .checkbox-container .checkmark:after {
-            left: 6px;
+            left: 4px;
             top: 2px;
-            width: 6px;
-            height: 10px;
+            width: 4px;
+            height: 6px;
             border: solid white;
             border-width: 0 2px 2px 0;
             transform: rotate(45deg);
@@ -274,7 +304,7 @@
             bottom: 10px;
             left: 280px;
             background: rgba(255,255,255,0.70);
-            padding: 15px;
+            padding: 5px;
             border-radius: 10px;
             box-shadow: 0 2px 15px rgba(0,0,0,0.1);
             min-width: 120px;
@@ -312,6 +342,17 @@
             color: #34495e;
         }
         
+		<style>
+/* Aggiungi questo stile in fondo alla sezione CSS */
+.maplibregl-ctrl-top-right {
+    top: 90px !important; /* 70px originale + 10px = 80px */
+}
+
+.mapboxgl-ctrl-top-right .mapboxgl-ctrl, .maplibregl-ctrl-top-right .maplibregl-ctrl {
+    float: right;
+    margin: 20px 10px 0 0;
+}
+		
         /* Header */
         .header {
             position: absolute;
@@ -331,8 +372,8 @@
             font-weight: 600;
 			color: #313131;
 			display: flex;
-            align-items: center;
-            gap: 10px;
+    align-items: center; /* Allinea logo e testo sulla stessa linea */
+    gap: 10px; /* Spazio tra logo e testo */
         }
         
         .header h1 i {
@@ -341,8 +382,8 @@
         }
 		
 		.header h1 img {
-            transform: rotate(-125deg);
-        }
+    transform: rotate(-125deg);
+}
         
         #map {
             top: 60px;
@@ -356,33 +397,6 @@
         .info-panel {
             top: 80px;
             height: calc(100vh - 100px);
-        }
-        
-        /* MapLibre controls */
-        .maplibregl-ctrl-top-right {
-            top: 90px !important;
-        }
-
-        .mapboxgl-ctrl-top-right .mapboxgl-ctrl, .maplibregl-ctrl-top-right .maplibregl-ctrl {
-            float: right;
-            margin: 20px 10px 0 0;
-        }
-        
-        /* Debug info */
-        .debug-info {
-            position: fixed;
-            bottom: 10px;
-            right: 100px;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            display: none;
-            z-index: 2000;
-            max-width: 300px;
-            max-height: 200px;
-            overflow-y: auto;
         }
         
         /* Responsive */
@@ -406,7 +420,7 @@
 </head>
 <body>
     <div class="header">
-        <h1><img src="img/logo_cs.svg" alt="cspa" width="40" height="40"/> Studio Demografico e Socio-Economico del Centro Storico di Palermo</h1>
+        <h1><img src="img/logo_cs.svg" alt="cspa" width="40" height="40"/> Studio Demografico e Socio-Economico del Centro Storico di  Palermo</h1>
     </div>
 
     <div id="map"></div>
@@ -435,11 +449,11 @@
             <h3><img src="img/people.svg" alt="cspa" width="20" height="20"/> Indicatori Demografici</h3>
             <select id="demographic-select" class="form-control">
                 <option value="">Seleziona indicatore...</option>
-                <option value="population">Popolazione Stimata</option>
-                <option value="age">Età Media</option>
-                <option value="elderly">Tasso Anziani</option>
-                <option value="density">Densità Abitativa</option>
-                <option value="foreign">Popolazione Straniera</option>
+                <option value="population"><i class="fas fa-users"></i> Popolazione Stimata</option>
+                <option value="age"><i class="fas fa-user-clock"></i> Età Media</option>
+                <option value="elderly"><i class="fas fa-user-friends"></i> Tasso Anziani</option>
+                <option value="density"><i class="fas fa-home"></i> Densità Abitativa</option>
+                <option value="foreign"><i class="fas fa-globe"></i> Popolazione Straniera</option>
             </select>
         </div>
         
@@ -447,11 +461,11 @@
             <h3><img src="img/people_02.svg" alt="cspa" width="20" height="20"/> Indicatori Socio-Economici</h3>
             <select id="economic-select" class="form-control">
                 <option value="">Seleziona indicatore...</option>
-                <option value="employment">Tasso Occupazione</option>
-                <option value="genderGap">Divario Genere</option>
-                <option value="education">Istruzione Superiore</option>
-                <option value="resilience">Resilienza Economica</option>
-                <option value="cohesion">Coesione Sociale</option>
+                <option value="employment"><i class="fas fa-briefcase"></i> Tasso Occupazione</option>
+                <option value="genderGap"><i class="fas fa-balance-scale"></i> Divario Genere</option>
+                <option value="education"><i class="fas fa-graduation-cap"></i> Istruzione Superiore</option>
+                <option value="resilience"><i class="fas fa-shield-alt"></i> Resilienza Economica</option>
+                <option value="cohesion"><i class="fas fa-handshake"></i> Coesione Sociale</option>
             </select>
         </div>
         
@@ -459,13 +473,13 @@
             <h3><img src="img/chart-area.svg" alt="cspa" width="20" height="20"/> Indicatori Territoriali</h3>
             <select id="territorial-select" class="form-control">
                 <option value="">Seleziona indicatore...</option>
-                <option value="buildings">Numero Edifici</option>
-                <option value="landuse" selected>Particelle catastali di base</option>
-                <option value="land_cover">Copertura del suolo</option>
-                <option value="flood_risk">Rischio alluvione</option>
-                <option value="landslide_risk">Rischio di frana</option>
-                <option value="coastal_erosion">Rischio erosione costiera</option>
-                <option value="seismic_risk">Rischio sismico</option>
+				<option value="landuse" selected><i class="fas fa-map-marked-alt"></i> Particelle catastali di base</option>
+                <option value="buildings"><i class="fas fa-building"></i> Numero Edifici</option>
+                 <option value="flood_risk"><i class="fas fa-water"></i> Rischio alluvione</option>
+                <option value="land_cover"><i class="fas fa-leaf"></i> Copertura del suolo</option>
+               <option value="landslide_risk"><i class="fas fa-mountain"></i> Rischio di frana</option>
+                <option value="coastal_erosion"><i class="fas fa-umbrella-beach"></i> Rischio erosione costiera</option>
+                <option value="seismic_risk"><i class="fas fa-quake"></i> Rischio sismico</option>
             </select>
         </div>
         
@@ -495,11 +509,6 @@
                 <span class="checkmark"></span>
                 Mostra bordi poligoni
             </label>
-            <label class="checkbox-container">
-                <input type="checkbox" id="debug-toggle">
-                <span class="checkmark"></span>
-                Debug mode
-            </label>
         </div>
     </div>
     
@@ -523,10 +532,6 @@
         <div id="legend-items"></div>
     </div>
 
-    <div class="debug-info" id="debug-info">
-        <div id="debug-content"></div>
-    </div>
-
     <script>
         // Registra il protocollo PMTiles
         const protocol = new pmtiles.Protocol();
@@ -540,14 +545,14 @@
             [13.40, 38.14]
         ];
 
-        // Colori uso del suolo
+        // Colori uso del suolo dal file QML
         const landUseColors = {
             "servizi": "rgba(250,240,230,0.75)",
             "military": "rgba(85,107,47,0.75)",
             "park": "rgba(124,252,0,0.75)",
             "pedestrian": "rgba(123,123,123,0.75)",
             "protected": "rgba(255,192,192,0.75)",
-            "recreation": "rgba(111, 167, 183, 0.75)",
+            "recreation": "rgba(111, 167, 183 , 75%)",
             "religious": "rgba(221,101,251,1.0)",
             "residential": "rgba(255,230,153,0.75)",
             "education": "rgba(226,160,54,0.75)",
@@ -571,56 +576,12 @@
             "": "Non Classificato"
         };
 
-        // CORREZIONE: Gestione estesa per tutti i possibili valori di rischio alluvione
-        const floodRiskColors = {
-            "alto": "#FF0000",
-            "ALTO": "#FF0000",
-            "Alto": "#FF0000",
-            "high": "#FF0000",
-            "HIGH": "#FF0000",
-            "si": "#FF6600",
-            "SI": "#FF6600",
-            "yes": "#FF6600",
-            "YES": "#FF6600",
-            "medio": "#FFFF00",
-            "MEDIO": "#FFFF00",
-            "medium": "#FFFF00",
-            "MEDIUM": "#FFFF00",
-            "basso": "#00FF00",
-            "BASSO": "#00FF00",
-            "low": "#00FF00",
-            "LOW": "#00FF00",
-            "no": "#C0C0C0",
-            "NO": "#C0C0C0",
-            "nessuno": "#C0C0C0",
-            "NESSUNO": "#C0C0C0",
-            "none": "#C0C0C0",
-            "NONE": "#C0C0C0",
-            "": "#C0C0C0"
-        };
-
-        const floodRiskLabels = {
-            "alto": "Alto rischio",
-            "ALTO": "Alto rischio",
-            "si": "Rischio presente",
-            "SI": "Rischio presente",
-            "medio": "Medio rischio",
-            "MEDIO": "Medio rischio",
-            "basso": "Basso rischio",
-            "BASSO": "Basso rischio",
-            "no": "Nessun rischio",
-            "NO": "Nessun rischio",
-            "none": "Nessun rischio",
-            "NONE": "Nessun rischio",
-            "": "Nessun rischio"
-        };
-
-        // Altri colori per mappe tematiche
+        // Definizioni per le nuove mappe tematiche
         const landCoverColors = {
-            "1110": "#FFFF64",
-            "2111": "#228B22",
-            "2112": "#90EE90",
-            "2212": "#006400"
+            "1110": "rgba(255,255,100,0.7)", // Giallo per aree urbane
+            "2111": "rgba(34,139,34,0.7)",   // Verde scuro per colture permanenti
+            "2112": "rgba(152,251,152,0.7)",  // Verde chiaro per colture temporanee
+            "2212": "rgba(0,100,0,0.7)"       // Verde molto scuro per foreste
         };
 
         const landCoverLabels = {
@@ -630,120 +591,39 @@
             "2212": "Foreste"
         };
 
-        // Configurazioni tematizzazioni
-        const themes = {
-            population: {
-                name: 'Popolazione Stimata',
-                property: 'popolazione_stimata',
-                colors: ['#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1e88e5', '#1976d2'],
-                unit: 'abitanti'
-            },
-            age: {
-                name: 'Età Media',
-                property: 'età_media',
-                colors: ['#fff3e0', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#fb8c00', '#f57c00'],
-                unit: 'anni'
-            },
-            elderly: {
-                name: 'Tasso Anziani',
-                property: 'tasso_anziani',
-                colors: ['#f1f8e9', '#dcedc8', '#c5e1a5', '#aed581', '#9ccc65', '#8bc34a', '#7cb342', '#689f38'],
-                unit: '%'
-            },
-            density: {
-                name: 'Densità Abitativa',
-                property: 'densità abitativa',
-                colors: ['#fce4ec', '#f8bbd9', '#f48fb1', '#f06292', '#ec407a', '#e91e63', '#d81b60', '#c2185b'],
-                unit: 'ab/km²'
-            },
-            foreign: {
-                name: 'Popolazione Straniera',
-                property: 'tasso_di_popolazione_straniera',
-                colors: ['#e0f2f1', '#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#009688', '#00897b', '#00695c'],
-                unit: '%'
-            },
-            employment: {
-                name: 'Tasso Occupazione',
-                property: 'tasso_di_occupazione',
-                colors: ['#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#8e24aa', '#7b1fa2'],
-                unit: '%'
-            },
-            genderGap: {
-                name: 'Divario Genere Occupazione',
-                property: 'divario di genere nell\'occupazione',
-                colors: ['#fce4e4', '#f5c6c6', '#eea5a5', '#e78383', '#e06262', '#d84141', '#d12020', '#ca0000'],
-                unit: '%'
-            },
-            education: {
-                name: 'Istruzione Superiore',
-                property: 'tasso di istruzione superiore',
-                colors: ['#e8f5e8', '#c8e6c8', '#a5d6a5', '#82c782', '#5fb85f', '#3ca83c', '#2e7d32', '#1b5e20'],
-                unit: '%'
-            },
-            resilience: {
-                name: 'Resilienza Economica',
-                property: 'indice_di_resilienza_economica',
-                colors: ['#fff8e1', '#ffecb3', '#ffe082', '#ffd54f', '#ffca28', '#ffc107', '#ffb300', '#ffa000'],
-                unit: 'indice'
-            },
-            cohesion: {
-                name: 'Coesione Sociale',
-                property: 'indice_coesione_sociale',
-                colors: ['#e1f5fe', '#b3e5fc', '#81d4fa', '#4fc3f7', '#29b6f6', '#03a9f4', '#039be5', '#0288d1'],
-                unit: 'indice'
-            },
-            buildings: {
-                name: 'Numero Edifici',
-                property: 'buildings_count',
-                colors: ['#efebe9', '#d7ccc8', '#bcaaa4', '#a1887f', '#8d6e63', '#795548', '#6d4c41', '#5d4037'],
-                unit: 'edifici'
-            },
-            flood_risk: {
-                name: 'Rischio alluvione',
-                property: 'rischio_alluvione',
-                type: 'categorical'
-            },
-            land_cover: {
-                name: 'Copertura del suolo',
-                property: 'copertura del suolo',
-                type: 'categorical'
-            },
-            landslide_risk: {
-                name: 'Rischio di frana',
-                property: 'rischio di frana',
-                type: 'categorical'
-            },
-            coastal_erosion: {
-                name: 'Rischio erosione costiera',
-                property: 'rischio di erosione costiera',
-                type: 'categorical'
-            },
-            seismic_risk: {
-                name: 'Rischio sismico',
-                property: 'rischio sismico',
-                type: 'categorical'
-            }
+        const floodRiskColors = {
+            "alto": "rgba(255,0,0,0.7)",      // Rosso per alto rischio
+            "no": "rgba(200,200,200,0.5)"    // Grigio per nessun rischio
         };
 
-        let currentTheme = 'landuse';
-        let hoveredPolygon = null;
-        let currentMandamentoFilter = null;
-        let debugMode = false;
+        const floodRiskLabels = {
+            "alto": "Alto rischio - R4",
+            "no": "Nessun rischio"
+        };
 
-        // Funzioni di debug
-        function debugLog(message, data = null) {
-            if (debugMode) {
-                console.log(`[DEBUG] ${message}`, data);
-                updateDebugInfo(message, data);
-            }
-        }
+        const landslideRiskColors = {
+            "none": "rgba(200,200,200,0.5)"    // Grigio per nessun rischio
+        };
 
-        function updateDebugInfo(message, data) {
-            const debugDiv = document.getElementById('debug-content');
-            const timestamp = new Date().toLocaleTimeString();
-            const logEntry = `[${timestamp}] ${message}${data ? ': ' + JSON.stringify(data, null, 2) : ''}`;
-            debugDiv.innerHTML = logEntry + '<br>' + debugDiv.innerHTML;
-        }
+        const landslideRiskLabels = {
+            "none": "Nessun rischio"
+        };
+
+        const coastalErosionColors = {
+            "none": "rgba(200,200,200,0.5)"    // Grigio per nessun rischio
+        };
+
+        const coastalErosionLabels = {
+            "none": "Nessun rischio"
+        };
+
+        const seismicRiskColors = {
+            "low": "rgba(0,255,0,0.7)"        // Verde per basso rischio
+        };
+
+        const seismicRiskLabels = {
+            "low": "Basso rischio"
+        };
 
         // Inizializza mappa
         const map = new maplibregl.Map({
@@ -755,13 +635,13 @@
                         type: 'raster',
                         tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'],
                         tileSize: 256,
-                        attribution: '© OpenStreetMap contributors, © CartoDB'
+                        attribution: '© OpenStreetMap contributors, © CartoDB - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> -  '
                     },
                     'satellite': {
                         type: 'raster',
                         tiles: ['https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'],
                         tileSize: 256,
-                        attribution: '© Google'
+                        attribution: '© Google - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> -'
                     }
                 },
                 layers: [
@@ -777,7 +657,7 @@
                         type: 'raster',
                         source: 'satellite',
                         minzoom: 0,
-                        maxzoom: 17,
+                        maxZoom: 17,
                         layout: { visibility: 'none' }
                     }
                 ]
@@ -792,10 +672,134 @@
             dragRotate: false
         });
 
+        // Configurazioni tematizzazioni
+        const themes = {
+            population: {
+                name: 'Popolazione Stimata',
+                property: 'popolazione_stimata',
+                colors: ['#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1e88e5', '#1976d2'],
+                unit: 'abitanti',
+                format: (val) => `${val?.toLocaleString() || 'N/D'} ab.`
+            },
+            age: {
+                name: 'Età Media',
+                property: 'età_media',
+                colors: ['#fff3e0', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#fb8c00', '#f57c00'],
+                unit: 'anni',
+                format: (val) => `${val || 'N/D'} anni`
+            },
+            elderly: {
+                name: 'Tasso Anziani',
+                property: 'tasso_anziani',
+                colors: ['#f1f8e9', '#dcedc8', '#c5e1a5', '#aed581', '#9ccc65', '#8bc34a', '#7cb342', '#689f38'],
+                unit: '%',
+                format: (val) => `${val || 'N/D'}%`
+            },
+            density: {
+                name: 'Densità Abitativa',
+                property: 'densità abitativa',
+                colors: ['#fce4ec', '#f8bbd9', '#f48fb1', '#f06292', '#ec407a', '#e91e63', '#d81b60', '#c2185b'],
+                unit: 'ab/km²',
+                format: (val) => `${val?.toLocaleString() || 'N/D'} ab/km²`
+            },
+            foreign: {
+                name: 'Popolazione Straniera',
+                property: 'tasso_di_popolazione_straniera',
+                colors: ['#e0f2f1', '#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#009688', '#00897b', '#00695c'],
+                unit: '%',
+                format: (val) => `${val || 'N/D'}%`
+            },
+            employment: {
+                name: 'Tasso Occupazione',
+                property: 'tasso_di_occupazione',
+                colors: ['#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#8e24aa', '#7b1fa2'],
+                unit: '%',
+                format: (val) => `${val || 'N/D'}%`
+            },
+            genderGap: {
+                name: 'Divario Genere Occupazione',
+                property: 'divario di genere nell\'occupazione',
+                colors: ['#fce4e4', '#f5c6c6', '#eea5a5', '#e78383', '#e06262', '#d84141', '#d12020', '#ca0000'],
+                unit: '%',
+                format: (val) => `${val || 'N/D'}%`
+            },
+            education: {
+                name: 'Istruzione Superiore',
+                property: 'tasso di istruzione superiore',
+                colors: ['#e8f5e8', '#c8e6c8', '#a5d6a5', '#82c782', '#5fb85f', '#3ca83c', '#2e7d32', '#1b5e20'],
+                unit: '%',
+                format: (val) => `${val || 'N/D'}%`
+            },
+            resilience: {
+                name: 'Resilienza Economica',
+                property: 'indice_di_resilienza_economica',
+                colors: ['#fff8e1', '#ffecb3', '#ffe082', '#ffd54f', '#ffca28', '#ffc107', '#ffb300', '#ffa000'],
+                unit: 'indice',
+                format: (val) => `${val || 'N/D'}`
+            },
+            cohesion: {
+                name: 'Coesione Sociale',
+                property: 'indice_coesione_sociale',
+                colors: ['#e1f5fe', '#b3e5fc', '#81d4fa', '#4fc3f7', '#29b6f6', '#03a9f4', '#039be5', '#0288d1'],
+                unit: 'indice',
+                format: (val) => `${val || 'N/D'}`
+            },
+            buildings: {
+                name: 'Numero Edifici',
+                property: 'buildings_count',
+                colors: ['#efebe9', '#d7ccc8', '#bcaaa4', '#a1887f', '#8d6e63', '#795548', '#6d4c41', '#5d4037'],
+                unit: 'edifici',
+                format: (val) => `${val || 'N/D'} edifici`
+            },
+            land_cover: {
+                name: 'Copertura del suolo',
+                property: 'copertura del suolo',
+                colors: ['#FFFF64', '#228B22', '#90EE90', '#006400'],
+                unit: '',
+                format: (val) => landCoverLabels[val] || val || 'N/D',
+                type: 'categorical'
+            },
+            flood_risk: {
+                name: 'Rischio alluvione',
+                property: 'Ri alluvione',
+                colors: ['#FF0000', '#C8C8C8'],
+                unit: '',
+                format: (val) => floodRiskLabels[val] || val || 'N/D',
+                type: 'categorical'
+            },
+            landslide_risk: {
+                name: 'Rischio di frana',
+                property: 'rischio di frana',
+                colors: ['#C8C8C8'],
+                unit: '',
+                format: (val) => landslideRiskLabels[val] || val || 'N/D',
+                type: 'categorical'
+            },
+            coastal_erosion: {
+                name: 'Rischio erosione costiera',
+                property: 'rischio di erosione costiera',
+                colors: ['#C8C8C8'],
+                unit: '',
+                format: (val) => coastalErosionLabels[val] || val || 'N/D',
+                type: 'categorical'
+            },
+            seismic_risk: {
+                name: 'Rischio sismico',
+                property: 'rischio sismico',
+                colors: ['#00FF00'],
+                unit: '',
+                format: (val) => seismicRiskLabels[val] || val || 'N/D',
+                type: 'categorical'
+            }
+        };
+
+        let currentTheme = 'landuse';
+        let hoveredPolygon = null;
+        let currentMandamentoFilter = null;
+        let featuresData = []; // Stored per calcoli dinamici
+
         // Caricamento mappa
         map.on('load', function() {
-            debugLog('Mappa caricata, aggiungendo sorgente PMTiles');
-            
             // Aggiungi sorgente PMTiles
             map.addSource('palermo_catastale', {
                 type: 'vector',
@@ -843,7 +847,7 @@
                 filter: ['==', ['get', 'fid'], '']
             });
 
-            // Layer contorni
+            // Layer contorni - inizialmente nascosti
             map.addLayer({
                 id: 'catastale-outline',
                 type: 'line',
@@ -859,7 +863,9 @@
                 }
             });
 
-            // Perimetri
+            // LAYER PERIMETRI AGGIUNTIVI
+            
+            // Perimetro Palermo - tratteggio lungo (12px line, 8px gap)
             map.addLayer({
                 id: 'palermo-perimeter',
                 type: 'line',
@@ -875,7 +881,8 @@
                     'visibility': 'none'
                 }
             }, 'catastale-hover');
-
+			
+			            // Centro Storico - tratteggio medio (8px line, 6px gap)
             map.addLayer({
                 id: 'centro-storico-perimeter',
                 type: 'line',
@@ -892,6 +899,7 @@
                 }
             }, 'catastale-hover');
 
+            // UPL Centro Storico - tratteggio corto (4px line, 4px gap)
             map.addLayer({
                 id: 'upl-cs-perimeter',
                 type: 'line',
@@ -911,36 +919,17 @@
             // Controlli navigazione
             map.addControl(new maplibregl.NavigationControl());
             
-            debugLog('Layer creati con successo');
-            showBaseLegend();
-
-            // Test caricamento dati
-            setTimeout(() => {
-                testDataLoading();
-            }, 2000);
-        });
-
-        // Test caricamento dati
-        function testDataLoading() {
-            debugLog('Testando caricamento dati...');
+            // Imposta il valore di default per uso del suolo
+            document.getElementById('territorial-select').value = 'landuse';
             
-            const features = map.querySourceFeatures('palermo_catastale', {
+            // Event listener per caricamento dati (per calcoli dinamici)
+            map.querySourceFeatures('palermo_catastale', {
                 sourceLayer: 'catastale'
             });
             
-            debugLog(`Trovate ${features.length} features`);
-            
-            if (features.length > 0) {
-                const sampleFeatures = features.slice(0, 5);
-                sampleFeatures.forEach((feature, index) => {
-                    debugLog(`Feature ${index + 1} properties:`, Object.keys(feature.properties));
-                    debugLog(`Feature ${index + 1} rischio_alluvione:`, feature.properties.rischio_alluvione);
-                });
-                
-                const uniqueFloodValues = [...new Set(features.map(f => f.properties.rischio_alluvione))];
-                debugLog('Valori unici per rischio_alluvione:', uniqueFloodValues);
-            }
-        }
+            // Mostra legenda di base
+            showBaseLegend();
+        });
 
         // Gestione hover
         map.on('mouseenter', 'catastale-base', (e) => {
@@ -960,19 +949,12 @@
                     ['==', ['get', 'fid'], featureId],
                     ['==', ['get', 'particella'], featureId]
                 ]);
-
-                if (debugMode) {
-                    debugLog('Hover feature:', {
-                        fid: feature.properties.fid,
-                        particella: feature.properties.particella,
-                        rischio_alluvione: feature.properties.rischio_alluvione
-                    });
-                }
             }
         });
 
         map.on('mouseleave', 'catastale-base', () => {
             map.getCanvas().style.cursor = '';
+            
             if (hoveredPolygon !== null) {
                 map.setFilter('catastale-hover', ['==', ['get', 'fid'], '']);
             }
@@ -983,19 +965,25 @@
         map.on('click', 'catastale-base', (e) => {
             if (e.features.length > 0) {
                 const feature = e.features[0];
-                debugLog('Click feature properties:', feature.properties);
                 showFeatureInfo(feature);
             }
         });
 
-        // CORREZIONE: Funzione per applicare tema con gestione robusta del rischio alluvione
+        // Funzioni controllo perimetri
+        function togglePerimeter(layerId, show) {
+            const visibility = show ? 'visible' : 'none';
+            map.setLayoutProperty(layerId, 'visibility', visibility);
+        }
+
+        // Funzioni tematizzazione - VERSIONE CORRETTA
         function applyTheme(themeKey) {
-            debugLog(`Applicando tema: ${themeKey}`);
-            
             const theme = themes[themeKey];
-            if (!theme) {
-                debugLog(`Tema ${themeKey} non trovato`);
-                return;
+            if (!theme) return;
+
+            let range = null;
+            if (theme.type !== 'categorical') {
+                const dynamicRange = calculateDynamicRange(themeKey);
+                range = dynamicRange || getStaticRange(themeKey);
             }
 
             if (map.getLayer('catastale-thematic')) {
@@ -1003,6 +991,7 @@
             }
 
             const currentFilter = getCurrentFilter();
+
             let layerConfig = {
                 id: 'catastale-thematic',
                 type: 'fill',
@@ -1013,58 +1002,8 @@
                 }
             };
 
-            if (themeKey === 'flood_risk') {
-                debugLog('Configurando layer per rischio alluvione');
-                
-                // CORREZIONE: Usa case expression molto più robusta
-                layerConfig.paint['fill-color'] = [
-                    'case',
-                    // Alto rischio - tutte le varianti
-                    [
-                        'any',
-                        ['==', ['get', 'rischio_alluvione'], 'alto'],
-                        ['==', ['get', 'rischio_alluvione'], 'ALTO'],
-                        ['==', ['get', 'rischio_alluvione'], 'Alto'],
-                        ['==', ['get', 'rischio_alluvione'], 'high'],
-                        ['==', ['get', 'rischio_alluvione'], 'HIGH']
-                    ],
-                    floodRiskColors['alto'],
-                    
-                    // Rischio presente
-                    [
-                        'any',
-                        ['==', ['get', 'rischio_alluvione'], 'si'],
-                        ['==', ['get', 'rischio_alluvione'], 'SI'],
-                        ['==', ['get', 'rischio_alluvione'], 'yes'],
-                        ['==', ['get', 'rischio_alluvione'], 'YES']
-                    ],
-                    floodRiskColors['si'],
-                    
-                    // Medio rischio
-                    [
-                        'any',
-                        ['==', ['get', 'rischio_alluvione'], 'medio'],
-                        ['==', ['get', 'rischio_alluvione'], 'MEDIO'],
-                        ['==', ['get', 'rischio_alluvione'], 'medium'],
-                        ['==', ['get', 'rischio_alluvione'], 'MEDIUM']
-                    ],
-                    floodRiskColors['medio'],
-                    
-                    // Basso rischio
-                    [
-                        'any',
-                        ['==', ['get', 'rischio_alluvione'], 'basso'],
-                        ['==', ['get', 'rischio_alluvione'], 'BASSO'],
-                        ['==', ['get', 'rischio_alluvione'], 'low'],
-                        ['==', ['get', 'rischio_alluvione'], 'LOW']
-                    ],
-                    floodRiskColors['basso'],
-                    
-                    // Nessun rischio (default)
-                    floodRiskColors['no']
-                ];
-                
-            } else if (themeKey === 'land_cover') {
+            // Configurazione specifica per ogni tipo di tema
+            if (themeKey === 'land_cover') {
                 layerConfig.paint['fill-color'] = [
                     'match',
                     ['get', 'copertura del suolo'],
@@ -1072,14 +1011,62 @@
                     '2111', landCoverColors['2111'],
                     '2112', landCoverColors['2112'],
                     '2212', landCoverColors['2212'],
-                    '#C0C0C0'
+                    'rgba(200,200,200,0.5)' // Default per valori non classificati
                 ];
-            } else if (theme.type === 'categorical') {
-                // Gestione generica per altri temi categorici
-                layerConfig.paint['fill-color'] = '#C0C0C0';
-            } else {
-                // Tema numerico
-                const range = getStaticRange(themeKey);
+            } 
+           else if (themeKey === 'flood_risk') {
+            // CORREZIONE: Gestione robusta per rischio alluvione con normalizzazione dei valori
+            layerConfig.paint['fill-color'] = [
+                'match',
+                ['downcase', ['coalesce', ['get', 'Ri alluvione'], '']],
+                'alto', floodRiskColors['alto'],
+                'no', floodRiskColors['no'],
+                floodRiskColors['no']  // Default per valori non riconosciuti
+                ];
+            } 
+            else if (themeKey === 'landslide_risk') {
+                layerConfig.paint['fill-color'] = [
+                    'case',
+                    [
+                        'any',
+                        ['==', ['downcase', ['to-string', ['get', 'rischio di frana']]], 'none'],
+                        ['==', ['get', 'rischio di frana'], 'none'],
+                        ['==', ['get', 'rischio di frana'], null],
+                        ['==', ['get', 'rischio di frana'], '']
+                    ],
+                    landslideRiskColors['none'],
+                    'rgba(200,200,200,0.5)' // Default
+                ];
+            } 
+            else if (themeKey === 'coastal_erosion') {
+                layerConfig.paint['fill-color'] = [
+                    'case',
+                    [
+                        'any',
+                        ['==', ['downcase', ['to-string', ['get', 'rischio di erosione costiera']]], 'none'],
+                        ['==', ['get', 'rischio di erosione costiera'], 'none'],
+                        ['==', ['get', 'rischio di erosione costiera'], null],
+                        ['==', ['get', 'rischio di erosione costiera'], '']
+                    ],
+                    coastalErosionColors['none'],
+                    'rgba(200,200,200,0.5)' // Default
+                ];
+            } 
+            else if (themeKey === 'seismic_risk') {
+                layerConfig.paint['fill-color'] = [
+                    'case',
+                    [
+                        'any',
+                        ['==', ['downcase', ['to-string', ['get', 'rischio sismico']]], 'low'],
+                        ['==', ['get', 'rischio sismico'], 'low'],
+                        ['==', ['get', 'rischio sismico'], 'LOW']
+                    ],
+                    seismicRiskColors['low'],
+                    'rgba(200,200,200,0.5)' // Default
+                ];
+            } 
+            else {
+                // Configurazione standard per temi numerici
                 const step = (range.max - range.min) / (theme.colors.length - 1);
                 layerConfig.paint['fill-color'] = [
                     'interpolate',
@@ -1104,12 +1091,37 @@
             map.setPaintProperty('catastale-base', 'fill-opacity', 0);
             
             currentTheme = themeKey;
-            showLegend(theme);
+            showLegend(theme, range);
+        }
+
+        function calculateDynamicRange(themeKey) {
+            // Simula il calcolo del range dai dati filtrati
+            // In un'implementazione reale, questo dovrebbe query i dati effettivi
+            if (!currentMandamentoFilter) return null;
             
-            debugLog(`Tema ${themeKey} applicato con successo`);
+            const theme = themes[themeKey];
+            if (!theme) return null;
+            
+            // Range ridotti per simulare l'effetto del filtro
+            const filteredRanges = {
+                population: { min: 0, max: 800 },
+                age: { min: 0, max: 90 },
+                elderly: { min: 0, max: 80 },
+                density: { min: 0, max: 15000 },
+                foreign: { min: 0, max: 80 },
+                employment: { min: 0, max: 90 },
+                genderGap: { min: 0, max: 80 },
+                education: { min: 0, max: 90 },
+                resilience: { min: 0, max: 90 },
+                cohesion: { min: 0, max: 90 },
+                buildings: { min: 0, max: 40 }
+            };
+            
+            return filteredRanges[themeKey];
         }
 
         function getStaticRange(themeKey) {
+            // Range valori - tutti iniziano da 0
             const valueRanges = {
                 population: { min: 0, max: 1000 },
                 age: { min: 0, max: 100 },
@@ -1123,11 +1135,13 @@
                 cohesion: { min: 0, max: 100 },
                 buildings: { min: 0, max: 50 }
             };
+            
             return valueRanges[themeKey];
         }
 
         function getCurrentFilter() {
             if (currentMandamentoFilter && currentMandamentoFilter !== '') {
+                // Mappa il nome dell'interfaccia al nome del database
                 let dbMandamento = currentMandamentoFilter;
                 if (currentMandamentoFilter === 'Castellammare') {
                     dbMandamento = 'Castellamare';
@@ -1138,11 +1152,13 @@
         }
 
         function applyMandamentoFilter(mandamento) {
-            debugLog(`Applicando filtro mandamento: ${mandamento}`);
-            
+            // Salva l'indicatore corrente
             const activeTheme = currentTheme;
+            
+            // Aggiorna il filtro corrente
             currentMandamentoFilter = mandamento || null;
             
+            // Mappa il nome dell'interfaccia al nome del database
             let dbMandamento = mandamento;
             if (mandamento === 'Castellammare') {
                 dbMandamento = 'Castellamare';
@@ -1150,13 +1166,16 @@
             
             const filter = dbMandamento ? ['==', ['get', 'Mandamento'], dbMandamento] : null;
             
+            // Applica filtro ai layer base
             map.setFilter('catastale-base', filter);
-            map.setFilter('catastale-hover', ['==', ['get', 'fid'], '']);
+            map.setFilter('catastale-hover', ['==', ['get', 'fid'], '']); // Reset hover
             map.setFilter('catastale-outline', filter);
             
+            // Se c'è un indicatore attivo (non uso del suolo), riapplicalo
             if (activeTheme && activeTheme !== 'landuse') {
                 applyTheme(activeTheme);
             } else {
+                // Altrimenti assicurati che il layer base sia visibile
                 if (map.getLayer('catastale-thematic')) {
                     map.removeLayer('catastale-thematic');
                 }
@@ -1165,12 +1184,20 @@
             }
         }
 
+        function toggleBorders(show) {
+            const visibility = show ? 'visible' : 'none';
+            map.setLayoutProperty('catastale-outline', 'visibility', visibility);
+        }
+
         function removeTheme() {
             if (map.getLayer('catastale-thematic')) {
                 map.removeLayer('catastale-thematic');
             }
             
+            // Ripristina layer base con opacità corretta
             map.setPaintProperty('catastale-base', 'fill-opacity', 0.75);
+            
+            // Applica il filtro mandamento corrente al layer base
             const filter = getCurrentFilter();
             map.setFilter('catastale-base', filter);
             
@@ -1178,6 +1205,7 @@
             showBaseLegend();
         }
 
+        // Funzione showLegend aggiornata per gestire temi categorici
         function showLegend(theme, range) {
             const legend = document.getElementById('legend');
             const title = document.getElementById('legend-title');
@@ -1191,56 +1219,67 @@
             
             items.innerHTML = '';
             
+            // Gestione legenda per temi categorici
             if (theme.type === 'categorical') {
-                if (currentTheme === 'flood_risk') {
-                    const categories = [
-                        { color: floodRiskColors['alto'], label: 'Alto rischio' },
-                        { color: floodRiskColors['si'], label: 'Rischio presente' },
-                        { color: floodRiskColors['medio'], label: 'Medio rischio' },
-                        { color: floodRiskColors['basso'], label: 'Basso rischio' },
-                        { color: floodRiskColors['no'], label: 'Nessun rischio' }
-                    ];
-                    
-                    categories.forEach(cat => {
-                        const item = document.createElement('div');
-                        item.className = 'legend-item';
-                        item.innerHTML = `
-                            <div class="legend-color" style="background-color: ${cat.color}"></div>
-                            <span class="legend-label">${cat.label}</span>
-                        `;
-                        items.appendChild(item);
-                    });
-                } else if (currentTheme === 'land_cover') {
-                    Object.entries(landCoverLabels).forEach(([code, label]) => {
-                        const item = document.createElement('div');
-                        item.className = 'legend-item';
-                        item.innerHTML = `
-                            <div class="legend-color" style="background-color: ${landCoverColors[code]}"></div>
-                            <span class="legend-label">${label}</span>
-                        `;
-                        items.appendChild(item);
-                    });
+                let colorMap = {};
+                let labelMap = {};
+                
+                switch (currentTheme) {
+                    case 'land_cover':
+                        colorMap = landCoverColors;
+                        labelMap = landCoverLabels;
+                        break;
+                    case 'flood_risk':
+                        colorMap = floodRiskColors;
+                        labelMap = floodRiskLabels;
+                        break;
+                    case 'landslide_risk':
+                        colorMap = landslideRiskColors;
+                        labelMap = landslideRiskLabels;
+                        break;
+                    case 'coastal_erosion':
+                        colorMap = coastalErosionColors;
+                        labelMap = coastalErosionLabels;
+                        break;
+                    case 'seismic_risk':
+                        colorMap = seismicRiskColors;
+                        labelMap = seismicRiskLabels;
+                        break;
                 }
-            } else {
-                const range = getStaticRange(currentTheme);
-                if (range) {
-                    const step = (range.max - range.min) / (theme.colors.length - 1);
+                
+                for (const [code, color] of Object.entries(colorMap)) {
+                    const label = labelMap[code] || code;
                     
-                    theme.colors.forEach((color, i) => {
-                        const minVal = Math.round(range.min + (step * i));
-                        const maxVal = i === theme.colors.length - 1 ? 
-                            range.max : 
-                            Math.round(range.min + (step * (i + 1)));
-                        
-                        const item = document.createElement('div');
-                        item.className = 'legend-item';
-                        item.innerHTML = `
-                            <div class="legend-color" style="background-color: ${color}"></div>
-                            <span class="legend-label">${minVal} - ${maxVal} ${theme.unit}</span>
-                        `;
-                        items.appendChild(item);
-                    });
+                    const item = document.createElement('div');
+                    item.className = 'legend-item';
+                    item.innerHTML = `
+                        <div class="legend-color" style="background-color: ${color}"></div>
+                        <span class="legend-label">${label}</span>
+                    `;
+                    items.appendChild(item);
                 }
+            } 
+            else {
+                // Gestione standard per temi numerici
+                const step = (range.max - range.min) / (theme.colors.length - 1);
+                
+                theme.colors.forEach((color, i) => {
+                    const minVal = Math.round(range.min + (step * i));
+                    const maxVal = i === theme.colors.length - 1 ? 
+                        range.max : 
+                        Math.round(range.min + (step * (i + 1)));
+                    
+                    const item = document.createElement('div');
+                    item.className = 'legend-item';
+                    
+                    let label = `${minVal} - ${maxVal} ${theme.unit}`;
+                    
+                    item.innerHTML = `
+                        <div class="legend-color" style="background-color: ${color}"></div>
+                        <span class="legend-label">${label}</span>
+                    `;
+                    items.appendChild(item);
+                });
             }
             
             legend.classList.add('visible');
@@ -1260,11 +1299,13 @@
             items.innerHTML = '';
             
             for (const [className, color] of Object.entries(landUseColors)) {
-                if (className === '') continue;
+                if (className === '') continue; // Salta il non classificato
                 
                 const label = landUseLabels[className];
+                
                 const item = document.createElement('div');
                 item.className = 'legend-item';
+                
                 item.innerHTML = `
                     <div class="legend-color" style="background-color: ${color}"></div>
                     <span class="legend-label">${label}</span>
@@ -1275,6 +1316,7 @@
             legend.classList.add('visible');
         }
 
+        // Pannello informazioni
         function showFeatureInfo(feature) {
             const panel = document.getElementById('info-panel');
             const title = document.getElementById('panel-title');
@@ -1282,8 +1324,8 @@
             const content = document.getElementById('info-content');
             
             const props = feature.properties;
-            debugLog('Mostrando info per feature:', props);
             
+            // Correggi il nome del mandamento se necessario
             let mandamentoDisplay = props.Mandamento || 'N/D';
             if (mandamentoDisplay === 'Castellamare') {
                 mandamentoDisplay = 'Castellammare';
@@ -1291,9 +1333,6 @@
             
             title.textContent = `Particella ${props.particella || props.fid || 'N/D'}`;
             subtitle.textContent = `Foglio: ${props.foglio || 'N/D'}`;
-            
-            const floodRiskValue = props.rischio_alluvione;
-            const floodRiskDisplay = floodRiskLabels[floodRiskValue] || floodRiskValue || 'N/D';
             
             content.innerHTML = `
                 <div class="info-group">
@@ -1318,6 +1357,11 @@
                         <span class="info-label">Classe:</span>
                         <span class="info-value">${landUseLabels[props.class] || props.class || 'N/D'}</span>
                     </div>
+					<div class="info-item">
+                        <span class="info-label">Sottoclasse:</span>
+                        <span class="info-value">${landUseLabels[props.subtype] || props.subtype || 'N/D'}</span>
+                    </div>
+                   
                 </div>
 
                 <div class="info-group">
@@ -1334,19 +1378,78 @@
                         <span class="info-label">Tasso Anziani:</span>
                         <span class="info-value">${props.tasso_anziani ? parseFloat(props.tasso_anziani).toFixed(2) + '%' : 'N/D'}</span>
                     </div>
+                    <div class="info-item">
+                        <span class="info-label">Densità Abitativa:</span>
+                        <span class="info-value">${props['densità abitativa'] ? parseFloat(props['densità abitativa']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' ab/km²' : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Popolazione Straniera:</span>
+                        <span class="info-value">${props.tasso_di_popolazione_straniera ? parseFloat(props.tasso_di_popolazione_straniera).toFixed(2) + '%' : 'N/D'}</span>
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <h3><i class="fas fa-briefcase"></i> Socio-Economici</h3>
+                    <div class="info-item">
+                        <span class="info-label">Tasso Occupazione:</span>
+                        <span class="info-value">${props.tasso_di_occupazione ? parseFloat(props.tasso_di_occupazione).toFixed(2) + '%' : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Occup. Femminile:</span>
+                        <span class="info-value">${props['tasso di occupazione femminile'] ? parseFloat(props['tasso di occupazione femminile']).toFixed(2) + '%' : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Divario Genere:</span>
+                        <span class="info-value">${props['divario di genere nell\'occupazione'] ? parseFloat(props['divario di genere nell\'occupazione']).toFixed(2) + '%' : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Istruzione Superiore:</span>
+                        <span class="info-value">${props['tasso di istruzione superiore'] ? parseFloat(props['tasso di istruzione superiore']).toFixed(2) + '%' : 'N/D'}</span>
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <h3><i class="fas fa-chart-line"></i> Indici</h3>
+                    <div class="info-item">
+                        <span class="info-label">Resilienza Economica:</span>
+                        <span class="info-value">${props['indice_di_resilienza_economica'] ? parseFloat(props['indice_di_resilienza_economica']).toFixed(2) : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Coesione Sociale:</span>
+                        <span class="info-value">${props.indice_coesione_sociale ? parseFloat(props.indice_coesione_sociale).toFixed(2) : 'N/D'}</span>
+                    </div>
                 </div>
 
                 <div class="info-group">
                     <h3><i class="fas fa-hammer"></i> Territoriali</h3>
                     <div class="info-item">
-                        <span class="info-label">Rischio alluvione:</span>
-                        <span class="info-value" style="font-weight: bold; color: ${floodRiskValue === 'alto' || floodRiskValue === 'ALTO' ? '#ff0000' : '#666'};">${floodRiskDisplay}</span>
+                        <span class="info-label">Numero Edifici:</span>
+                        <span class="info-value">${props.buildings_count || 'N/D'}</span>
                     </div>
-                    ${debugMode ? `
                     <div class="info-item">
-                        <span class="info-label">Valore originale:</span>
-                        <span class="info-value" style="font-size: 10px; color: #999;">${floodRiskValue || 'N/D'}</span>
-                    </div>` : ''}
+                        <span class="info-label">CAP:</span>
+                        <span class="info-value">${props.postal_code || 'N/D'}</span>
+                    </div>
+					 <div class="info-item">
+                        <span class="info-label">Copertura del suolo:</span>
+                        <span class="info-value">${landCoverLabels[props['copertura del suolo']] || props['copertura del suolo'] || 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Rischio alluvione:</span>
+                        <span class="info-value">${floodRiskLabels[props['Ri alluvione']] || props['Ri alluvione'] || 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Rischio di frana:</span>
+                        <span class="info-value">${landslideRiskLabels[props['rischio di frana']] || props['rischio di frana'] || 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Rischio erosione costiera:</span>
+                        <span class="info-value">${coastalErosionLabels[props['rischio di erosione costiera']] || props['rischio di erosione costiera'] || 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Rischio sismico:</span>
+                        <span class="info-value">${seismicRiskLabels[props['rischio sismico']] || props['rischio sismico'] || 'N/D'}</span>
+                    </div>
                 </div>
             `;
             
@@ -1357,16 +1460,7 @@
             document.getElementById('info-panel').classList.remove('visible');
         }
 
-        function togglePerimeter(layerId, show) {
-            const visibility = show ? 'visible' : 'none';
-            map.setLayoutProperty(layerId, 'visibility', visibility);
-        }
-
-        function toggleBorders(show) {
-            const visibility = show ? 'visible' : 'none';
-            map.setLayoutProperty('catastale-outline', 'visibility', visibility);
-        }
-
+        // Event listeners per i controlli
         function switchBasemap(value) {
             const layers = ['carto-light-layer', 'satellite-layer'];
             const targetLayer = value === 'carto-light' ? 'carto-light-layer' : 'satellite-layer';
@@ -1394,7 +1488,7 @@
             }
         }
 
-        // Event listeners
+        // Event listeners per dropdown
         document.getElementById('basemap-select').addEventListener('change', (e) => {
             switchBasemap(e.target.value);
         });
@@ -1407,17 +1501,7 @@
             toggleBorders(e.target.checked);
         });
 
-        document.getElementById('debug-toggle').addEventListener('change', (e) => {
-            debugMode = e.target.checked;
-            const debugInfo = document.getElementById('debug-info');
-            debugInfo.style.display = debugMode ? 'block' : 'none';
-            
-            if (debugMode) {
-                debugLog('Debug mode attivato');
-                testDataLoading();
-            }
-        });
-
+        // Event listeners per perimetri
         document.getElementById('palermo-perimeter').addEventListener('change', (e) => {
             togglePerimeter('palermo-perimeter', e.target.checked);
         });
@@ -1457,6 +1541,7 @@
             }
         });
 
+        // Gestione responsive
         window.addEventListener('resize', () => {
             if (window.innerWidth <= 768) {
                 const panel = document.getElementById('info-panel');
@@ -1466,21 +1551,18 @@
             }
         });
 
+        // Gestione tastiera
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeInfoPanel();
             }
         });
     </script>
-    
-    <!-- Loghi -->
-    <div id="ods">
-        <a href="https://opendatasicilia.it/" title="opendatasicilia.it" target="_blank"> 
-            <img src="https://palermohub.opendatasicilia.it/lib/images/opendatasicilia_dredits.png" alt="opendatasicilia" width="40" border="0" title="opendatasicilia.it">
-        </a>
-    </div>    
-    <div id="beta">
-        <img src="https://palermohub.opendatasicilia.it/legend/beta.png" width="40" title="beta version" alt="beta version">
-    </div>
+	   <!-- loghi  --> 
+<div id="tavolab"></div>           
+<div id="ods"><a href="https://opendatasicilia.it/" title="opendatasicilia.it" target="_blank"> 
+<img src="https://palermohub.opendatasicilia.it/lib/images/opendatasicilia_dredits.png" alt="opendatasicilia" width="40" border="0" title="opendatasicilia.it"></a></div>    
+<!-- beta version     --> 
+ <div id="beta"><img src="https://palermohub.opendatasicilia.it/legend/beta.png" width="40" title="beta version" alt="beta version"></a></div>
 </body>
 </html>

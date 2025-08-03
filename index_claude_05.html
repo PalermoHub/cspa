@@ -736,7 +736,7 @@
             },
             flood_risk: {
                 name: 'Rischio alluvione',
-                property: 'rischio_alluvione',
+                property: 'Ri alluvione',
                 colors: ['#FF0000', '#C8C8C8'],
                 unit: '',
                 format: (val) => floodRiskLabels[val] || val || 'N/D',
@@ -993,7 +993,7 @@
             // CORREZIONE: Gestione robusta per rischio alluvione con normalizzazione dei valori
             layerConfig.paint['fill-color'] = [
                 'match',
-                ['downcase', ['coalesce', ['get', 'rischio_alluvione'], '']],
+                ['downcase', ['coalesce', ['get', 'Ri alluvione'], '']],
                 'alto', floodRiskColors['alto'],
                 'no', floodRiskColors['no'],
                 floodRiskColors['no']  // Default per valori non riconosciuti
@@ -1411,7 +1411,7 @@
                     </div>
                     <div class="info-item">
                         <span class="info-label">Rischio alluvione:</span>
-                        <span class="info-value">${floodRiskLabels[props.rischio_alluvione] || props.rischio_alluvione || 'N/D'}</span>
+                        <span class="info-value">${floodRiskLabels[props['Ri alluvione']] || props['Ri alluvione'] || 'N/D'}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Rischio di frana:</span>
