@@ -1,0 +1,190 @@
+# Prompt per Web App - Studio Demografico e Socio-Economico di Palermo
+
+## Obiettivo
+Crea una web application interattiva per esplorare e analizzare i dati demografici e socio-economici di Palermo utilizzando un file PMTiles contenente i poligoni delle particelle catastali e tutti i relativi attributi statistici.
+
+## Specifiche del Dataset PMTiles
+- **File**: `https://palermohub.github.io/cspa/dati/pacs.pmtiles` 
+- **Contenuto**: 6.249 particelle catastali di Palermo
+- **Attributi**: 47 variabili demografiche, socio-economiche e territoriali
+- **Copertura**: 4 Mandamenti (Castellamare, Tribunali, Palazzo Reale, Monte di Pietà)
+- **Geometrie**: Poligoni delle particelle con coordinate precise
+
+## Architettura dell'Applicazione
+
+### **INTERFACCIA UTENTE**
+Progetta un'interfaccia moderna e intuitiva con:
+
+1. **Layout Principale**
+   - di 
+   - Mappa a schermo intero con pannelli laterali collassabili
+   - Header con titolo, logo e menu di navigazione
+   - Pannello di controllo a sinistra (300px, collassabile)
+   - Pannello informazioni a destra (350px, mostrato on-demand)
+
+2. **Pannello di Controllo (Sidebar Sinistra)**
+   - **Sezione Indicatori**: Dropdown per selezione variabile da visualizzare
+   - **Sezione Filtri**: Filtri per Mandamento, tipologia uso suolo, range valori
+   - **Sezione Visualizzazione**: Toggle per stile mappa, opacità, bordi
+   - **Sezione Analisi**: Bottoni per analisi comparative e statistiche
+   - **Sezione Export**: Download dati, screenshot mappa
+
+3. **Pannello Informazioni (Sidebar Destra)**
+   - **Dettagli Particella**: Dati completi della particella selezionata
+   - **Statistiche Area**: Medie e confronti del Mandamento
+   - **Grafici Mini**: Istogrammi e indicatori chiave
+   - **Correlazioni**: Relazioni con altre variabili
+
+### **FUNZIONALITÀ MAPPA**
+
+#### **Visualizzazione Base**
+- **Mappa di sfondo**: Stile neutro (light/dark toggle)
+- **Mappa di sfondo aggiuntiva**: google satellite
+- **Rendering PMTiles**: Caricamento efficiente con MapLibre GL JS
+- **Controlli standard**: Zoom, pan, pitch, bearing, fullscreen
+- **Geolocalizzazione**: Centra sul centro storico di Palermo all'avvio
+- **tema di base**: all'avvio la mappa deve essere tematizzata con i dati della colonna 'class' usando i colori che trovi nel file qml di qgis 
+
+#### **Stili Tematici Dinamici**
+Implementa visualizzazioni coropletiche per:
+
+**Demografici:**
+- Popolazione stimata (scala da 0 a max popolazione)
+- Età media (gradiente verde-giallo-rosso)
+- Tasso anziani (scala percentuale 0-100%)
+- Densità abitativa (scala logaritmica)
+- Popolazione straniera (scala percentuale)
+
+**Socio-Economici:**
+- Tasso occupazione (scala 0-100%, verde=alto)
+- Divario genere occupazione (rosso=alto divario)
+- Istruzione superiore (blu=alta istruzione)
+- Resilienza economica (indice 0-100)
+- Coesione sociale (indice 0-100)
+
+**Territoriali:**
+- Uso del suolo (colori categoriali per class)
+- Numero edifici (scala da 0 a max)
+- Rischi territoriali (rosso=alto rischio)
+
+#### **Interattività**
+- **Hover**: Tooltip con nome indicatore e valore
+- **Click**: Apre pannello dettagli particella
+- **Selezione multipla**: Ctrl+click per confronti
+- **Zoom to extent**: Double-click per zoom su particella
+
+### **ANALISI E STATISTICHE**
+
+#### **Dashboard Statistiche**
+- **Statistiche descrittive**: Min, max, media, mediana per indicatore selezionato
+- **Distribuzione per Mandamento**: Box plot comparativi
+- **Top/Bottom**: Particelle con valori estremi
+- **Correlazioni**: Heatmap correlazioni tra variabili
+
+#### **Strumenti di Analisi**
+- **Profili Mandamento**: Radar chart con tutti gli indicatori
+- **Clustering**: Identificazione automatica di aree simili
+- **Hot Spot Analysis**: Identificazione cluster spaziali
+- **Confronti Temporali**: Se disponibili dati multi-temporali
+
+### **COMPONENTI TECNICI**
+
+#### **Stack Tecnologico**
+```javascript
+// Librerie principali
+- MapLibre GL JS (rendering mappa)
+- PMTiles JS (caricamento tiles)
+- Chart.js o D3.js (grafici e statistiche)
+- React/Vue.js (interfaccia utente)
+- Tailwind CSS (styling moderno)
+```
+
+#### **Struttura Dati**
+```javascript
+// Struttura attributi PMTiles attesi
+const attributiDisponibili = {
+  // Identificativi
+  fid: 'integer',
+  particella: 'string', 
+  postal_code: 'string',
+  Mandamento: 'string',
+  
+  // Demografici
+  popolazione_stimata: 'integer',
+  eta_media: 'float',
+  dimensione_media_famiglia: 'float',
+  tasso_anziani: 'float',
+  tasso_popolazione_straniera: 'float',
+  
+  // Socio-economici  
+  tasso_occupazione: 'float',
+  tasso_occupazione_femminile: 'float',
+  divario_genere_occupazione: 'float',
+  tasso_istruzione_superiore: 'float',
+  indice_resilienza_economica: 'float',
+  indice_coesione_sociale: 'float',
+  
+  // Territoriali
+  class: 'string',
+  subtype: 'string',
+  superficie_mq: 'float',
+  buildings_count: 'integer',
+  densita_abitativa: 'float'
+};
+```
+
+### **FUNZIONALITÀ AVANZATE**
+
+#### **Comparazioni Intelligenti**
+- **Multi-layer**: Visualizzazione simultanea di 2 indicatori (bivariate choropleth)
+- **Ranking**: Classifica particelle per indicatore
+
+#### **Export e Condivisione**
+- **URL parametrici**: Condivisione vista specifica
+- **Screenshot**: Export immagini ad alta risoluzione  
+- **Dati**: Download CSV/GeoJSON area selezionata
+- **Report**: Generazione automatica report PDF
+
+#### **Responsività**
+- **Mobile-first**: Design ottimizzato per tablet/smartphone
+- **Touch gestures**: Supporto completo touch per mappe
+- **Offline**: Cache intelligente per uso senza connessione
+
+### **ESPERIENZA UTENTE**
+
+#### **Onboarding**
+- **Tour guidato**: Introduzione funzionalità principali
+- **Esempi predefiniti**: Viste pre-configurate per casi d'uso comuni
+- **Help contestuale**: Tooltip e spiegazioni in-app
+
+#### **Performance**
+- **Loading progressivo**: Indicatori di caricamento chiari
+- **Caching intelligente**: Ottimizzazione richieste PMTiles
+- **Throttling**: Gestione responsiva degli eventi di hover/click
+
+#### **Accessibilità**
+- **Screen reader**: Descrizioni alternative per elementi grafici
+- **Keyboard navigation**: Navigazione completa da tastiera
+- **Alto contrasto**: Modalità per ipovedenti
+- **Localizzazione**: Interfaccia in italiano
+
+## Deliverable Richiesti
+
+### **1. Applicazione Web Completa**
+- Codice HTML/CSS/JavaScript funzionante
+- Integrazione PMTiles completamente operativa
+- Tutte le funzionalità sopra specificate implementate
+
+### **2. Documentazione Tecnica**
+- Setup e deployment dell'applicazione
+- Guida utente con screenshots
+- Documentazione API e struttura dati
+- Note su performance e limitazioni
+
+### **3. Esempi di Utilizzo**  
+- 5 casi d'uso pre-configurati (demografia, economia, confronti, etc.)
+- Dataset di test per validazione funzionalità
+- Screenshots di tutte le funzionalità principali
+
+## Risultato Atteso
+Un'applicazione web moderna, intuitiva e performante che trasformi i dati demografici e socio-economici del centro storico di  Palermo in uno strumento interattivo di esplorazione e analisi territoriale, utilizzabile sia da cittadini interessati che da ricercatori e policy makers per comprendere le dinamiche urbane della città.

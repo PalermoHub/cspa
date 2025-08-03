@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Zornade PACS - Palermo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Librerie MapLibre -->
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <!-- Libreria PMTiles -->
+    <script src="https://unpkg.com/pmtiles@2.4.0/dist/index.js"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        
+        /* Stile migliorato per il selettore */
+        .basemap-selector {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.9);
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+        }
+        
+        .basemap-option {
+            display: block;
+            margin: 5px 0;
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.2s;
+            width: 120px;
+        }
+        
+        .basemap-option:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+        
+        .basemap-option.active {
+            background: #4d7fff;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        /* Pannello informazioni */
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: 150px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            width: 300px;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .info-panel h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        .info-panel h4 {
+            margin: 15px 0 8px 0;
+            color: #4d7fff;
+        }
+        
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .info-panel .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        /* Selettore tematizzazione */
+        .theme-selector {
+            position: absolute;
+            top: 70px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.9);
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            width: 150px;
+        }
+        
+        .theme-option {
+            display: block;
+            margin: 5px 0;
+            padding: 8px 10px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: left;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        
+        .theme-option:hover {
+            background: #e9ecef;
+        }
+        
+        .theme-option.active {
+            background: #4d7fff;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Legenda */
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .legend-scale {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        
+        .legend-label {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .legend-color {
+            height: 15px;
+            width: 100%;
+            margin-bottom: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="basemap-selector">
+        <button id="carto-btn" class="basemap-option active">Carto Light</button>
+        <button id="satellite-btn" class="basemap-option">Satellite</button>
+    </div>
+    
+    <div class="theme-selector">
+        <select id="theme-select" class="theme-option">
+            <option value="">Seleziona tematizzazione</option>
+            <option value="popolazione">Popolazione</option>
+            <option value="densita">Densità abitativa</option>
+            <option value="edifici">Numero edifici</option>
+            <option value="altezza">Altezza media edifici</option>
+            <option value="eta">Età media edifici</option>
+        </select>
+    </div>
+    
+    <div class="info-panel" id="info-panel">
+        <button class="close-btn" id="close-panel">×</button>
+        <h3 id="panel-title">Informazioni PACS</h3>
+        <div id="panel-content"></div>
+    </div>
+    
+    <div class="legend" id="legend">
+        <div class="legend-title" id="legend-title">Legenda</div>
+        <div class="legend-scale">
+            <div class="legend-color" id="legend-color"></div>
+        </div>
+        <div class="legend-labels">
+            <span class="legend-label" id="legend-min">Min</span>
+            <span class="legend-label" id="legend-max">Max</span>
+        </div>
+    </div>
+
+    <script>
+        // Registra il protocollo PMTiles
+        const protocol = new pmtiles.Protocol();
+        maplibregl.addProtocol("pmtiles", protocol.tile);
+        
+        // Coordinate del centro storico di Palermo
+        const center = [13.3615, 38.1157];
+        const zoom = 14;
+        
+        // Bounding box per il centro storico di Palermo
+        const maxBounds = [
+            [13.33, 38.09],  // SW corner
+            [13.39, 38.14]   // NE corner
+        ];
+
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: {
+                version: 8,
+                sources: {
+                    'carto-light': {
+                        type: 'raster',
+                        tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'],
+                        tileSize: 256,
+                        attribution: '© OpenStreetMap contributors, © CartoDB'
+                    },
+                    'satellite': {
+                        type: 'raster',
+                        tiles: ['https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'],
+                        tileSize: 256,
+                        attribution: '© Google'
+                    }
+                },
+                layers: [
+                    {
+                        id: 'carto-light-layer',
+                        type: 'raster',
+                        source: 'carto-light',
+                        minzoom: 0,
+                        maxzoom: 22
+                    },
+                    {
+                        id: 'satellite-layer',
+                        type: 'raster',
+                        source: 'satellite',
+                        minzoom: 0,
+                        maxzoom: 22,
+                        layout: {
+                            visibility: 'none' // Inizialmente nascosto
+                        }
+                    }
+                ]
+            },
+            center: center,
+            zoom: zoom,
+            maxBounds: maxBounds,
+            maxZoom: 18,
+            minZoom: 12,
+            hash: true,
+            pitch: 0,
+            dragRotate: false
+        });
+
+        // Variabili globali per i dati
+        let pacsData = {};
+        let currentTheme = '';
+        let hoveredPolygonId = null;
+        
+        // Definizione delle tematizzazioni con colori e titoli in italiano
+        const themes = {
+            'popolazione': {
+                title: 'Popolazione',
+                property: 'population',
+                colors: ['#f7fbff', '#c6dbef', '#6baed6', '#2171b5', '#08306b'],
+                labels: ['Bassa', '', 'Media', '', 'Alta']
+            },
+            'densita': {
+                title: 'Densità abitativa (ab/km²)',
+                property: 'density',
+                colors: ['#fff5eb', '#fdae6b', '#f16913', '#8c2d04', '#4d1a00'],
+                labels: ['Bassa', '', 'Media', '', 'Alta']
+            },
+            'edifici': {
+                title: 'Numero edifici',
+                property: 'buildings',
+                colors: ['#f7fcf5', '#a1d99b', '#41ab5d', '#006d2c', '#00441b'],
+                labels: ['Pochi', '', 'Medi', '', 'Molti']
+            },
+            'altezza': {
+                title: 'Altezza media edifici (m)',
+                property: 'height',
+                colors: ['#fcfbfd', '#bcbddc', '#756bb1', '#54278f', '#3f007d'],
+                labels: ['Bassa', '', 'Media', '', 'Alta']
+            },
+            'eta': {
+                title: 'Età media edifici (anni)',
+                property: 'age',
+                colors: ['#fff7ec', '#fdb863', '#e66101', '#8c2d04', '#4d1a00'],
+                labels: ['Recenti', '', 'Medi', '', 'Antichi']
+            }
+        };
+
+        map.on('load', function() {
+            // Aggiungi sorgente PMTiles
+            map.addSource('zornade_pacs', {
+                type: 'vector',
+                url: 'pmtiles://https://palermohub.github.io/cspa/dati/zornade_pacs.pmtiles'
+            });
+            
+            // Aggiungi layer poligoni con stile di base
+            map.addLayer({
+                id: 'pacs-layer',
+                type: 'fill',
+                source: 'zornade_pacs',
+                'source-layer': 'zornade_pacs',
+                paint: {
+                    'fill-color': '#5a3fc0',
+                    'fill-opacity': 0.6,
+                    'fill-outline-color': '#000'
+                }
+            }, 'satellite-layer');
+            
+            // Aggiungi layer per l'highlight
+            map.addLayer({
+                id: 'pacs-highlight',
+                type: 'fill',
+                source: 'zornade_pacs',
+                'source-layer': 'zornade_pacs',
+                paint: {
+                    'fill-color': '#ff0000',
+                    'fill-opacity': 0.8,
+                    'fill-outline-color': '#000'
+                },
+                filter: ['==', 'id', '']
+            }, 'pacs-layer');
+            
+            // Aggiungi controlli di navigazione
+            map.addControl(new maplibregl.NavigationControl());
+            
+            // Carica i dati per le tematizzazioni
+            loadPacsData();
+            
+            // Nascondi inizialmente la legenda
+            document.getElementById('legend').style.display = 'none';
+        });
+
+        // Carica i dati PACS per calcolare le soglie dei colori
+        function loadPacsData() {
+            map.querySourceFeatures('zornade_pacs', {
+                sourceLayer: 'zornade_pacs'
+            }).forEach(function(feature) {
+                const id = feature.properties.id;
+                pacsData[id] = feature.properties;
+            });
+            
+            // Calcola i valori minimi e massimi per ogni tema
+            Object.keys(themes).forEach(theme => {
+                const property = themes[theme].property;
+                const values = Object.values(pacsData).map(d => d[property]).filter(v => v !== undefined);
+                
+                if (values.length > 0) {
+                    themes[theme].min = Math.min(...values);
+                    themes[theme].max = Math.max(...values);
+                    
+                    // Calcola le soglie di colore
+                    themes[theme].stops = calculateColorStops(themes[theme]);
+                }
+            });
+        }
+
+        // Applica una tematizzazione
+        function applyTheme(theme) {
+            currentTheme = theme;
+            
+            if (!theme) {
+                // Torna allo stile di base
+                map.setPaintProperty('pacs-layer', 'fill-color', '#5a3fc0');
+                map.setPaintProperty('pacs-layer', 'fill-opacity', 0.6);
+                document.getElementById('legend').style.display = 'none';
+                return;
+            }
+            
+            const themeConfig = themes[theme];
+            
+            // Applica la tematizzazione al layer principale
+            map.setPaintProperty('pacs-layer', 'fill-color', {
+                property: themeConfig.property,
+                stops: themeConfig.stops
+            });
+            
+            // Applica la tematizzazione anche al layer di highlight (con opacità maggiore)
+            map.setPaintProperty('pacs-highlight', 'fill-color', {
+                property: themeConfig.property,
+                stops: themeConfig.stops
+            });
+            map.setPaintProperty('pacs-highlight', 'fill-opacity', 0.8);
+            
+            // Aggiorna la legenda
+            updateLegend(themeConfig);
+            document.getElementById('legend').style.display = 'block';
+        }
+
+        // Calcola le soglie di colore
+        function calculateColorStops(themeConfig) {
+            const min = themeConfig.min;
+            const max = themeConfig.max;
+            const range = max - min;
+            const colors = themeConfig.colors;
+            
+            return [
+                [min, colors[0]],
+                [min + range * 0.25, colors[1]],
+                [min + range * 0.5, colors[2]],
+                [min + range * 0.75, colors[3]],
+                [max, colors[4]]
+            ];
+        }
+
+        // Aggiorna la legenda
+        function updateLegend(themeConfig) {
+            document.getElementById('legend-title').textContent = themeConfig.title;
+            
+            // Crea gradiente di colore
+            const gradient = `linear-gradient(to right, ${themeConfig.colors.join(', ')})`;
+            document.getElementById('legend-color').style.background = gradient;
+            
+            // Aggiorna etichette
+            document.getElementById('legend-min').textContent = 
+                `${Math.round(themeConfig.min)} ${themeConfig.labels[0]}`;
+            document.getElementById('legend-max').textContent = 
+                `${Math.round(themeConfig.max)} ${themeConfig.labels[4]}`;
+        }
+
+        // Gestione avanzata cambio basemap
+        function switchBasemap(activeId) {
+            const layers = ['carto-light-layer', 'satellite-layer'];
+            
+            layers.forEach(layerId => {
+                const visibility = (layerId === activeId) ? 'visible' : 'none';
+                map.setLayoutProperty(layerId, 'visibility', visibility);
+            });
+            
+            // Aggiorna stato pulsanti
+            document.getElementById('carto-btn').classList.toggle('active', activeId === 'carto-light-layer');
+            document.getElementById('satellite-btn').classList.toggle('active', activeId === 'satellite-layer');
+        }
+
+        // Event listeners per i basemap
+        document.getElementById('carto-btn').addEventListener('click', () => switchBasemap('carto-light-layer'));
+        document.getElementById('satellite-btn').addEventListener('click', () => switchBasemap('satellite-layer'));
+        
+        // Event listener per il selettore di tematizzazione
+        document.getElementById('theme-select').addEventListener('change', function() {
+            applyTheme(this.value);
+        });
+        
+        // Event listener per chiudere il pannello
+        document.getElementById('close-panel').addEventListener('click', function() {
+            document.getElementById('info-panel').style.display = 'none';
+        });
+
+        // Highlight al passaggio del mouse
+        map.on('mousemove', 'pacs-layer', function(e) {
+            if (e.features.length > 0) {
+                if (hoveredPolygonId !== null) {
+                    map.setFilter('pacs-highlight', ['!=', 'id', hoveredPolygonId]);
+                }
+                
+                hoveredPolygonId = e.features[0].properties.id;
+                map.setFilter('pacs-highlight', ['==', 'id', hoveredPolygonId]);
+            }
+        });
+        
+        // Rimuovi highlight quando il mouse esce
+        map.on('mouseleave', 'pacs-layer', function() {
+            if (hoveredPolygonId !== null) {
+                map.setFilter('pacs-highlight', ['==', 'id', '']);
+                hoveredPolygonId = null;
+            }
+        });
+        
+        // Mostra informazioni al click
+        map.on('click', 'pacs-layer', function(e) {
+            if (e.features.length > 0) {
+                const feature = e.features[0];
+                showFeatureInfo(feature);
+            }
+        });
+        
+        // Funzione per mostrare le informazioni del poligono
+        function showFeatureInfo(feature) {
+            const properties = feature.properties;
+            const panelContent = document.getElementById('panel-content');
+            
+            // Pulisci il contenuto precedente
+            panelContent.innerHTML = '';
+            
+            // Aggiungi titolo con ID PACS
+            document.getElementById('panel-title').textContent = `PACS ${properties.id}`;
+            
+            // Aggiungi informazioni per ogni tema
+            Object.keys(themes).forEach(theme => {
+                const themeConfig = themes[theme];
+                const value = properties[themeConfig.property];
+                
+                if (value !== undefined) {
+                    const themeSection = document.createElement('div');
+                    themeSection.innerHTML = `
+                        <h4>${themeConfig.title}</h4>
+                        <p>${value} ${theme === 'altezza' ? 'metri' : theme === 'eta' ? 'anni' : ''}</p>
+                        <div style="height: 10px; width: 100%; background: linear-gradient(to right, ${themeConfig.colors.join(', ')}); 
+                            margin: 5px 0; position: relative;">
+                            <div style="position: absolute; height: 100%; width: 2px; background: #000; 
+                                left: ${((value - themeConfig.min) / (themeConfig.max - themeConfig.min)) * 100}%;"></div>
+                        </div>
+                        <p style="font-size: 12px; color: #666;">Valore tra ${Math.round(themeConfig.min)} e ${Math.round(themeConfig.max)}</p>
+                    `;
+                    panelContent.appendChild(themeSection);
+                }
+            });
+            
+            // Mostra il pannello
+            document.getElementById('info-panel').style.display = 'block';
+        }
+        
+        // Blocca il drag oltre i bounds
+        map.on('drag', function() {
+            if (map.getBounds().getWest() < maxBounds[0][0] ||
+                map.getBounds().getSouth() < maxBounds[0][1] ||
+                map.getBounds().getEast() > maxBounds[1][0] ||
+                map.getBounds().getNorth() > maxBounds[1][1]) {
+                map.fitBounds(maxBounds, { linear: true });
+            }
+        });
+    </script>
+</body>
+</html>
