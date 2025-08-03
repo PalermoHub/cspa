@@ -671,30 +671,34 @@ hr  {border: 0;
             dragRotate: false
         });
 
-        // Configurazioni tematizzazioni AGGIORNATE con Jenks-Fisher per popolazione
+        // Configurazioni tematizzazioni AGGIORNATE con Jenks-Fisher per popolazione, età, tasso anziani
         const themes = {
-population: {
-    name: 'Popolazione Stimata',
-    property: 'popolazione_stimata',
-    colors: ['#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1e88e5', '#1976d2'],
-    unit: 'abitanti',
-    format: (val) => `${val || 'N/D'} abitanti`,
-    jenksBreaks: [0, 0, 1, 3, 6, 12, 20, 35], // Break points aggiornati per range 0-35
-    type: 'jenks'
-},
+            population: {
+                name: 'Popolazione Stimata',
+                property: 'popolazione_stimata',
+                colors: ['#ffffff', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1e88e5', '#1976d2'],
+                unit: 'abitanti',
+                format: (val) => `${val || 'N/D'} abitanti`,
+                jenksBreaks: [0, 0, 1, 3, 6, 12, 20, 35], // Break points aggiornati per range 0-35
+                type: 'jenks'
+            },
             age: {
                 name: 'Età Media',
                 property: 'età_media',
-                colors: ['#fff3e0', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#fb8c00', '#f57c00'],
+                colors: ['#ffffff', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#fb8c00', '#f57c00'],
                 unit: 'anni',
-                format: (val) => `${val || 'N/D'} anni`
+                format: (val) => `${val || 'N/D'} anni`,
+                jenksBreaks: [0, 0, 25, 35, 45, 55, 65, 75, 80], // Break points per range 0-80
+                type: 'jenks'
             },
             elderly: {
                 name: 'Tasso Anziani',
                 property: 'tasso_anziani',
                 colors: ['#f1f8e9', '#dcedc8', '#c5e1a5', '#aed581', '#9ccc65', '#8bc34a', '#7cb342', '#689f38'],
                 unit: '%',
-                format: (val) => `${val || 'N/D'}%`
+                format: (val) => `${val || 'N/D'}%`,
+                jenksBreaks: [0, 5.2, 15.4, 25.1, 35.4, 44.7, 52.1, 58.8], // Break points ottimizzati per range 0-58.8%
+                type: 'jenks'
             },
             density: {
                 name: 'Densità Abitativa',
@@ -978,7 +982,7 @@ population: {
             map.setLayoutProperty(layerId, 'visibility', visibility);
         }
 
-        // Funzioni tematizzazione AGGIORNATE con Jenks-Fisher per popolazione e buildings
+        // Funzioni tematizzazione AGGIORNATE con Jenks-Fisher per popolazione, età, tasso anziani e buildings
         function applyTheme(themeKey) {
             const theme = themes[themeKey];
             if (!theme) return;
@@ -1000,7 +1004,7 @@ population: {
             };
 
             // Configurazione specifica per temi con Jenks-Fisher
-            if (themeKey === 'buildings' || themeKey === 'population') {
+            if (themeKey === 'buildings' || themeKey === 'population' || themeKey === 'age' || themeKey === 'elderly') {
                 const jenksBreaks = theme.jenksBreaks;
                 if (themeKey === 'population') {
                     // Configurazione specifica per popolazione con 7 classi effettive
@@ -1014,6 +1018,34 @@ population: {
                         jenksBreaks[5], theme.colors[4], // 16-35 abitanti
                         jenksBreaks[6], theme.colors[5], // 36-70 abitanti
                         jenksBreaks[7], theme.colors[6]  // 71-166 abitanti
+                    ];
+                } else if (themeKey === 'age') {
+                    // Nuova configurazione per età media con 8 classi
+                    layerConfig.paint['fill-color'] = [
+                        'step',
+                        ['coalesce', ['get', theme.property], 0],
+                        theme.colors[0], // 0 anni (nessun dato)
+                        jenksBreaks[2], theme.colors[1], // 1-24 anni
+                        jenksBreaks[3], theme.colors[2], // 25-34 anni
+                        jenksBreaks[4], theme.colors[3], // 35-44 anni
+                        jenksBreaks[5], theme.colors[4], // 45-54 anni
+                        jenksBreaks[6], theme.colors[5], // 55-64 anni
+                        jenksBreaks[7], theme.colors[6], // 65-74 anni
+                        jenksBreaks[8], theme.colors[7]  // 75-80 anni
+                    ];
+                } else if (themeKey === 'elderly') {
+                    // Configurazione specifica per tasso anziani con 8 classi
+                    layerConfig.paint['fill-color'] = [
+                        'step',
+                        ['coalesce', ['get', theme.property], 0],
+                        theme.colors[0], // 0% (nessun dato)
+                        jenksBreaks[1], theme.colors[1], // 0.1-5.2%
+                        jenksBreaks[2], theme.colors[2], // 5.3-15.4%
+                        jenksBreaks[3], theme.colors[3], // 15.5-25.1%
+                        jenksBreaks[4], theme.colors[4], // 25.2-35.4%
+                        jenksBreaks[5], theme.colors[5], // 35.5-44.7%
+                        jenksBreaks[6], theme.colors[6], // 44.8-52.1%
+                        jenksBreaks[7], theme.colors[7]  // 52.2-58.8%
                     ];
                 } else {
                     // Configurazione per buildings (codice esistente)
@@ -1128,7 +1160,7 @@ population: {
             currentTheme = themeKey;
             
             // Mostra legenda appropriata
-            if (themeKey === 'buildings' || themeKey === 'population') {
+            if (themeKey === 'buildings' || themeKey === 'population' || themeKey === 'age' || themeKey === 'elderly') {
                 showJenksLegend(theme);
             } else {
                 const range = calculateDynamicRange(themeKey) || getStaticRange(themeKey);
@@ -1145,8 +1177,6 @@ population: {
             
             // Range ridotti per simulare l'effetto del filtro
             const filteredRanges = {
-                age: { min: 0, max: 90 },
-                elderly: { min: 0, max: 80 },
                 density: { min: 0, max: 15000 },
                 foreign: { min: 0, max: 80 },
                 employment: { min: 0, max: 90 },
@@ -1162,8 +1192,6 @@ population: {
         function getStaticRange(themeKey) {
             // Range valori - tutti iniziano da 0
             const valueRanges = {
-                age: { min: 0, max: 100 },
-                elderly: { min: 0, max: 100 },
                 density: { min: 0, max: 20000 },
                 foreign: { min: 0, max: 100 },
                 employment: { min: 0, max: 100 },
@@ -1242,7 +1270,7 @@ population: {
             showBaseLegend();
         }
 
-        // Funzione per mostrare legenda Jenks-Fisher per buildings e popolazione
+        // Funzione per mostrare legenda Jenks-Fisher per buildings, popolazione, età e tasso anziani
         function showJenksLegend(theme) {
             const legend = document.getElementById('legend');
             const title = document.getElementById('legend-title');
@@ -1258,16 +1286,38 @@ population: {
             
             let labels = [];
             
-if (currentTheme === 'population') {
-    labels = [
-        '0 abitanti',
-        '1 abitante', 
-        '2-3 abitanti',
-        '4-6 abitanti', 
-        '7-12 abitanti',
-        '13-20 abitanti',
-        '21-35 abitanti'
-    ];
+            if (currentTheme === 'population') {
+                labels = [
+                    '0 abitanti',
+                    '1 abitante', 
+                    '2-3 abitanti',
+                    '4-6 abitanti', 
+                    '7-12 abitanti',
+                    '13-20 abitanti',
+                    '21-35 abitanti'
+                ];
+            } else if (currentTheme === 'age') {
+                labels = [
+                    '0 anni (nessun dato)',
+                    '1-24 anni',
+                    '25-34 anni', 
+                    '35-44 anni',
+                    '45-54 anni',
+                    '55-64 anni',
+                    '65-74 anni',
+                    '75-80 anni'
+                ];
+            } else if (currentTheme === 'elderly') {
+                labels = [
+                    '0% (nessun dato)',
+                    '0.1-5.2%',
+                    '5.3-15.4%', 
+                    '15.5-25.1%',
+                    '25.2-35.4%',
+                    '35.5-44.7%',
+                    '44.8-52.1%',
+                    '52.2-58.8%'
+                ];
             } else if (currentTheme === 'buildings') {
                 labels = [
                     '0 edifici',
@@ -1281,7 +1331,7 @@ if (currentTheme === 'population') {
                 ];
             }
             
-            // Usa solo le prime 7 classi per popolazione, tutte le 8 per buildings
+            // Usa solo le prime 7 classi per popolazione, tutte le 8 per età, tasso anziani e buildings
             const numClasses = currentTheme === 'population' ? 7 : 8;
             
             for (let i = 0; i < numClasses; i++) {
@@ -1392,8 +1442,6 @@ if (currentTheme === 'population') {
             items.innerHTML = '';
             
             for (const [className, color] of Object.entries(landUseColors)) {
-                if (className === '') continue; // Salta il non classificato
-                
                 const label = landUseLabels[className];
                 
                 const item = document.createElement('div');
@@ -1431,8 +1479,28 @@ if (currentTheme === 'population') {
                 <div class="info-group">
                     <h3><i class="fas fa-map-marker-alt"></i> Informazioni Generali</h3>
                     <div class="info-item">
-                        <span class="info-label">Foglio:</span>
-                        <span class="info-value">${props.foglio || 'N/D'}</span>
+                        <span class="info-label">Mandamento:</span>
+                        <span class="info-value">${mandamentoDisplay}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Superficie:</span>
+                        <span class="info-value">${props['superfice mq'] ? parseFloat(props['superfice mq']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' m²' : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Classe:</span>
+                        <span class="info-value">${landUseLabels[props.class] || props.class || 'N/D'}</span>
+                    </div>
+					<div class="info-item">
+                        <span class="info-label">Sottoclasse:</span>
+                        <span class="info-value">${landUseLabels[props.subtype] || props.subtype || 'N/D'}</span>
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <h3><i class="fas fa-users"></i> Demografia</h3>
+                    <div class="info-item">
+                        <span class="info-label">Popolazione Stimata:</span>
+                        <span class="info-value">${props.popolazione_stimata ? parseFloat(props.popolazione_stimata).toLocaleString('it-IT', {maximumFractionDigits: 2}) : 'N/D'}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Età Media:</span>
@@ -1630,27 +1698,3 @@ if (currentTheme === 'population') {
  <div id="beta"><img src="https://palermohub.opendatasicilia.it/legend/beta.png" width="40" title="beta version" alt="beta version"></a></div>
 </body>
 </html>
-                    <div class="info-item">
-                        <span class="info-label">Mandamento:</span>
-                        <span class="info-value">${mandamentoDisplay}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Superficie:</span>
-                        <span class="info-value">${props['superfice mq'] ? parseFloat(props['superfice mq']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' m²' : 'N/D'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Classe:</span>
-                        <span class="info-value">${landUseLabels[props.class] || props.class || 'N/D'}</span>
-                    </div>
-					<div class="info-item">
-                        <span class="info-label">Sottoclasse:</span>
-                        <span class="info-value">${landUseLabels[props.subtype] || props.subtype || 'N/D'}</span>
-                    </div>
-                   
-                </div>
-
-                <div class="info-group">
-                    <h3><i class="fas fa-users"></i> Demografia</h3>
-                    <div class="info-item">
-                        <span class="info-label">Popolazione Stimata:</span>
-                        <span class="info-value">${props.popolazione_stimata ? parseFloat(props.popolazione_stimata).toLocaleString('it-IT', {maximumFractionDigits: 2}) : 'N/D'}</span>

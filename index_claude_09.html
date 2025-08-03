@@ -671,23 +671,25 @@ hr  {border: 0;
             dragRotate: false
         });
 
-        // Configurazioni tematizzazioni AGGIORNATE con Jenks-Fisher per popolazione
+        // Configurazioni tematizzazioni AGGIORNATE con Jenks-Fisher per popolazione e età
         const themes = {
-population: {
-    name: 'Popolazione Stimata',
-    property: 'popolazione_stimata',
-    colors: ['#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1e88e5', '#1976d2'],
-    unit: 'abitanti',
-    format: (val) => `${val || 'N/D'} abitanti`,
-    jenksBreaks: [0, 0, 1, 3, 6, 12, 20, 35], // Break points aggiornati per range 0-35
-    type: 'jenks'
-},
+            population: {
+                name: 'Popolazione Stimata',
+                property: 'popolazione_stimata',
+                colors: ['#ffffff', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1e88e5', '#1976d2'],
+                unit: 'abitanti',
+                format: (val) => `${val || 'N/D'} abitanti`,
+                jenksBreaks: [0, 0, 1, 3, 6, 12, 20, 35], // Break points aggiornati per range 0-35
+                type: 'jenks'
+            },
             age: {
                 name: 'Età Media',
                 property: 'età_media',
-                colors: ['#fff3e0', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#fb8c00', '#f57c00'],
+                colors: ['#ffffff', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#fb8c00', '#f57c00'],
                 unit: 'anni',
-                format: (val) => `${val || 'N/D'} anni`
+                format: (val) => `${val || 'N/D'} anni`,
+                jenksBreaks: [0, 0, 25, 35, 45, 55, 65, 75, 80], // Break points per range 0-80
+                type: 'jenks'
             },
             elderly: {
                 name: 'Tasso Anziani',
@@ -978,7 +980,7 @@ population: {
             map.setLayoutProperty(layerId, 'visibility', visibility);
         }
 
-        // Funzioni tematizzazione AGGIORNATE con Jenks-Fisher per popolazione e buildings
+        // Funzioni tematizzazione AGGIORNATE con Jenks-Fisher per popolazione, età e buildings
         function applyTheme(themeKey) {
             const theme = themes[themeKey];
             if (!theme) return;
@@ -1000,7 +1002,7 @@ population: {
             };
 
             // Configurazione specifica per temi con Jenks-Fisher
-            if (themeKey === 'buildings' || themeKey === 'population') {
+            if (themeKey === 'buildings' || themeKey === 'population' || themeKey === 'age') {
                 const jenksBreaks = theme.jenksBreaks;
                 if (themeKey === 'population') {
                     // Configurazione specifica per popolazione con 7 classi effettive
@@ -1014,6 +1016,20 @@ population: {
                         jenksBreaks[5], theme.colors[4], // 16-35 abitanti
                         jenksBreaks[6], theme.colors[5], // 36-70 abitanti
                         jenksBreaks[7], theme.colors[6]  // 71-166 abitanti
+                    ];
+                } else if (themeKey === 'age') {
+                    // Nuova configurazione per età media con 8 classi
+                    layerConfig.paint['fill-color'] = [
+                        'step',
+                        ['coalesce', ['get', theme.property], 0],
+                        theme.colors[0], // 0 anni (nessun dato)
+                        jenksBreaks[2], theme.colors[1], // 1-24 anni
+                        jenksBreaks[3], theme.colors[2], // 25-34 anni
+                        jenksBreaks[4], theme.colors[3], // 35-44 anni
+                        jenksBreaks[5], theme.colors[4], // 45-54 anni
+                        jenksBreaks[6], theme.colors[5], // 55-64 anni
+                        jenksBreaks[7], theme.colors[6], // 65-74 anni
+                        jenksBreaks[8], theme.colors[7]  // 75-80 anni
                     ];
                 } else {
                     // Configurazione per buildings (codice esistente)
@@ -1128,7 +1144,7 @@ population: {
             currentTheme = themeKey;
             
             // Mostra legenda appropriata
-            if (themeKey === 'buildings' || themeKey === 'population') {
+            if (themeKey === 'buildings' || themeKey === 'population' || themeKey === 'age') {
                 showJenksLegend(theme);
             } else {
                 const range = calculateDynamicRange(themeKey) || getStaticRange(themeKey);
@@ -1145,7 +1161,6 @@ population: {
             
             // Range ridotti per simulare l'effetto del filtro
             const filteredRanges = {
-                age: { min: 0, max: 90 },
                 elderly: { min: 0, max: 80 },
                 density: { min: 0, max: 15000 },
                 foreign: { min: 0, max: 80 },
@@ -1162,7 +1177,6 @@ population: {
         function getStaticRange(themeKey) {
             // Range valori - tutti iniziano da 0
             const valueRanges = {
-                age: { min: 0, max: 100 },
                 elderly: { min: 0, max: 100 },
                 density: { min: 0, max: 20000 },
                 foreign: { min: 0, max: 100 },
@@ -1242,7 +1256,7 @@ population: {
             showBaseLegend();
         }
 
-        // Funzione per mostrare legenda Jenks-Fisher per buildings e popolazione
+        // Funzione per mostrare legenda Jenks-Fisher per buildings, popolazione e età
         function showJenksLegend(theme) {
             const legend = document.getElementById('legend');
             const title = document.getElementById('legend-title');
@@ -1258,16 +1272,27 @@ population: {
             
             let labels = [];
             
-if (currentTheme === 'population') {
-    labels = [
-        '0 abitanti',
-        '1 abitante', 
-        '2-3 abitanti',
-        '4-6 abitanti', 
-        '7-12 abitanti',
-        '13-20 abitanti',
-        '21-35 abitanti'
-    ];
+            if (currentTheme === 'population') {
+                labels = [
+                    '0 abitanti',
+                    '1 abitante', 
+                    '2-3 abitanti',
+                    '4-6 abitanti', 
+                    '7-12 abitanti',
+                    '13-20 abitanti',
+                    '21-35 abitanti'
+                ];
+            } else if (currentTheme === 'age') {
+                labels = [
+                    '0 anni (nessun dato)',
+                    '1-24 anni',
+                    '25-34 anni', 
+                    '35-44 anni',
+                    '45-54 anni',
+                    '55-64 anni',
+                    '65-74 anni',
+                    '75-80 anni'
+                ];
             } else if (currentTheme === 'buildings') {
                 labels = [
                     '0 edifici',
@@ -1281,7 +1306,7 @@ if (currentTheme === 'population') {
                 ];
             }
             
-            // Usa solo le prime 7 classi per popolazione, tutte le 8 per buildings
+            // Usa solo le prime 7 classi per popolazione, tutte le 8 per età e buildings
             const numClasses = currentTheme === 'population' ? 7 : 8;
             
             for (let i = 0; i < numClasses; i++) {
@@ -1431,7 +1456,7 @@ if (currentTheme === 'population') {
                 <div class="info-group">
                     <h3><i class="fas fa-map-marker-alt"></i> Informazioni Generali</h3>
                     <div class="info-item">
-                        <span class="info-label">Foglio:</span>
+                        <span class="info-label">
                         <span class="info-value">${props.foglio || 'N/D'}</span>
                     </div>
                     <div class="info-item">
