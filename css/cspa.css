@@ -1,0 +1,475 @@
+/*Fonts*/
+@font-face {font-family: DS-TERM; src: url(fonts/DS-TERM.TTF);}
+@font-face {font-family: Nunito src: url(https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,600,700,800,900&display=swap);}
+@font-face {font-family: Titillium Web src: url(https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap);}
+
+.titillium-web-extralight {
+  font-family: "Titillium Web", sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.titillium-web-light {
+  font-family: "Titillium Web", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.titillium-web-regular {
+  font-family: "Titillium Web", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.titillium-web-semibold {
+  font-family: "Titillium Web", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.titillium-web-bold {
+  font-family: "Titillium Web", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.titillium-web-black {
+  font-family: "Titillium Web", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.titillium-web-extralight-italic {
+  font-family: "Titillium Web", sans-serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.titillium-web-light-italic {
+  font-family: "Titillium Web", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.titillium-web-regular-italic {
+  font-family: "Titillium Web", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.titillium-web-semibold-italic {
+  font-family: "Titillium Web", sans-serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.titillium-web-bold-italic {
+  font-family: "Titillium Web", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: "Titillium Web", sans-serif;
+            overflow-x: hidden;
+        }
+        #map { 
+            position: absolute; 
+            top: 0; 
+            bottom: 0; 
+            width: 100%; 
+        }
+        
+        /* Pannello controlli */
+.control-panel {
+    position: absolute;
+    top: 80px; /* Mantiene la posizione superiore */
+    left: 10px;
+    bottom: 10px; /* Nuova posizione inferiore */
+    z-index: 1000;
+    background: rgba(255,255,255,0.70);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    min-width: 230px;
+    backdrop-filter: blur(5px);
+    overflow-y: auto;
+    max-height: none; /* Rimuove l'altezza massima fissa */
+}
+        /* Adattamento per dispositivi mobili */
+@media (max-width: 768px) {
+    .control-panel {
+        width: calc(100vw - 40px);
+        top: 70px; /* Posizione superiore ridotta */
+        bottom: 10px; /* Mantiene 10px dal fondo */
+    }
+    
+    /* Regola la mappa per lo spazio aggiuntivo */
+    #map {
+        top: 60px;
+        height: calc(100vh - 60px);
+    }
+}
+        .control-section {
+            margin-bottom: 20px;
+        }
+        
+.control-section h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    padding-bottom: 10px;
+    /* Sostituito il bordo solido con un gradiente lineare bicolore */
+    background-image: linear-gradient(to right,  #eee, #ff9900,  #eee);
+    background-size: 100% 1px;
+    background-position: bottom;
+    background-repeat: no-repeat;
+    border-bottom: none; /* Rimuove il vecchio bordo */
+}
+        
+        .control-section h3 i {
+            margin-right: 8px;
+            color: #313131;
+        }
+        
+        .basemap-option, .theme-option, .form-control {
+            display: block;
+            width: 100%;
+            margin: 6px 0;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            text-align: left;
+            transition: all 0.3s ease;
+            position: relative;
+			font-family: "Titillium Web", sans-serif!important;
+        }
+        
+        .basemap-option:hover, .theme-option:hover, .form-control:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .basemap-option.active, .theme-option.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Icone negli option */
+        .form-control option {
+            padding: 5px;
+        }
+
+        /* Checkbox personalizzato */
+        .checkbox-container {
+            display: block;
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            font-size: 11px;
+            user-select: none;
+            color: #495057;
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 12px;
+            width: 12px;
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .checkbox-container .checkmark:after {
+            left: 4px;
+            top: 2px;
+            width: 4px;
+            height: 6px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        
+        /* Pannello informazioni */
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: -380px;
+            width: 370px;
+            height: calc(100vh - 40px);
+            background: rgba(255,255,255,0.98);
+            border-radius: 12px 0 0 12px;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transition: right 0.4s ease;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+        }
+        
+        .info-panel.visible {
+            right: 10px;
+        }
+        
+        .info-panel-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 0 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .info-panel-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .close-panel {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-panel:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .info-content {
+            padding: 20px;
+        }
+        
+        .info-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-group h3 {
+            margin: 0 0 12px 0;
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .info-group h3 i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #34495e;
+            flex: 1;
+			font-size: 12px;
+        }
+        
+        .info-value {
+            color: #2c3e50;
+            font-weight: 600;
+            text-align: right;
+			font-size: 12px;
+        }
+        
+        /* Legenda */
+        .legend {
+            position: absolute;
+            bottom: 10px;
+            left: 280px;
+            background: rgba(255,255,255,0.70);
+            padding: 5px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            min-width: 120px;
+            backdrop-filter: blur(5px);
+            display: none;
+        }
+        
+        .legend.visible {
+            display: block;
+        }
+        
+        .legend h4 {
+            margin: 0 0 12px 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 15px;
+            margin-right: 10px;
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .legend-label {
+            font-size: 12px;
+            color: #34495e;
+        }
+        
+/* Aggiungi questo stile in fondo alla sezione CSS */
+.maplibregl-ctrl-top-right {
+    top: 90px !important; /* 70px originale + 10px = 80px */
+}
+
+.mapboxgl-ctrl-top-right .mapboxgl-ctrl, .maplibregl-ctrl-top-right .maplibregl-ctrl {
+    float: right;
+    margin: 20px 10px 0 0;
+}
+		
+        /* Header */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            color: white;
+            padding: 15px 20px;
+            z-index: 999;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+			color: #313131;
+			display: flex;
+    align-items: center; /* Allinea logo e testo sulla stessa linea */
+    gap: 10px; /* Spazio tra logo e testo */
+        }
+        
+        .header h1 i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+		
+		.header h1 img {
+    transform: rotate(-125deg);
+}
+        
+        #map {
+            top: 60px;
+            height: calc(100vh - 60px);
+        }
+        
+        .control-panel {
+            top: 80px;
+        }
+        
+        .info-panel {
+            top: 80px;
+            height: calc(100vh - 100px);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .control-panel {
+                width: calc(100vw - 40px);
+                max-height: 40vh;
+                overflow-y: auto;
+            }
+            
+            .info-panel {
+                width: calc(100vw - 20px);
+                right: -100vw;
+            }
+            
+            .info-panel.visible {
+                right: 10px;
+            }
+        }
+		
+/*extra*/		
+#ods { position:fixed; bottom:40px; right:20px; z-index: 1500;}
+#beta { position:fixed; bottom:90px; right:20px; z-index: 1500;}
+hr  {border: 0;
+    height: 1px;
+    background: #ff9900;
+    background-image: linear-gradient(to right,  #eee, #ff9900,  #eee);
+	margin-top:20px;margin-bottom:20px;}
