@@ -391,9 +391,9 @@
             color: #34495e;
         }
         
-/* Aggiungi questo stile in fondo alla sezione CSS */
+/* zoom + -  Aggiungi questo stile in fondo alla sezione CSS */
 .maplibregl-ctrl-top-right {
-    top: 90px !important; /* 70px originale + 10px = 80px */
+    top: 20px !important; /* 70px originale + 10px = 80px */
 }
 
 .mapboxgl-ctrl-top-right .mapboxgl-ctrl, .maplibregl-ctrl-top-right .maplibregl-ctrl {
