@@ -211,91 +211,215 @@ function showBaseLegenda() {
 }
 
 // Pannello informazioni
-function showFeatureInfo(feature) {
-    const panel = document.getElementById('info-panel');
-    const title = document.getElementById('panel-title');
-    const subtitle = document.getElementById('panel-subtitle');
-    const content = document.getElementById('info-content');
-    
-    const props = feature.properties;
-    
-    // Correggi il nome del mandamento se necessario
-    let mandamentoDisplay = props.Mandamento || 'N/D';
-    if (mandamentoDisplay === 'Castellamare') {
-        mandamentoDisplay = 'Castellammare';
-    }
-    
-    title.textContent = `Particella ${props.particella || props.fid || 'N/D'}`;
-    subtitle.textContent = `Foglio: ${props.foglio || 'N/D'}`;
-    
-    content.innerHTML = `
-        <div class="info-group">
-            <h3><i class="fas fa-map-marker-alt"></i> Informazioni Generali</h3>
-            <div class="info-item">
-                <span class="info-label">Circoscrizione:</span>
-                <span class="info-value">I°</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Mandamento:</span>
-                <span class="info-value">${mandamentoDisplay}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Superficie:</span>
-                <span class="info-value">${props['superfice mq'] ? parseFloat(props['superfice mq']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' m²' : 'N/D'}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Classe:</span>
-                <span class="info-value">${landUseLabels[props.class] || props.class || 'N/D'}</span>
-            </div>
-        </div>
+        function showFeatureInfo(feature) {
+            const panel = document.getElementById('info-panel');
+            const title = document.getElementById('panel-title');
+            const subtitle = document.getElementById('panel-subtitle');
+            const content = document.getElementById('info-content');
+            
+            const props = feature.properties;
+            
+            // Correggi il nome del mandamento se necessario
+            let mandamentoDisplay = props.Mandamento || 'N/D';
+            if (mandamentoDisplay === 'Castellamare') {
+                mandamentoDisplay = 'Castellammare';
+            }
+            
+            title.textContent = `Particella ${props.particella || props.fid || 'N/D'}`;
+            subtitle.textContent = `Foglio: ${props.foglio || 'N/D'}`;
+            
+            content.innerHTML = `
+                <div class="info-group">
+                    <h3><i class="fas fa-map-marker-alt"></i> Informazioni Generali</h3>
+                    <div class="info-item">
+                     <span class="info-label">Circoscrizione:</span>
+                        <span class="info-value">I°</span>
+                    </div>
+					                    <div class="info-item">
+                     <span class="info-label">Mandamento:</span>
+                        <span class="info-value">${mandamentoDisplay}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Superficie:</span>
+                        <span class="info-value">${props['superfice mq'] ? parseFloat(props['superfice mq']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' m²' : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Classe:</span>
+                        <span class="info-value">${landUseLabels[props.class] || props.class || 'N/D'}</span>
+                    </div>
+					<div class="info-item">
+                        <span class="info-label">Sottoclasse:</span>
+                        <span class="info-value">${landUseLabels[props.subtype] || props.subtype || 'N/D'}</span>
+                    </div>
+										 <div class="info-item">
+                        <span class="info-label">Copertura del suolo:</span>
+                        <span class="info-value">${landCoverLabels[props['copertura del suolo']] || props['copertura del suolo'] || 'N/D'}</span>
+                    </div>
+                </div>
 
-        <div class="info-group">
-            <h3><i class="fas fa-users"></i> Demografia</h3>
-            <div class="info-item">
-                <span class="info-label">Popolazione Stimata:</span>
-                <span class="info-value">${props.popolazione_stimata ? parseFloat(props.popolazione_stimata).toLocaleString('it-IT', {maximumFractionDigits: 2}) : 'N/D'}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Età Media:</span>
-                <span class="info-value">${props['età_media'] ? parseFloat(props['età_media']).toFixed(2) + ' anni' : 'N/D'}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Popolazione Straniera:</span>
-                <span class="info-value">${props.tasso_di_popolazione_straniera ? parseFloat(props.tasso_di_popolazione_straniera).toFixed(2) + '%' : 'N/D'}</span>
-            </div>
-        </div>
+                <div class="info-group">
+                    <h3><i class="fas fa-users"></i> Demografia</h3>
+                    <div class="info-item">
+                        <span class="info-label">Popolazione Stimata:</span>
+                        <span class="info-value">${props.popolazione_stimata ? parseFloat(props.popolazione_stimata).toLocaleString('it-IT', {maximumFractionDigits: 2}) : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Età Media:</span>
+                        <span class="info-value">${props['età_media'] ? parseFloat(props['età_media']).toFixed(2) + ' anni' : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Tasso Anziani:</span>
+                        <span class="info-value">${props.tasso_anziani ? parseFloat(props.tasso_anziani).toFixed(2) + '%' : 'N/D'}</span>
+                    </div>
+    <div class="info-item">
+        <span class="info-label">Dimensione Media Famiglia:</span>
+        <span class="info-value">${props['dimensione media della famiglia'] ? parseFloat(props['dimensione media della famiglia']).toFixed(2) + ' componenti' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Tasso di Mascolinità:</span>
+        <span class="info-value">${props['tasso di mascolinità'] ? parseFloat(props['tasso di mascolinità']).toFixed(2) + '%' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Tasso Persona Singola:</span>
+        <span class="info-value">${props['tasso_persona singola'] ? parseFloat(props['tasso_persona singola']).toFixed(2) + '%' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Tasso Famiglie Numerose:</span>
+        <span class="info-value">${props.tasso_famiglie_numerose ? parseFloat(props.tasso_famiglie_numerose).toFixed(2) + '%' : 'N/D'}</span>
+    </div>
+	<div class="info-item">
+                        <span class="info-label">Popolazione Straniera:</span>
+                        <span class="info-value">${props.tasso_di_popolazione_straniera ? parseFloat(props.tasso_di_popolazione_straniera).toFixed(2) + '%' : 'N/D'}</span>
+                    </div>
+					    <div class="info-item">
+        <span class="info-label">Stranieri Non-UE:</span>
+        <span class="info-value">${props.tasso_stranieri_non_ue ? parseFloat(props.tasso_stranieri_non_ue).toFixed(2) + '%' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Giovani Stranieri:</span>
+        <span class="info-value">${props.tasso_giovani_stranieri ? parseFloat(props.tasso_giovani_stranieri).toFixed(2) + '%' : 'N/D'}</span>
+    </div>
+</div>
+									
+                </div>
+                <div class="info-group">
+                    <h3><i class="fas fa-briefcase"></i> Socio-Economici</h3>
+                    <div class="info-item">
+                        <span class="info-label">Tasso Occupazione:</span>
+                        <span class="info-value">${props.tasso_di_occupazione ? parseFloat(props.tasso_di_occupazione).toFixed(2) + '%' : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Occup. Femminile:</span>
+                        <span class="info-value">${props['tasso di occupazione femminile'] ? parseFloat(props['tasso di occupazione femminile']).toFixed(2) + '%' : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Divario Genere:</span>
+                        <span class="info-value">${props['divario di genere nell\'occupazione'] ? parseFloat(props['divario di genere nell\'occupazione']).toFixed(2) + '%' : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Istruzione Superiore:</span>
+                        <span class="info-value">${props['tasso di istruzione superiore'] ? parseFloat(props['tasso di istruzione superiore']).toFixed(2) + '%' : 'N/D'}</span>
+                    </div>
+                </div>
 
-        <div class="info-group">
-            <h3><i class="fas fa-briefcase"></i> Socio-Economici</h3>
-            <div class="info-item">
-                <span class="info-label">Tasso Occupazione:</span>
-                <span class="info-value">${props.tasso_di_occupazione ? parseFloat(props.tasso_di_occupazione).toFixed(2) + '%' : 'N/D'}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Istruzione Superiore:</span>
-                <span class="info-value">${props['tasso di istruzione superiore'] ? parseFloat(props['tasso di istruzione superiore']).toFixed(2) + '%' : 'N/D'}</span>
-            </div>
-        </div>
+                <div class="info-group">
+                    <h3><i class="fas fa-chart-line"></i> Indici</h3>
+					<div class="info-item">
+    <span class="info-label">Istruzione Superiore:</span>
+    <span class="info-value">${props['tasso di istruzione superiore'] ? parseFloat(props['tasso di istruzione superiore']).toFixed(2) + '%' : 'N/D'}</span>
+</div>
+<div class="info-item">
+    <span class="info-label">Basso Tasso Istruzione:</span>
+    <span class="info-value">${props.basso_tasso_di_istruzione ? parseFloat(props.basso_tasso_di_istruzione).toFixed(2) + '%' : 'N/D'}</span>
+</div>
+<div class="info-item">
+    <span class="info-label">Integrazione Lavoro:</span>
+    <span class="info-value">${props['tasso di integrazione del lavoro'] ? parseFloat(props['tasso di integrazione del lavoro']).toFixed(2) + '%' : 'N/D'}</span>
+</div>
+                    <div class="info-item">
+                        <span class="info-label">Resilienza Economica:</span>
+                        <span class="info-value">${props['resilienza_economica'] ? parseFloat(props['resilienza_economica']).toFixed(2) : 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Coesione Sociale:</span>
+                        <span class="info-value">${props.indice_coesione_sociale ? parseFloat(props.indice_coesione_sociale).toFixed(2) : 'N/D'}</span>
+                    </div>
+                </div>
 
-        <div class="info-group">
-            <h3><i class="fas fa-hammer"></i> Territoriali</h3>
-            <div class="info-item">
-                <span class="info-label">Densità Abitativa:</span>
-                <span class="info-value">${props['densità abitativa'] ? parseFloat(props['densità abitativa']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' ab/km²' : 'N/D'}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">CAP:</span>
-                <span class="info-value">${props.postal_code || 'N/D'}</span>
-            </div>
-        </div>
-    `;
-    
-    panel.classList.add('visible');
-}
+                <div class="info-group">
+                    <h3><i class="fas fa-hammer"></i> Territoriali</h3>
+                    <div class="info-item">
+                        <span class="info-label">Numero edifici per particella:</span>
+                        <span class="info-value">${props.buildings_count || 'N/D'}</span>
+                    </div>
+					    <div class="info-item">
+        <span class="info-label">Densità Abitativa:</span>
+        <span class="info-value">${props['densità abitativa'] ? parseFloat(props['densità abitativa']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' ab/km²' : 'N/D'}</span>
+    </div>
+	    <div class="info-item">
+        <span class="info-label">Superficie:</span>
+        <span class="info-value">${props['superfice mq'] ? parseFloat(props['superfice mq']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' m²' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Quota al suolo Min:</span>
+        <span class="info-value">${props.elevation_min ? parseFloat(props.elevation_min).toFixed(2) + ' m' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Quota al suolo Max:</span>
+        <span class="info-value">${props.elevation_max ? parseFloat(props.elevation_max).toFixed(2) + ' m' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Occupazione Media Edificio:</span>
+        <span class="info-value">${props['occupazione media dell\'edificio'] ? parseFloat(props['occupazione media dell\'edificio']).toFixed(2) + '%' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Dipendenza Strutturale:</span>
+        <span class="info-value">${props.indice_dipendenza_strutturale ? parseFloat(props.indice_dipendenza_strutturale).toFixed(2) + '%' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Indice Robustezza:</span>
+        <span class="info-value">${props['indice di robustezza'] ? parseFloat(props['indice di robustezza']).toFixed(2) : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Opportunità Riqualificazione:</span>
+        <span class="info-value">${props['opport_riqualificazione'] ? parseFloat(props['opport_riqualificazione']).toFixed(2) : 'N/D'}</span>
+    </div>
+	
+	
+	
+    <div class="info-item">
+        <span class="info-label">Potenziale Immobiliare:</span>
+        <span class="info-value">${props['potenziale_immobiliare'] ? parseFloat(props['potenziale_immobiliare']).toFixed(2) : 'N/D'}</span>
+    </div>
+                    <div class="info-item">
+                        <span class="info-label">CAP:</span>
+                        <span class="info-value">${props.postal_code || 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Rischio alluvione:</span>
+                        <span class="info-value">${floodRiskLabels[props['Ri alluvione']] || props['Ri alluvione'] || 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Rischio di frana:</span>
+                        <span class="info-value">${landslideRiskLabels[props['rischio di frana']] || props['rischio di frana'] || 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Rischio erosione costiera:</span>
+                        <span class="info-value">${coastalErosionLabels[props['rischio di erosione costiera']] || props['rischio di erosione costiera'] || 'N/D'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Rischio sismico:</span>
+                        <span class="info-value">${seismicRiskLabels[props['rischio sismico']] || props['rischio sismico'] || 'N/D'}</span>
+                    </div>
+                </div>
+            `;
+            
+            panel.classList.add('visible');
+        }
 
-function closeInfoPanel() {
-    document.getElementById('info-panel').classList.remove('visible');
-}
+        function closeInfoPanel() {
+            document.getElementById('info-panel').classList.remove('visible');
+        }
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
@@ -384,6 +508,12 @@ function applyMandamentoFilter(mandamento) {
     // Aggiorna il filtro corrente
     currentMandamentoFilter = mandamento || null;
     
+    // AGGIUNTA: Mantieni la selezione visibile nel dropdown
+    const mandamentoSelect = document.getElementById('mandamento-filter');
+    if (mandamentoSelect) {
+        mandamentoSelect.value = mandamento || '';
+    }
+    
     const filter = getCurrentFilter();
     console.log('Filtro combinato:', filter);
     
@@ -403,6 +533,8 @@ function applyMandamentoFilter(mandamento) {
         map.setPaintProperty('catastale-base', 'fill-opacity', 0.75);
         showBaseLegenda();
     }
+	
+	
 }// Registra il protocollo PMTiles
 const protocol = new pmtiles.Protocol();
 maplibregl.addProtocol("pmtiles", protocol.tile);
@@ -832,6 +964,9 @@ const themes = {
     }
 };
 
+
+
+
 // Inizializza mappa
 map = new maplibregl.Map({
     container: 'map',
@@ -937,6 +1072,9 @@ function populateFoglioFilter() {
             
             console.log('Fogli trovati:', availableFogli);
             updateFoglioDropdown();
+            
+            // AGGIUNTA: Ripristina la selezione corrente dopo aver aggiornato il dropdown
+            restoreFilterSelections();
         }
     } else {
         // Riprova dopo un breve delay
@@ -947,6 +1085,7 @@ function populateFoglioFilter() {
 // Funzione per aggiornare il dropdown dei fogli
 function updateFoglioDropdown() {
     const foglioSelect = document.getElementById('foglio-filter');
+    const currentSelection = foglioSelect.value; // Salva la selezione corrente
     
     // Rimuovi tutte le opzioni tranne la prima (Tutti i Fogli)
     while (foglioSelect.children.length > 1) {
@@ -961,7 +1100,140 @@ function updateFoglioDropdown() {
         foglioSelect.appendChild(option);
     });
     
+    // Ripristina la selezione precedente se era valida
+    if (currentSelection && availableFogli.includes(currentSelection)) {
+        foglioSelect.value = currentSelection;
+    } else if (currentFoglioFilter && availableFogli.includes(currentFoglioFilter)) {
+        foglioSelect.value = currentFoglioFilter;
+    }
+    
     console.log('Dropdown aggiornato con', availableFogli.length, 'fogli');
+}
+
+class SearchControl {
+    onAdd(map) {
+        this._map = map;
+        this._container = document.createElement('div');
+        this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+        this._container.style.position = 'relative';
+        
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = 'Cerca indirizzo...';
+        searchInput.className = 'search-control';
+        
+        const resultsDiv = document.createElement('div');
+        resultsDiv.className = 'search-results';
+        resultsDiv.id = 'search-results';
+        
+        this._container.appendChild(searchInput);
+        this._container.appendChild(resultsDiv);
+        
+        // Event listener per la ricerca
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            
+            if (query.length < 3) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                this.searchAddress(query, resultsDiv);
+            }, 300);
+        });
+        
+        // Nasconde i risultati quando si clicca fuori
+        document.addEventListener('click', (e) => {
+            if (!this._container.contains(e.target)) {
+                resultsDiv.style.display = 'none';
+            }
+        });
+        
+        return this._container;
+    }
+    
+    async searchAddress(query, resultsDiv) {
+        try {
+            // Limita la ricerca all'area di Palermo
+            const bounds = '13.32,38.09,13.40,38.14';
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ' Palermo')}&limit=5&bounded=1&viewbox=${bounds}&addressdetails=1`
+            );
+            const results = await response.json();
+            
+            resultsDiv.innerHTML = '';
+            
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<div class="search-result-item">Nessun risultato trovato</div>';
+            } else {
+                results.forEach(result => {
+                    const item = document.createElement('div');
+                    item.className = 'search-result-item';
+                    item.textContent = result.display_name;
+                    item.addEventListener('click', () => {
+                        const lat = parseFloat(result.lat);
+                        const lon = parseFloat(result.lon);
+                        this._map.flyTo({
+                            center: [lon, lat],
+                            zoom: 17,
+                            duration: 1000
+                        });
+                        resultsDiv.style.display = 'none';
+                    });
+                    resultsDiv.appendChild(item);
+                });
+            }
+            
+            resultsDiv.style.display = 'block';
+        } catch (error) {
+            console.error('Errore nella ricerca:', error);
+            resultsDiv.innerHTML = '<div class="search-result-item">Errore nella ricerca</div>';
+            resultsDiv.style.display = 'block';
+        }
+    }
+    
+    onRemove() {
+        this._container.parentNode.removeChild(this._container);
+        this._map = undefined;
+    }
+}
+
+// Controllo informazioni
+class InfoControl {
+    onAdd(map) {
+        this._map = map;
+        this._container = document.createElement('div');
+        this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+        
+        const button = document.createElement('button');
+        button.className = 'custom-control';
+        button.type = 'button';
+        button.innerHTML = '<i class="fas fa-info"></i>';
+        button.title = 'Informazioni progetto';
+        button.addEventListener('click', showInfoPopup);
+        
+        this._container.appendChild(button);
+        return this._container;
+    }
+    
+    onRemove() {
+        this._container.parentNode.removeChild(this._container);
+        this._map = undefined;
+    }
+}
+
+// Funzioni per gestire il popup informazioni
+function showInfoPopup() {
+    document.getElementById('popup-overlay').classList.add('visible');
+    document.getElementById('info-popup').classList.add('visible');
+}
+
+function closeInfoPopup() {
+    document.getElementById('popup-overlay').classList.remove('visible');
+    document.getElementById('info-popup').classList.remove('visible');
 }
 
 // Caricamento mappa
@@ -1086,6 +1358,8 @@ map.on('load', function() {
     
     // Controlli navigazione
     map.addControl(new maplibregl.NavigationControl());
+				    map.addControl(new SearchControl(), 'top-right');
+    map.addControl(new InfoControl(), 'top-right');
     
     // Imposta il valore di default per uso del suolo
     document.getElementById('territorial-select').value = 'landuse';
@@ -1140,6 +1414,12 @@ function applyFoglioFilter(foglio) {
     // Aggiorna il filtro corrente
     currentFoglioFilter = foglio || null;
     
+    // AGGIUNTA: Mantieni la selezione visibile nel dropdown
+    const foglioSelect = document.getElementById('foglio-filter');
+    if (foglioSelect) {
+        foglioSelect.value = foglio || '';
+    }
+    
     const filter = getCurrentFilter();
     console.log('Filtro combinato:', filter);
     
@@ -1190,6 +1470,27 @@ function applyMandamentoFilter(mandamento) {
         showBaseLegenda();
     }
 }
+
+// AGGIUNTA: Funzione per ripristinare le selezioni dei filtri (utile dopo aggiornamenti)
+function restoreFilterSelections() {
+    // Ripristina selezione mandamento
+    if (currentMandamentoFilter) {
+        const mandamentoSelect = document.getElementById('mandamento-filter');
+        if (mandamentoSelect) {
+            mandamentoSelect.value = currentMandamentoFilter;
+        }
+    }
+    
+    // Ripristina selezione foglio
+    if (currentFoglioFilter) {
+        const foglioSelect = document.getElementById('foglio-filter');
+        if (foglioSelect) {
+            foglioSelect.value = currentFoglioFilter;
+        }
+    }
+}
+
+
 
 // Gestione hover
 map.on('mouseenter', 'catastale-base', (e) => {

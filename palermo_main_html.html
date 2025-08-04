@@ -14,8 +14,57 @@
     <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
     <!-- Libreria PMTiles -->
     <script src="https://unpkg.com/pmtiles@2.4.0/dist/index.js"></script>
+	    <meta property="og:url" content="https://palermohub.github.io/cspa/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Studio Demografico e Socio-Economico del Centro Storico di Palermo">
+    <meta property="og:description" content="Palermo Hub - Contenitore di mappe su Palermo realizzato da OpenDataSicilia.it">
+    <meta property="og:image" content="https://palermohub.github.io/cspa/img/social_card.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:domain" content="palermohub.opendatasicilia.it">
+    <meta property="twitter:url" content="https://palermohub.github.io/cspa/">
+    <meta name="twitter:title" content="Studio Demografico e Socio-Economico del Centro Storico di Palermo">
+    <meta name="twitter:description" content="Palermo Hub - Contenitore di mappe su Palermo realizzato da OpenDataSicilia.it">
+    <meta name="twitter:image" content="https://palermohub.github.io/cspa/img/social_card.jpg">
+	
 </head>
 <body>
+<!-- Popup overlay e contenuto informazioni -->
+<div class="popup-overlay" id="popup-overlay" onclick="closeInfoPopup()"></div>
+<div class="info-popup" id="info-popup">
+    <div class="info-popup-header">
+        <div class="header-title-container">  <!-- Aggiunto nuovo contenitore -->
+            <h3><i class="fas fa-info-circle"></i> Informazioni Progetto</h3>
+            <button class="info-popup-close" onclick="closeInfoPopup()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <div class="info-popup-content">
+        <h4>Studio Demografico e Socio-Economico del Centro Storico di Palermo</h4>
+        <p>Questa applicazione presenta un'analisi geospaziale interattiva del centro storico di Palermo, basata su dati catastali e statistiche demografiche.</p>
+        
+        <h4>Funzionalità principali:</h4>
+        <ul>
+            <li><strong>Visualizzazione particelle catastali</strong> - Mappa base con classificazione uso del suolo</li>
+            <li><strong>Indicatori demografici</strong> - Popolazione, età media, composizione familiare</li>
+            <li><strong>Indicatori socio-economici</strong> - Occupazione, istruzione, integrazione</li>
+            <li><strong>Indicatori territoriali</strong> - Densità, superfici, rischi ambientali</li>
+            <li><strong>Filtri per Mandamenti</strong> - Castellammare, Tribunali, Palazzo Reale, Monte di Pietà</li>
+        </ul>
+        
+        <h4>Come utilizzare:</h4>
+        <ul>
+            <li>Seleziona un indicatore dai menu a tendina per visualizzare la tematizzazione</li>
+            <li>Clicca su una particella per vedere i dettagli nel pannello laterale a destra</li>
+            <li>Utilizza i filtri per esplorare specifici mandamenti</li>
+            <li>Cerca indirizzi utilizzando la barra di ricerca, ottimizzata per l'area del centro storico di Palermo</li>
+        </ul>
+        
+        <p><strong>Fonte dati:</strong> <a href="https://zornade.com/" target="_blank">zornade.com</a> - Italian Cadastral Parcel Data & Geospatial Insights API</p>
+        <p><strong>Elaborazione:</strong> <a href="https://www.linkedin.com/in/gbvitrano/" target="_blank">@gbvitrano</a> - 2025</p>
+    </div>
+</div>
+
     <div class="header">
         <h1><img src="img/logo_cs.svg" alt="cspa" width="40" height="40"/> Studio Demografico e Socio-Economico del Centro Storico di Palermo</h1>
     </div>
@@ -45,7 +94,7 @@
         </div>
         
         <div class="control-section">
-            <h3><img src="img/map-marked-alt.svg" alt="foglio" width="20" height="20"/> Filtra per Foglio</h3>
+            <h3><img src="img/logo_cs_01.svg" alt="foglio" width="20" height="20"/> Filtra per Foglio</h3>
             <select id="foglio-filter" class="form-control">
                 <option value="">Tutti i Fogli</option>
                 <!-- Le opzioni verranno popolate dinamicamente -->
