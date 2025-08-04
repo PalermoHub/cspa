@@ -217,5 +217,18 @@
     </div>    
     <!-- beta version -->
     <div id="beta"><img src="https://palermohub.opendatasicilia.it/legend/beta.png" width="40" title="beta version" alt="beta version"></div>
+	     <!-- Caricamento -->
+    <div class="custom-loader" id="custom-loader">
+        <div class="spinner"></div>
+        <div class="loader-text">Analisi geospaziale in esecuzione...<br><br>
+           <h2> Studio Demografico e Socio-Economico del Centro Storico di Palermo</h2>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            document.getElementById('custom-loader').style.display = 'none';
+        }, 4000);
+    </script>
 </body>
 </html>
