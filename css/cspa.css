@@ -578,3 +578,97 @@ hr  {border: 0;
             line-height: 1.5;
             color: #333;
         }
+		
+.custom-control {
+    background: white;
+    border: none;
+    width: 29px;
+    height: 29px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    border-radius: 4px;
+}
+
+.custom-control:hover {
+    background-color: rgba(0,0,0,.05);
+}
+
+.search-control {
+    width: 200px;
+    height: 29px;
+    padding: 0 8px;
+    border: none;
+    outline: none;
+    font-size: 12px;
+    background: white;
+    border-radius: 4px;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.search-result-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
+}
+
+.search-result-item:hover {
+    background-color: #f5f5f5;
+}
+
+/* Popup informazioni */
+.info-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    padding: 20px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 10000;
+    display: none;
+}
+
+.info-popup.visible {
+    display: block;
+}		
+
+   /* Allineamento titolo e pulsante chiusura */
+    .header-title-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .info-popup-header h3 {
+        margin: 0; /* Rimuove margine inferiore predefinito */
+        flex-grow: 1; /* Occupa tutto lo spazio disponibile */
+    }
+    
+    .info-popup-close {
+        margin-left: 15px; /* Spazio tra titolo e pulsante */
+    }
