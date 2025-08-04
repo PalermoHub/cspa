@@ -129,6 +129,8 @@
         <i class="fas fa-sync-alt" title="RESET Vista predefinita"></i> Vista predefinita
     </button>
         </div>
+		<p class="api">Fonte dati: <a href="https://zornade.com/" title="zornade.com" target="_blank">zornade.com</a> - Italian Cadastral <br>
+Parcel Data & Geospatial Insights API</p>
     </div>
     
     <div class="info-panel" id="info-panel">
@@ -254,25 +256,25 @@
                         type: 'raster',
                         tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'],
                         tileSize: 256,
-                        attribution: '© OpenStreetMap contributors, © CartoDB - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> -  '
+                        attribution: '© OpenStreetMap contributors, © CartoDB - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025 '
                     },
                     'satellite': {
                         type: 'raster',
                         tiles: ['https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'],
                         tileSize: 256,
-                        attribution: '© Google - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> -'
+                        attribution: '© Google - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
                     },
 					    'osm': {
         type: 'raster',
         tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
         tileSize: 256,
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> -'
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
     },
     'google-maps': {
         type: 'raster',
         tiles: ['https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}'],
         tileSize: 256,
-        attribution: '© Google Maps - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> -'
+        attribution: '© Google Maps - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
     }
       },
                 layers: [
@@ -2196,5 +2198,20 @@ function switchBasemap(value) {
 <img src="https://palermohub.opendatasicilia.it/lib/images/opendatasicilia_dredits.png" alt="opendatasicilia" width="40" border="0" title="opendatasicilia.it"></a></div>    
 <!-- beta version     --> 
  <div id="beta"><img src="https://palermohub.opendatasicilia.it/legend/beta.png" width="40" title="beta version" alt="beta version"></a></div>
+ 
+     <!-- Caricamento -->
+    <div class="custom-loader" id="custom-loader">
+        <div class="spinner"></div>
+        <div class="loader-text">Analisi geospaziale in esecuzione...<br><br>
+           <h2> Studio Demografico e Socio-Economico del Centro Storico di Palermo</h2>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            document.getElementById('custom-loader').style.display = 'none';
+        }, 4000);
+    </script>
+ 
 </body>
 </html>

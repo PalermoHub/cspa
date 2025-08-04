@@ -135,6 +135,8 @@
                 <i class="fas fa-sync-alt" title="RESET Vista predefinita"></i> Vista predefinita
             </button>
         </div>
+				<p class="api">Fonte dati: <a href="https://zornade.com/" title="zornade.com" target="_blank">zornade.com</a> - Italian Cadastral <br>
+Parcel Data & Geospatial Insights API</p>
     </div>
     
     <div class="info-panel" id="info-panel">
@@ -175,5 +177,18 @@
     </div>    
     <!-- beta version -->
     <div id="beta"><img src="https://palermohub.opendatasicilia.it/legend/beta.png" width="40" title="beta version" alt="beta version"></div>
+	     <!-- Caricamento -->
+    <div class="custom-loader" id="custom-loader">
+        <div class="spinner"></div>
+        <div class="loader-text">Analisi geospaziale in esecuzione...<br><br>
+           <h2> Studio Demografico e Socio-Economico del Centro Storico di Palermo</h2>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            document.getElementById('custom-loader').style.display = 'none';
+        }, 4000);
+    </script>
 </body>
 </html>
