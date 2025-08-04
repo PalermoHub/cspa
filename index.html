@@ -84,8 +84,8 @@
 				<!-- <option value="landuse" selected><i class="fas fa-map-marked-alt"></i> Particelle catastali di base</option> -->
 <option value="density"><i class="fas fa-home"></i> Densità Abitativa</option>
 <option value="surface_area"><i class="fas fa-expand-arrows-alt"></i> Superficie Particella</option>
-<option value="elevation_min"><i class="fas fa-mountain"></i> Elevazione Minima</option>
-<option value="elevation_max"><i class="fas fa-mountain"></i> Elevazione Massima</option>
+<option value="elevation_min"><i class="fas fa-mountain"></i> Quota al suolo Min</option>
+<option value="elevation_max"><i class="fas fa-mountain"></i> Quota al suolo Max</option>
 <option value="building_occupancy"><i class="fas fa-building"></i> Occupazione Media Edificio</option>
 <option value="structural_dependency"><i class="fas fa-tools"></i> Dipendenza Strutturale</option>
 <option value="robustness"><i class="fas fa-shield-alt"></i> Indice Robustezza</option>
@@ -509,7 +509,7 @@ surface_area: {
 },
 
 elevation_min: {
-    name: 'Elevazione Minima',
+    name: 'Quota al suolo Min',
     property: 'elevation_min',
     colors: ['#ffffff', '#e8f5e8', '#c8e6c8', '#a5d6a5', '#82c782', '#5fb85f', '#3ca83c', '#1b5e20'],
     unit: 'm',
@@ -519,7 +519,7 @@ elevation_min: {
 },
 
 elevation_max: {
-    name: 'Elevazione Massima',
+    name: 'Quota al suolo Max',
     property: 'elevation_max',
     colors: ['#ffffff', '#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#0d47a1'],
     unit: 'm',
@@ -2019,11 +2019,11 @@ function removeTheme() {
         <span class="info-value">${props['superfice mq'] ? parseFloat(props['superfice mq']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' m²' : 'N/D'}</span>
     </div>
     <div class="info-item">
-        <span class="info-label">Elevazione Min:</span>
+        <span class="info-label">Quota al suolo Min:</span>
         <span class="info-value">${props.elevation_min ? parseFloat(props.elevation_min).toFixed(2) + ' m' : 'N/D'}</span>
     </div>
     <div class="info-item">
-        <span class="info-label">Elevazione Max:</span>
+        <span class="info-label">Quota al suolo Max:</span>
         <span class="info-value">${props.elevation_max ? parseFloat(props.elevation_max).toFixed(2) + ' m' : 'N/D'}</span>
     </div>
     <div class="info-item">
