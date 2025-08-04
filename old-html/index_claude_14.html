@@ -49,16 +49,19 @@
             <h3><img src="img/people.svg" alt="cspa" width="20" height="20"/> Indicatori Demografici</h3>
             <select id="demographic-select" class="form-control">
                 <option value="">Seleziona indicatore...</option>
-        <option value="population"><i class="fas fa-users"></i> Popolazione Stimata</option>
-				 <option value="masculinity"><i class="fas fa-mars"></i> Tasso di Mascolinità</option>
-        <option value="singlePerson"><i class="fas fa-user"></i> Tasso Persona Singola</option>
-        <option value="familySize"><i class="fas fa-home-heart"></i> Dimensione Media Famiglia</option>
-        <option value="largeFamilies"><i class="fas fa-users"></i> Tasso Famiglie Numerose</option>
-        <option value="age"><i class="fas fa-user-clock"></i> Età Media</option>
-	    <option value="elderly"><i class="fas fa-user-friends"></i> Tasso Anziani</option>
-        <option value="foreign"><i class="fas fa-globe"></i> Popolazione Straniera</option>		
-        <option value="nonEuForeigners"><i class="fas fa-passport"></i> Stranieri Non-UE</option>
-        <option value="youngForeigners"><i class="fas fa-child"></i> Giovani Stranieri</option>
+			<option value="population"><i class="fas fa-users"></i> Popolazione Stimata</option>
+			<option value="age"><i class="fas fa-user-clock"></i> Età Media</option>
+			<option value="elderly"><i class="fas fa-user-friends"></i> Tasso Anziani</option>
+
+			<option value="family_size"><i class="fas fa-home"></i> Dimensione Media Famiglia</option>
+			<option value="masculinity_rate"><i class="fas fa-male"></i> Tasso di Mascolinità</option>
+			<option value="single_person_rate"><i class="fas fa-user"></i> Tasso Persone Singole</option>
+			<option value="large_families_rate"><i class="fas fa-users"></i> Tasso Famiglie Numerose</option>
+			<option value="foreign"><i class="fas fa-globe"></i> Popolazione Straniera</option>
+		    <option value="non_eu_foreigners"><i class="fas fa-passport"></i> Stranieri Non-UE</option>
+            <option value="young_foreigners"><i class="fas fa-user-graduate"></i> Giovani Stranieri</option>	
+				
+				
             </select>
         </div>
         
@@ -66,14 +69,14 @@
             <h3><img src="img/people_02.svg" alt="cspa" width="20" height="20"/> Indicatori Socio-Economici</h3>
             <select id="economic-select" class="form-control">
                 <option value="">Seleziona indicatore...</option>
-	   <option value="higherEducation"><i class="fas fa-graduation-cap"></i> Istruzione Superiore</option>
-       <option value="lowEducation"><i class="fas fa-book"></i> Basso Tasso Istruzione</option>
-	   <option value="workIntegration"><i class="fas fa-handshake"></i> Integrazione Lavoro</option>
-       <option value="employment"><i class="fas fa-briefcase"></i> Tasso Occupazione</option>
-      <option value="femaleEmployment"><i class="fas fa-female"></i> Tasso Occupazione Femminile</option>
-       <option value="genderGap"><i class="fas fa-balance-scale"></i> Divario Genere Occupazione</option>
-      <option value="resilience"><i class="fas fa-shield-alt"></i> Resilienza Economica</option>
-     <option value="cohesion"><i class="fas fa-handshake"></i> Coesione Sociale</option>
+				<option value="employment"><i class="fas fa-briefcase"></i> Tasso Occupazione</option>
+				<option value="female_employment"><i class="fas fa-female"></i> Tasso Occupazione Femminile</option>
+				<option value="genderGap"><i class="fas fa-balance-scale"></i> Divario Genere</option>
+				<option value="education"><i class="fas fa-graduation-cap"></i> Istruzione Superiore</option>
+				<option value="low_education"><i class="fas fa-book"></i> Basso Tasso Istruzione</option>
+				<option value="young_foreigners"><i class="fas fa-user-graduate"></i> Giovani Stranieri</option>
+				<option value="resilience"><i class="fas fa-shield-alt"></i> Resilienza Economica</option>
+				<option value="cohesion"><i class="fas fa-handshake"></i> Coesione Sociale</option>
             </select>
         </div>
         
@@ -83,7 +86,7 @@
                 <option value="landuse">Seleziona indicatore...</option>
 				<!-- <option value="landuse" selected><i class="fas fa-map-marked-alt"></i> Particelle catastali di base</option> -->
                 <option value="buildings"><i class="fas fa-building"></i> Numero Edifici per particella</option>
-				        <option value="density"><i class="fas fa-home"></i> Densità Abitativa</option>
+				<option value="density"><i class="fas fa-home"></i> Densità Abitativa</option>
                  <option value="flood_risk"><i class="fas fa-water"></i> Rischio alluvione</option>
                 <option value="land_cover"><i class="fas fa-leaf"></i> Copertura del suolo</option>
                <option value="landslide_risk"><i class="fas fa-mountain"></i> Rischio di frana</option>
@@ -323,106 +326,6 @@
                 jenksBreaks: [0, 0, 1, 3, 6, 12, 20, 35], // Break points aggiornati per range 0-35
                 type: 'jenks'
             },
-			
-			familySize: {
-    name: 'Dimensione Media Famiglia',
-    property: 'dimensione media della famiglia',
-    colors: ['#ffffff', '#e8f5e8', '#c8e6c8', '#a5d6a5', '#82c782', '#5fb85f', '#3ca83c', '#2e7d32'],
-    unit: 'componenti',
-    format: (val) => `${val || 'N/D'} componenti`,
-    jenksBreaks: [0, 0, 1.5, 2.2, 2.8, 3.5, 4.2, 5.0, 33],
-    type: 'jenks'
-},
-masculinity: {
-    name: 'Tasso di Mascolinità',
-    property: 'tasso di mascolinità',
-    colors: ['#ffffff', '#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1976d2'],
-    unit: '%',
-    format: (val) => `${val || 'N/D'}%`,
-    jenksBreaks: [0, 0, 45, 50, 55, 60, 70, 85, 100],
-    type: 'jenks'
-},
-singlePerson: {
-    name: 'Tasso Persona Singola',
-    property: 'tasso_persona singola',
-    colors: ['#ffffff', '#fff3e0', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#f57c00'],
-    unit: '%',
-    format: (val) => `${val || 'N/D'}%`,
-    jenksBreaks: [0, 0, 15, 25, 35, 45, 60, 80, 100],
-    type: 'jenks'
-},
-largeFamilies: {
-    name: 'Tasso Famiglie Numerose',
-    property: 'tasso_famiglie_numerose',
-    colors: ['#ffffff', '#f1f8e9', '#dcedc8', '#c5e1a5', '#aed581', '#9ccc65', '#8bc34a', '#689f38'],
-    unit: '%',
-    format: (val) => `${val || 'N/D'}%`,
-    jenksBreaks: [0, 0, 5, 12, 20, 30, 45, 65, 100],
-    type: 'jenks'
-},
-femaleEmployment: {
-    name: 'Tasso Occupazione Femminile',
-    property: 'tasso di occupazione femminile',
-    colors: ['#ffffff', '#fce4ec', '#f8bbd9', '#f48fb1', '#f06292', '#ec407a', '#e91e63', '#c2185b'],
-    unit: '%',
-    format: (val) => `${val || 'N/D'}%`,
-    jenksBreaks: [0, 0, 20, 35, 45, 55, 70, 85, 100],
-    type: 'jenks'
-},
-genderGap: {
-    name: 'Divario Genere Occupazione',
-    property: 'divario di genere nell\'occupazione',
-    colors: ['#4caf50', '#81c784', '#fff59d', '#ffcc02', '#ff9800', '#ff5722', '#d32f2f', '#b71c1c'],
-    unit: '%',
-    format: (val) => `${val || 'N/D'}%`,
-    jenksBreaks: [-67, -30, -10, 0, 15, 30, 50, 75, 100],
-    type: 'jenks'
-},
-higherEducation: {
-    name: 'Tasso Istruzione Superiore',
-    property: 'tasso di istruzione superiore',
-    colors: ['#ffffff', '#e8f5e8', '#c8e6c8', '#a5d6a5', '#82c782', '#5fb85f', '#3ca83c', '#1b5e20'],
-    unit: '%',
-    format: (val) => `${val || 'N/D'}%`,
-    jenksBreaks: [0, 0, 15, 25, 35, 50, 65, 80, 100],
-    type: 'jenks'
-},
-lowEducation: {
-    name: 'Basso Tasso Istruzione',
-    property: 'basso_tasso_di_istruzione',
-    colors: ['#ffffff', '#ffebee', '#ffcdd2', '#ef9a9a', '#e57373', '#ef5350', '#f44336', '#d32f2f'],
-    unit: '%',
-    format: (val) => `${val || 'N/D'}%`,
-    jenksBreaks: [0, 0, 10, 20, 35, 50, 65, 80, 100],
-    type: 'jenks'
-},
-workIntegration: {
-    name: 'Tasso Integrazione Lavoro',
-    property: 'tasso di integrazione del lavoro',
-    colors: ['#ffffff', '#e0f2f1', '#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#009688', '#00695c'],
-    unit: '%',
-    format: (val) => `${val || 'N/D'}%`,
-    jenksBreaks: [0, 0, 20, 35, 50, 65, 75, 85, 100],
-    type: 'jenks'
-},
-nonEuForeigners: {
-    name: 'Tasso Stranieri Non-UE',
-    property: 'tasso_stranieri_non_ue',
-    colors: ['#ffffff', '#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#7b1fa2'],
-    unit: '%',
-    format: (val) => `${val || 'N/D'}%`,
-    jenksBreaks: [0, 0, 8, 18, 30, 45, 60, 80, 100],
-    type: 'jenks'
-},
-youngForeigners: {
-    name: 'Tasso Giovani Stranieri',
-    property: 'tasso_giovani_stranieri',
-    colors: ['#ffffff', '#fff8e1', '#ffecb3', '#ffe082', '#ffd54f', '#ffca28', '#ffc107', '#ffa000'],
-    unit: '%',
-    format: (val) => `${val || 'N/D'}%`,
-    jenksBreaks: [0, 0, 12, 22, 35, 50, 65, 80, 100],
-    type: 'jenks'
-},		
             age: {
                 name: 'Età Media',
                 property: 'età_media',
@@ -495,6 +398,102 @@ youngForeigners: {
                 unit: 'indice',
                 format: (val) => `${val || 'N/D'}`
             },
+			
+			
+family_size: {
+    name: 'Dimensione Media Famiglia',
+    property: 'dimensione media della famiglia',
+    colors: ['#ffffff', '#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#7b1fa2'],
+    unit: 'componenti',
+    format: (val) => `${val?.toFixed(2) || 'N/D'} componenti`,
+    jenksBreaks: [0, 0, 1.5, 2.0, 2.5, 3.0, 4.0, 6.0, 33.0], // 8 classi: 0, 0.1-1.5, 1.6-2.0, 2.1-2.5, 2.6-3.0, 3.1-4.0, 4.1-6.0, 6.1-33
+    type: 'jenks'
+},
+masculinity_rate: {
+    name: 'Tasso di Mascolinità',
+    property: 'tasso di mascolinità',
+    colors: ['#ffffff', '#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1976d2'],
+    unit: '%',
+    format: (val) => `${val?.toFixed(1) || 'N/D'}%`,
+    jenksBreaks: [0, 0, 30, 40, 45, 50, 55, 65, 100], // 8 classi: 0, 0.1-30, 31-40, 41-45, 46-50, 51-55, 56-65, 66-100
+    type: 'jenks'
+},
+single_person_rate: {
+    name: 'Tasso Persone Singole',
+    property: 'tasso_persona singola',
+    colors: ['#ffffff', '#fff3e0', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#f57c00'],
+    unit: '%',
+    format: (val) => `${val?.toFixed(1) || 'N/D'}%`,
+    jenksBreaks: [0, 0, 10, 20, 30, 40, 55, 75, 100], // 8 classi: 0, 0.1-10, 11-20, 21-30, 31-40, 41-55, 56-75, 76-100
+    type: 'jenks'
+},
+large_families_rate: {
+    name: 'Tasso Famiglie Numerose',
+    property: 'tasso_famiglie_numerose',
+    colors: ['#ffffff', '#f1f8e9', '#dcedc8', '#c5e1a5', '#aed581', '#9ccc65', '#8bc34a', '#689f38'],
+    unit: '%',
+    format: (val) => `${val?.toFixed(1) || 'N/D'}%`,
+    jenksBreaks: [0, 0, 5, 10, 15, 25, 35, 50, 100], // 8 classi: 0, 0.1-5, 6-10, 11-15, 16-25, 26-35, 36-50, 51-100
+    type: 'jenks'
+},
+		
+female_employment: {
+    name: 'Tasso Occupazione Femminile',
+    property: 'tasso di occupazione femminile',
+    colors: ['#ffffff', '#fce4ec', '#f8bbd9', '#f48fb1', '#f06292', '#ec407a', '#e91e63', '#c2185b'],
+    unit: '%',
+    format: (val) => `${val?.toFixed(1) || 'N/D'}%`,
+    jenksBreaks: [0, 0, 15, 25, 35, 45, 55, 70, 100], // 8 classi: 0, 0.1-15, 16-25, 26-35, 36-45, 46-55, 56-70, 71-100
+    type: 'jenks'
+},
+genderGap: {
+    name: 'Divario Genere Occupazione',
+    property: 'divario di genere nell\'occupazione',
+    colors: ['#ffffff', '#ffebee', '#ffcdd2', '#ef9a9a', '#e57373', '#ef5350', '#f44336', '#d32f2f'],
+    unit: '%',
+    format: (val) => `${val?.toFixed(1) || 'N/D'}%`,
+    jenksBreaks: [-67, -67, -30, -10, 0, 15, 30, 50, 100], // 8 classi: -67, -66 a -30, -29 a -10, -9 a 0, 1-15, 16-30, 31-50, 51-100
+    type: 'jenks'
+},
+low_education: {
+    name: 'Basso Tasso Istruzione',
+    property: 'basso_tasso_di_istruzione',
+    colors: ['#ffffff', '#fff8e1', '#ffecb3', '#ffe082', '#ffd54f', '#ffca28', '#ffc107', '#ffa000'],
+    unit: '%',
+    format: (val) => `${val?.toFixed(1) || 'N/D'}%`,
+    jenksBreaks: [0, 0, 10, 20, 30, 45, 60, 80, 100], // 8 classi: 0, 0.1-10, 11-20, 21-30, 31-45, 46-60, 61-80, 81-100
+    type: 'jenks'
+},
+work_integration: {
+    name: 'Tasso Integrazione Lavorativa',
+    property: 'tasso di integrazione del lavoro',
+    colors: ['#ffffff', '#e0f2f1', '#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#009688', '#00695c'],
+    unit: '%',
+    format: (val) => `${val?.toFixed(1) || 'N/D'}%`,
+    jenksBreaks: [0, 0, 20, 35, 50, 65, 75, 85, 100], // 8 classi: 0, 0.1-20, 21-35, 36-50, 51-65, 66-75, 76-85, 86-100
+    type: 'jenks'
+},
+non_eu_foreigners: {
+    name: 'Tasso Stranieri Non-UE',
+    property: 'tasso_stranieri_non_ue',
+    colors: ['#ffffff', '#e8eaf6', '#c5cae9', '#9fa8da', '#7986cb', '#5c6bc0', '#3f51b5', '#303f9f'],
+    unit: '%',
+    format: (val) => `${val?.toFixed(1) || 'N/D'}%`,
+    jenksBreaks: [0, 0, 8, 15, 25, 35, 50, 70, 100], // 8 classi: 0, 0.1-8, 9-15, 16-25, 26-35, 36-50, 51-70, 71-100
+    type: 'jenks'
+},
+young_foreigners: {
+    name: 'Tasso Giovani Stranieri',
+    property: 'tasso_giovani_stranieri',
+    colors: ['#ffffff', '#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#7b1fa2'],
+    unit: '%',
+    format: (val) => `${val?.toFixed(1) || 'N/D'}%`,
+    jenksBreaks: [0, 0, 12, 22, 32, 45, 60, 80, 100], // 8 classi: 0, 0.1-12, 13-22, 23-32, 33-45, 46-60, 61-80, 81-100
+    type: 'jenks'
+}
+			
+			
+			
             buildings: {
                 name: 'Numero edifici per particella',
                 property: 'buildings_count',
@@ -747,15 +746,34 @@ youngForeigners: {
                 paint: {
                     'fill-opacity': 0.8
                 }
+
             };
 
             // Configurazione specifica per temi con Jenks-Fisher
-           if (themeKey === 'buildings' || themeKey === 'population' || themeKey === 'age' || themeKey === 'elderly' || 
-    themeKey === 'density' || themeKey === 'foreign' || themeKey === 'familySize' || themeKey === 'masculinity' || 
-    themeKey === 'singlePerson' || themeKey === 'largeFamilies' || themeKey === 'femaleEmployment' || 
-    themeKey === 'genderGap' || themeKey === 'higherEducation' || themeKey === 'lowEducation' || 
-    themeKey === 'workIntegration' || themeKey === 'nonEuForeigners' || themeKey === 'youngForeigners') {
-                const jenksBreaks = theme.jenksBreaks;
+if (themeKey === 'buildings' || themeKey === 'population' || themeKey === 'age' || themeKey === 'elderly' || 
+    themeKey === 'density' || themeKey === 'foreign' || themeKey === 'family_size' || 
+    themeKey === 'masculinity_rate' || themeKey === 'single_person_rate' || themeKey === 'large_families_rate' ||
+    themeKey === 'female_employment' || themeKey === 'genderGap' || themeKey === 'low_education' ||
+    themeKey === 'work_integration' || themeKey === 'non_eu_foreigners' || themeKey === 'young_foreigners') {
+    
+    const jenksBreaks = theme.jenksBreaks;
+	
+	  // Configurazione standard per tutti i temi Jenks (8 classi)
+    layerConfig.paint['fill-color'] = [
+        'step',
+        ['coalesce', ['get', theme.property], 0],
+        theme.colors[0], // Classe 0: valore 0
+        jenksBreaks[2], theme.colors[1], // Classe 1
+        jenksBreaks[3], theme.colors[2], // Classe 2
+        jenksBreaks[4], theme.colors[3], // Classe 3
+        jenksBreaks[5], theme.colors[4], // Classe 4
+        jenksBreaks[6], theme.colors[5], // Classe 5
+        jenksBreaks[7], theme.colors[6], // Classe 6
+        jenksBreaks[8], theme.colors[7]  // Classe 7
+    ];
+}
+	
+	
                 if (themeKey === 'population') {
                     // Configurazione specifica per popolazione con 7 classi effettive
                     layerConfig.paint['fill-color'] = [
@@ -797,152 +815,6 @@ youngForeigners: {
                         jenksBreaks[6], theme.colors[6], // 44.8-52.1%
                         jenksBreaks[7], theme.colors[7]  // 52.2-58.8%
                     ];
-					
-					} else if (themeKey === 'familySize') {
-    layerConfig.paint['fill-color'] = [
-        'step',
-        ['coalesce', ['get', theme.property], 0],
-        theme.colors[0], // 0 componenti
-        jenksBreaks[2], theme.colors[1], // 1-1.4
-        jenksBreaks[3], theme.colors[2], // 1.5-2.1
-        jenksBreaks[4], theme.colors[3], // 2.2-2.7
-        jenksBreaks[5], theme.colors[4], // 2.8-3.4
-        jenksBreaks[6], theme.colors[5], // 3.5-4.1
-        jenksBreaks[7], theme.colors[6], // 4.2-4.9
-        jenksBreaks[8], theme.colors[7]  // 5.0-33
-    ];
-} else if (themeKey === 'masculinity') {
-    layerConfig.paint['fill-color'] = [
-        'step',
-        ['coalesce', ['get', theme.property], 0],
-        theme.colors[0], // 0%
-        jenksBreaks[2], theme.colors[1], // 1-44%
-        jenksBreaks[3], theme.colors[2], // 45-49%
-        jenksBreaks[4], theme.colors[3], // 50-54%
-        jenksBreaks[5], theme.colors[4], // 55-59%
-        jenksBreaks[6], theme.colors[5], // 60-69%
-        jenksBreaks[7], theme.colors[6], // 70-84%
-        jenksBreaks[8], theme.colors[7]  // 85-100%
-    ];
-} else if (themeKey === 'singlePerson') {
-    layerConfig.paint['fill-color'] = [
-        'step',
-        ['coalesce', ['get', theme.property], 0],
-        theme.colors[0], // 0%
-        jenksBreaks[2], theme.colors[1], // 1-14%
-        jenksBreaks[3], theme.colors[2], // 15-24%
-        jenksBreaks[4], theme.colors[3], // 25-34%
-        jenksBreaks[5], theme.colors[4], // 35-44%
-        jenksBreaks[6], theme.colors[5], // 45-59%
-        jenksBreaks[7], theme.colors[6], // 60-79%
-        jenksBreaks[8], theme.colors[7]  // 80-100%
-    ];
-} else if (themeKey === 'largeFamilies') {
-    layerConfig.paint['fill-color'] = [
-        'step',
-        ['coalesce', ['get', theme.property], 0],
-        theme.colors[0], // 0%
-        jenksBreaks[2], theme.colors[1], // 1-4%
-        jenksBreaks[3], theme.colors[2], // 5-11%
-        jenksBreaks[4], theme.colors[3], // 12-19%
-        jenksBreaks[5], theme.colors[4], // 20-29%
-        jenksBreaks[6], theme.colors[5], // 30-44%
-        jenksBreaks[7], theme.colors[6], // 45-64%
-        jenksBreaks[8], theme.colors[7]  // 65-100%
-    ];
-} else if (themeKey === 'femaleEmployment') {
-    layerConfig.paint['fill-color'] = [
-        'step',
-        ['coalesce', ['get', theme.property], 0],
-        theme.colors[0], // 0%
-        jenksBreaks[2], theme.colors[1], // 1-19%
-        jenksBreaks[3], theme.colors[2], // 20-34%
-        jenksBreaks[4], theme.colors[3], // 35-44%
-        jenksBreaks[5], theme.colors[4], // 45-54%
-        jenksBreaks[6], theme.colors[5], // 55-69%
-        jenksBreaks[7], theme.colors[6], // 70-84%
-        jenksBreaks[8], theme.colors[7]  // 85-100%
-    ];
-} else if (themeKey === 'genderGap') {
-    layerConfig.paint['fill-color'] = [
-        'step',
-        ['coalesce', ['get', theme.property], -67],
-        theme.colors[0], // -67 a -31%
-        jenksBreaks[2], theme.colors[1], // -30 a -11%
-        jenksBreaks[3], theme.colors[2], // -10 a -1%
-        jenksBreaks[4], theme.colors[3], // 0 a 14%
-        jenksBreaks[5], theme.colors[4], // 15 a 29%
-        jenksBreaks[6], theme.colors[5], // 30 a 49%
-        jenksBreaks[7], theme.colors[6], // 50 a 74%
-        jenksBreaks[8], theme.colors[7]  // 75 a 100%
-    ];
-} else if (themeKey === 'higherEducation') {
-    layerConfig.paint['fill-color'] = [
-        'step',
-        ['coalesce', ['get', theme.property], 0],
-        theme.colors[0], // 0%
-        jenksBreaks[2], theme.colors[1], // 1-14%
-        jenksBreaks[3], theme.colors[2], // 15-24%
-        jenksBreaks[4], theme.colors[3], // 25-34%
-        jenksBreaks[5], theme.colors[4], // 35-49%
-        jenksBreaks[6], theme.colors[5], // 50-64%
-        jenksBreaks[7], theme.colors[6], // 65-79%
-        jenksBreaks[8], theme.colors[7]  // 80-100%
-    ];
-} else if (themeKey === 'lowEducation') {
-    layerConfig.paint['fill-color'] = [
-        'step',
-        ['coalesce', ['get', theme.property], 0],
-        theme.colors[0], // 0%
-        jenksBreaks[2], theme.colors[1], // 1-9%
-        jenksBreaks[3], theme.colors[2], // 10-19%
-        jenksBreaks[4], theme.colors[3], // 20-34%
-        jenksBreaks[5], theme.colors[4], // 35-49%
-        jenksBreaks[6], theme.colors[5], // 50-64%
-        jenksBreaks[7], theme.colors[6], // 65-79%
-        jenksBreaks[8], theme.colors[7]  // 80-100%
-    ];
-} else if (themeKey === 'workIntegration') {
-    layerConfig.paint['fill-color'] = [
-        'step',
-        ['coalesce', ['get', theme.property], 0],
-        theme.colors[0], // 0%
-        jenksBreaks[2], theme.colors[1], // 1-19%
-        jenksBreaks[3], theme.colors[2], // 20-34%
-        jenksBreaks[4], theme.colors[3], // 35-49%
-        jenksBreaks[5], theme.colors[4], // 50-64%
-        jenksBreaks[6], theme.colors[5], // 65-74%
-        jenksBreaks[7], theme.colors[6], // 75-84%
-        jenksBreaks[8], theme.colors[7]  // 85-100%
-    ];
-} else if (themeKey === 'nonEuForeigners') {
-    layerConfig.paint['fill-color'] = [
-        'step',
-        ['coalesce', ['get', theme.property], 0],
-        theme.colors[0], // 0%
-        jenksBreaks[2], theme.colors[1], // 1-7%
-        jenksBreaks[3], theme.colors[2], // 8-17%
-        jenksBreaks[4], theme.colors[3], // 18-29%
-        jenksBreaks[5], theme.colors[4], // 30-44%
-        jenksBreaks[6], theme.colors[5], // 45-59%
-        jenksBreaks[7], theme.colors[6], // 60-79%
-        jenksBreaks[8], theme.colors[7]  // 80-100%
-    ];
-} else if (themeKey === 'youngForeigners') {
-    layerConfig.paint['fill-color'] = [
-        'step',
-        ['coalesce', ['get', theme.property], 0],
-        theme.colors[0], // 0%
-        jenksBreaks[2], theme.colors[1], // 1-11%
-        jenksBreaks[3], theme.colors[2], // 12-21%
-        jenksBreaks[4], theme.colors[3], // 22-34%
-        jenksBreaks[5], theme.colors[4], // 35-49%
-        jenksBreaks[6], theme.colors[5], // 50-64%
-        jenksBreaks[7], theme.colors[6], // 65-79%
-        jenksBreaks[8], theme.colors[7]  // 80-100%
-    ];
-					
-					
 					
 										} else if (themeKey === 'density') {
 						// Configurazione specifica per densità abitativa con 8 classi
@@ -1052,29 +924,34 @@ youngForeigners: {
                     'rgba(200,200,200,0.5)' // Default
                 ];
             } 
-            else {
-                // Configurazione standard per temi numerici (usa calcolo dinamico)
-                let range = null;
-                if (theme.type !== 'categorical') {
-                    const dynamicRange = calculateDynamicRange(themeKey);
-                    range = dynamicRange || getStaticRange(themeKey);
-                }
-                
-                const step = (range.max - range.min) / (theme.colors.length - 1);
-                layerConfig.paint['fill-color'] = [
-                    'interpolate',
-                    ['linear'],
-                    ['coalesce', ['get', theme.property], range.min],
-                    range.min, theme.colors[0],
-                    range.min + step, theme.colors[1],
-                    range.min + (step * 2), theme.colors[2],
-                    range.min + (step * 3), theme.colors[3],
-                    range.min + (step * 4), theme.colors[4],
-                    range.min + (step * 5), theme.colors[5],
-                    range.min + (step * 6), theme.colors[6],
-                    range.max, theme.colors[7]
-                ];
-            }
+           else {
+    // Configurazione standard per temi numerici (usa calcolo dinamico)
+    let range = null;
+    if (theme.type !== 'categorical') {
+        // Gestione speciale per divario di genere con valori negativi
+        if (themeKey === 'genderGap') {
+            range = { min: -67, max: 100 };
+        } else {
+            const dynamicRange = calculateDynamicRange(themeKey);
+            range = dynamicRange || theme.range || getStaticRange(themeKey);
+        }
+    }
+    
+    const step = (range.max - range.min) / (theme.colors.length - 1);
+    layerConfig.paint['fill-color'] = [
+        'interpolate',
+        ['linear'],
+        ['coalesce', ['get', theme.property], range.min],
+        range.min, theme.colors[0],
+        range.min + step, theme.colors[1],
+        range.min + (step * 2), theme.colors[2],
+        range.min + (step * 3), theme.colors[3],
+        range.min + (step * 4), theme.colors[4],
+        range.min + (step * 5), theme.colors[5],
+        range.min + (step * 6), theme.colors[6],
+        range.max, theme.colors[7]
+    ];
+}
 
             if (currentFilter) {
                 layerConfig.filter = currentFilter;
@@ -1086,11 +963,11 @@ youngForeigners: {
             currentTheme = themeKey;
             
             // Mostra legenda appropriata
-            if (themeKey === 'buildings' || themeKey === 'population' || themeKey === 'age' || themeKey === 'elderly' || 
-    themeKey === 'density' || themeKey === 'foreign' || themeKey === 'familySize' || themeKey === 'masculinity' || 
-    themeKey === 'singlePerson' || themeKey === 'largeFamilies' || themeKey === 'femaleEmployment' || 
-    themeKey === 'genderGap' || themeKey === 'higherEducation' || themeKey === 'lowEducation' || 
-    themeKey === 'workIntegration' || themeKey === 'nonEuForeigners' || themeKey === 'youngForeigners') {
+        if (themeKey === 'buildings' || themeKey === 'population' || themeKey === 'age' || themeKey === 'elderly' || 
+    themeKey === 'density' || themeKey === 'foreign' || themeKey === 'family_size' || 
+    themeKey === 'masculinity_rate' || themeKey === 'single_person_rate' || themeKey === 'large_families_rate' ||
+    themeKey === 'female_employment' || themeKey === 'genderGap' || themeKey === 'low_education' ||
+    themeKey === 'work_integration' || themeKey === 'non_eu_foreigners' || themeKey === 'young_foreigners') {
                 showJenksLegend(theme);
             } else {
                 const range = calculateDynamicRange(themeKey) || getStaticRange(themeKey);
@@ -1117,18 +994,27 @@ youngForeigners: {
             return filteredRanges[themeKey];
         }
 
-        function getStaticRange(themeKey) {
-            // Range valori - tutti iniziano da 0
-            const valueRanges = {
-                employment: { min: 0, max: 100 },
-                genderGap: { min: 0, max: 100 },
-                education: { min: 0, max: 100 },
-                resilience: { min: 0, max: 100 },
-                cohesion: { min: 0, max: 100 }
-            };
-            
-            return valueRanges[themeKey];
-        }
+       function getStaticRange(themeKey) {
+    // Range valori - tutti iniziano da 0 tranne il divario di genere
+    const valueRanges = {
+        employment: { min: 0, max: 100 },
+        female_employment: { min: 0, max: 100 },
+        genderGap: { min: -67, max: 100 },
+        education: { min: 0, max: 100 },
+        low_education: { min: 0, max: 100 },
+        work_integration: { min: 0, max: 100 },
+        non_eu_foreigners: { min: 0, max: 100 },
+        young_foreigners: { min: 0, max: 100 },
+        resilience: { min: 0, max: 100 },
+        cohesion: { min: 0, max: 100 },
+        family_size: { min: 0, max: 33 },
+        masculinity_rate: { min: 0, max: 100 },
+        single_person_rate: { min: 0, max: 100 },
+        large_families_rate: { min: 0, max: 100 }
+    };
+    
+    return valueRanges[themeKey];
+}
 
         function getCurrentFilter() {
             if (currentMandamentoFilter && currentMandamentoFilter !== '') {
@@ -1197,20 +1083,134 @@ function removeTheme() {
 }
 
         // Funzione per mostrare legenda Jenks-Fisher per buildings, popolazione, età e tasso anziani
-        function showJenksLegend(theme) {
-            const legend = document.getElementById('legend');
-            const title = document.getElementById('legend-title');
-            const items = document.getElementById('legend-items');
-            
-            let titleText = theme.name + ' (Jenks-Fisher)';
-            if (currentMandamentoFilter) {
-                titleText += ` - ${currentMandamentoFilter}`;
-            }
-            title.textContent = titleText;
-            
-            items.innerHTML = '';
+function showJenksLegend(theme) {
+    const legend = document.getElementById('legend');
+    const title = document.getElementById('legend-title');
+    const items = document.getElementById('legend-items');
+    
+    let titleText = theme.name + ' (Jenks-Fisher)';
+    if (currentMandamentoFilter) {
+        titleText += ` - ${currentMandamentoFilter}`;
+    }
+    title.textContent = titleText;
+    
+    items.innerHTML = '';
+    
+    let labels = [];
             
             let labels = [];
+			
+			  if (currentTheme === 'family_size') {
+        labels = [
+            '0 componenti',
+            '0.1-1.5 componenti',
+            '1.6-2.0 componenti',
+            '2.1-2.5 componenti',
+            '2.6-3.0 componenti',
+            '3.1-4.0 componenti',
+            '4.1-6.0 componenti',
+            '6.1-33.0 componenti'
+        ];
+    } else if (currentTheme === 'masculinity_rate') {
+        labels = [
+            '0%',
+            '0.1-30%',
+            '31-40%',
+            '41-45%',
+            '46-50%',
+            '51-55%',
+            '56-65%',
+            '66-100%'
+        ];
+    } else if (currentTheme === 'single_person_rate') {
+        labels = [
+            '0%',
+            '0.1-10%',
+            '11-20%',
+            '21-30%',
+            '31-40%',
+            '41-55%',
+            '56-75%',
+            '76-100%'
+        ];
+    } else if (currentTheme === 'large_families_rate') {
+        labels = [
+            '0%',
+            '0.1-5%',
+            '6-10%',
+            '11-15%',
+            '16-25%',
+            '26-35%',
+            '36-50%',
+            '51-100%'
+        ];
+    } else if (currentTheme === 'female_employment') {
+        labels = [
+            '0%',
+            '0.1-15%',
+            '16-25%',
+            '26-35%',
+            '36-45%',
+            '46-55%',
+            '56-70%',
+            '71-100%'
+        ];
+    } else if (currentTheme === 'genderGap') {
+        labels = [
+            '-67%',
+            '-66% a -30%',
+            '-29% a -10%',
+            '-9% a 0%',
+            '1-15%',
+            '16-30%',
+            '31-50%',
+            '51-100%'
+        ];
+    } else if (currentTheme === 'low_education') {
+        labels = [
+            '0%',
+            '0.1-10%',
+            '11-20%',
+            '21-30%',
+            '31-45%',
+            '46-60%',
+            '61-80%',
+            '81-100%'
+        ];
+    } else if (currentTheme === 'work_integration') {
+        labels = [
+            '0%',
+            '0.1-20%',
+            '21-35%',
+            '36-50%',
+            '51-65%',
+            '66-75%',
+            '76-85%',
+            '86-100%'
+        ];
+    } else if (currentTheme === 'non_eu_foreigners') {
+        labels = [
+            '0%',
+            '0.1-8%',
+            '9-15%',
+            '16-25%',
+            '26-35%',
+            '36-50%',
+            '51-70%',
+            '71-100%'
+        ];
+    } else if (currentTheme === 'young_foreigners') {
+        labels = [
+            '0%',
+            '0.1-12%',
+            '13-22%',
+            '23-32%',
+            '33-45%',
+            '46-60%',
+            '61-80%',
+            '81-100%'
+        ];
+    }
             
             if (currentTheme === 'population') {
                 labels = [
@@ -1244,128 +1244,6 @@ function removeTheme() {
                     '44.8-52.1%',
                     '52.2-58.8%'
                 ];
-				
-				} else if (currentTheme === 'familySize') {
-    labels = [
-        '0 componenti (nessun dato)',
-        '1-1.4 componenti',
-        '1.5-2.1 componenti',
-        '2.2-2.7 componenti',
-        '2.8-3.4 componenti',
-        '3.5-4.1 componenti',
-        '4.2-4.9 componenti',
-        '5.0-33 componenti'
-    ];
-} else if (currentTheme === 'masculinity') {
-    labels = [
-        '0% (nessun dato)',
-        '1-44%',
-        '45-49%',
-        '50-54%',
-        '55-59%',
-        '60-69%',
-        '70-84%',
-        '85-100%'
-    ];
-} else if (currentTheme === 'singlePerson') {
-    labels = [
-        '0% (nessun dato)',
-        '1-14%',
-        '15-24%',
-        '25-34%',
-        '35-44%',
-        '45-59%',
-        '60-79%',
-        '80-100%'
-    ];
-} else if (currentTheme === 'largeFamilies') {
-    labels = [
-        '0% (nessun dato)',
-        '1-4%',
-        '5-11%',
-        '12-19%',
-        '20-29%',
-        '30-44%',
-        '45-64%',
-        '65-100%'
-    ];
-} else if (currentTheme === 'femaleEmployment') {
-    labels = [
-        '0% (nessun dato)',
-        '1-19%',
-        '20-34%',
-        '35-44%',
-        '45-54%',
-        '55-69%',
-        '70-84%',
-        '85-100%'
-    ];
-} else if (currentTheme === 'genderGap') {
-    labels = [
-        '-67% a -31% (Favorevole donne)',
-        '-30% a -11% (Lievemente favorevole donne)',
-        '-10% a -1% (Quasi paritario - donne)',
-        '0% a 14% (Quasi paritario - uomini)',
-        '15% a 29% (Lievemente favorevole uomini)',
-        '30% a 49% (Favorevole uomini)',
-        '50% a 74% (Molto favorevole uomini)',
-        '75% a 100% (Estremamente favorevole uomini)'
-    ];
-} else if (currentTheme === 'higherEducation') {
-    labels = [
-        '0% (nessun dato)',
-        '1-14%',
-        '15-24%',
-        '25-34%',
-        '35-49%',
-        '50-64%',
-        '65-79%',
-        '80-100%'
-    ];
-} else if (currentTheme === 'lowEducation') {
-    labels = [
-        '0% (nessun dato)',
-        '1-9%',
-        '10-19%',
-        '20-34%',
-        '35-49%',
-        '50-64%',
-        '65-79%',
-        '80-100%'
-    ];
-} else if (currentTheme === 'workIntegration') {
-    labels = [
-        '0% (nessun dato)',
-        '1-19%',
-        '20-34%',
-        '35-49%',
-        '50-64%',
-        '65-74%',
-        '75-84%',
-        '85-100%'
-    ];
-} else if (currentTheme === 'nonEuForeigners') {
-    labels = [
-        '0% (nessun dato)',
-        '1-7%',
-        '8-17%',
-        '18-29%',
-        '30-44%',
-        '45-59%',
-        '60-79%',
-        '80-100%'
-    ];
-} else if (currentTheme === 'youngForeigners') {
-    labels = [
-        '0% (nessun dato)',
-        '1-11%',
-        '12-21%',
-        '22-34%',
-        '35-49%',
-        '50-64%',
-        '65-79%',
-        '80-100%'
-    ];			
             } else if (currentTheme === 'buildings') {
                 labels = [
                     '0 edifici',
@@ -1403,21 +1281,7 @@ function removeTheme() {
             }
             
             // Usa solo le prime 7 classi per popolazione, tutte le 8 per età, tasso anziani e buildings
-          const numClasses = currentTheme === 'population' ? 7 : 8;
-            
-            for (let i = 0; i < numClasses; i++) {
-                const item = document.createElement('div');
-                item.className = 'legend-item';
-                
-                item.innerHTML = `
-                    <div class="legend-color" style="background-color: ${theme.colors[i]}"></div>
-                    <span class="legend-label">${labels[i]}</span>
-                `;
-                items.appendChild(item);
-            }
-            
-            legend.classList.add('visible');
-        }
+ for (let i = 0; i < 8; i++) {
 
         // Funzione showLegend aggiornata per gestire temi categorici
         function showLegend(theme, range) {
@@ -1550,11 +1414,7 @@ function removeTheme() {
                 <div class="info-group">
                     <h3><i class="fas fa-map-marker-alt"></i> Informazioni Generali</h3>
                     <div class="info-item">
-                     <span class="info-label">Circoscrizione:</span>
-                        <span class="info-value">I°</span>
-                    </div>
-					                    <div class="info-item">
-                     <span class="info-label">Mandamento:</span>
+                        <span class="info-label">Mandamento:</span>
                         <span class="info-value">${mandamentoDisplay}</span>
                     </div>
                     <div class="info-item">
@@ -1571,94 +1431,84 @@ function removeTheme() {
                     </div>
                 </div>
 
-                <div class="info-group">
-                    <h3><i class="fas fa-users"></i> Demografia</h3>
-                    <div class="info-item">
-                        <span class="info-label">Popolazione Stimata:</span>
-                        <span class="info-value">${props.popolazione_stimata ? parseFloat(props.popolazione_stimata).toLocaleString('it-IT', {maximumFractionDigits: 2}) : 'N/D'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Età Media:</span>
-                        <span class="info-value">${props['età_media'] ? parseFloat(props['età_media']).toFixed(2) + ' anni' : 'N/D'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Tasso Anziani:</span>
-                        <span class="info-value">${props.tasso_anziani ? parseFloat(props.tasso_anziani).toFixed(2) + '%' : 'N/D'}</span>
-                    </div>
+<div class="info-group">
+    <h3><i class="fas fa-users"></i> Demografia</h3>
+    <div class="info-item">
+        <span class="info-label">Popolazione Stimata:</span>
+        <span class="info-value">${props.popolazione_stimata ? parseFloat(props.popolazione_stimata).toLocaleString('it-IT', {maximumFractionDigits: 2}) : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Età Media:</span>
+        <span class="info-value">${props['età_media'] ? parseFloat(props['età_media']).toFixed(2) + ' anni' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Tasso Anziani:</span>
+        <span class="info-value">${props.tasso_anziani ? parseFloat(props.tasso_anziani).toFixed(2) + '%' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Densità Abitativa:</span>
+        <span class="info-value">${props['densità abitativa'] ? parseFloat(props['densità abitativa']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' ab/km²' : 'N/D'}</span>
+    </div>
     <div class="info-item">
         <span class="info-label">Dimensione Media Famiglia:</span>
         <span class="info-value">${props['dimensione media della famiglia'] ? parseFloat(props['dimensione media della famiglia']).toFixed(2) + ' componenti' : 'N/D'}</span>
     </div>
     <div class="info-item">
-        <span class="info-label">Tasso di Mascolinità:</span>
-        <span class="info-value">${props['tasso di mascolinità'] ? parseFloat(props['tasso di mascolinità']).toFixed(2) + '%' : 'N/D'}</span>
+        <span class="info-label">Tasso Mascolinità:</span>
+        <span class="info-value">${props['tasso di mascolinità'] ? parseFloat(props['tasso di mascolinità']).toFixed(1) + '%' : 'N/D'}</span>
     </div>
     <div class="info-item">
-        <span class="info-label">Tasso Persona Singola:</span>
-        <span class="info-value">${props['tasso_persona singola'] ? parseFloat(props['tasso_persona singola']).toFixed(2) + '%' : 'N/D'}</span>
+        <span class="info-label">Tasso Persone Singole:</span>
+        <span class="info-value">${props['tasso_persona singola'] ? parseFloat(props['tasso_persona singola']).toFixed(1) + '%' : 'N/D'}</span>
     </div>
     <div class="info-item">
         <span class="info-label">Tasso Famiglie Numerose:</span>
-        <span class="info-value">${props.tasso_famiglie_numerose ? parseFloat(props.tasso_famiglie_numerose).toFixed(2) + '%' : 'N/D'}</span>
+        <span class="info-value">${props.tasso_famiglie_numerose ? parseFloat(props.tasso_famiglie_numerose).toFixed(1) + '%' : 'N/D'}</span>
     </div>
-	<div class="info-item">
-                        <span class="info-label">Popolazione Straniera:</span>
-                        <span class="info-value">${props.tasso_di_popolazione_straniera ? parseFloat(props.tasso_di_popolazione_straniera).toFixed(2) + '%' : 'N/D'}</span>
-                    </div>
-					    <div class="info-item">
+	    <div class="info-item">
+        <span class="info-label">Popolazione Straniera:</span>
+        <span class="info-value">${props.tasso_di_popolazione_straniera ? parseFloat(props.tasso_di_popolazione_straniera).toFixed(2) + '%' : 'N/D'}</span>
+    </div>	
+	    <div class="info-item">
         <span class="info-label">Stranieri Non-UE:</span>
-        <span class="info-value">${props.tasso_stranieri_non_ue ? parseFloat(props.tasso_stranieri_non_ue).toFixed(2) + '%' : 'N/D'}</span>
+        <span class="info-value">${props.tasso_stranieri_non_ue ? parseFloat(props.tasso_stranieri_non_ue).toFixed(1) + '%' : 'N/D'}</span>
     </div>
     <div class="info-item">
         <span class="info-label">Giovani Stranieri:</span>
-        <span class="info-value">${props.tasso_giovani_stranieri ? parseFloat(props.tasso_giovani_stranieri).toFixed(2) + '%' : 'N/D'}</span>
+        <span class="info-value">${props.tasso_giovani_stranieri ? parseFloat(props.tasso_giovani_stranieri).toFixed(1) + '%' : 'N/D'}</span>
     </div>
 </div>
-									
-                </div>
-                <div class="info-group">
-                    <h3><i class="fas fa-briefcase"></i> Socio-Economici</h3>
-                    <div class="info-item">
-                        <span class="info-label">Tasso Occupazione:</span>
-                        <span class="info-value">${props.tasso_di_occupazione ? parseFloat(props.tasso_di_occupazione).toFixed(2) + '%' : 'N/D'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Occup. Femminile:</span>
-                        <span class="info-value">${props['tasso di occupazione femminile'] ? parseFloat(props['tasso di occupazione femminile']).toFixed(2) + '%' : 'N/D'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Divario Genere:</span>
-                        <span class="info-value">${props['divario di genere nell\'occupazione'] ? parseFloat(props['divario di genere nell\'occupazione']).toFixed(2) + '%' : 'N/D'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Istruzione Superiore:</span>
-                        <span class="info-value">${props['tasso di istruzione superiore'] ? parseFloat(props['tasso di istruzione superiore']).toFixed(2) + '%' : 'N/D'}</span>
-                    </div>
-                </div>
 
-                <div class="info-group">
-                    <h3><i class="fas fa-chart-line"></i> Indici</h3>
-					<div class="info-item">
-    <span class="info-label">Istruzione Superiore:</span>
-    <span class="info-value">${props['tasso di istruzione superiore'] ? parseFloat(props['tasso di istruzione superiore']).toFixed(2) + '%' : 'N/D'}</span>
+
+
+
+<div class="info-group">
+    <h3><i class="fas fa-briefcase"></i> Socio-Economici</h3>
+    <div class="info-item">
+        <span class="info-label">Tasso Occupazione:</span>
+        <span class="info-value">${props.tasso_di_occupazione ? parseFloat(props.tasso_di_occupazione).toFixed(2) + '%' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Occup. Femminile:</span>
+        <span class="info-value">${props['tasso di occupazione femminile'] ? parseFloat(props['tasso di occupazione femminile']).toFixed(2) + '%' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Divario Genere:</span>
+        <span class="info-value">${props['divario di genere nell\'occupazione'] ? parseFloat(props['divario di genere nell\'occupazione']).toFixed(2) + '%' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Istruzione Superiore:</span>
+        <span class="info-value">${props['tasso di istruzione superiore'] ? parseFloat(props['tasso di istruzione superiore']).toFixed(2) + '%' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Basso Tasso Istruzione:</span>
+        <span class="info-value">${props.basso_tasso_di_istruzione ? parseFloat(props.basso_tasso_di_istruzione).toFixed(1) + '%' : 'N/D'}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Integrazione Lavorativa:</span>
+        <span class="info-value">${props['tasso di integrazione del lavoro'] ? parseFloat(props['tasso di integrazione del lavoro']).toFixed(1) + '%' : 'N/D'}</span>
+    </div>
 </div>
-<div class="info-item">
-    <span class="info-label">Basso Tasso Istruzione:</span>
-    <span class="info-value">${props.basso_tasso_di_istruzione ? parseFloat(props.basso_tasso_di_istruzione).toFixed(2) + '%' : 'N/D'}</span>
-</div>
-<div class="info-item">
-    <span class="info-label">Integrazione Lavoro:</span>
-    <span class="info-value">${props['tasso di integrazione del lavoro'] ? parseFloat(props['tasso di integrazione del lavoro']).toFixed(2) + '%' : 'N/D'}</span>
-</div>
-                    <div class="info-item">
-                        <span class="info-label">Resilienza Economica:</span>
-                        <span class="info-value">${props['indice_di_resilienza_economica'] ? parseFloat(props['indice_di_resilienza_economica']).toFixed(2) : 'N/D'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Coesione Sociale:</span>
-                        <span class="info-value">${props.indice_coesione_sociale ? parseFloat(props.indice_coesione_sociale).toFixed(2) : 'N/D'}</span>
-                    </div>
-                </div>
 
                 <div class="info-group">
                     <h3><i class="fas fa-hammer"></i> Territoriali</h3>
@@ -1666,10 +1516,6 @@ function removeTheme() {
                         <span class="info-label">Numero edifici per particella:</span>
                         <span class="info-value">${props.buildings_count || 'N/D'}</span>
                     </div>
-					    <div class="info-item">
-        <span class="info-label">Densità Abitativa:</span>
-        <span class="info-value">${props['densità abitativa'] ? parseFloat(props['densità abitativa']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' ab/km²' : 'N/D'}</span>
-    </div>
                     <div class="info-item">
                         <span class="info-label">CAP:</span>
                         <span class="info-value">${props.postal_code || 'N/D'}</span>
