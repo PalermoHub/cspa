@@ -481,7 +481,7 @@ genderGap: {
 
 resilience: {
     name: 'Resilienza Economica',
-    property: 'indice_di_resilienza_economica',
+    property: 'resilienza_economica',
     colors: ['#ffffff', '#fff8e1', '#ffecb3', '#ffe082', '#ffd54f', '#ffca28', '#ffc107', '#ffa000'],
     unit: '%',
     format: (val) => `${val || 'N/D'}%`,
@@ -560,7 +560,7 @@ robustness: {
 
 requalification_opportunity: {
     name: 'Opportunità di Riqualificazione',
-    property: 'indice_opportunità_di_riqualificazione',
+    property: 'opport_riqualificazione',
     colors: ['#ffffff', '#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#4a148c'],
     unit: '',
     format: (val) => `${val || 'N/D'}`,
@@ -570,7 +570,7 @@ requalification_opportunity: {
 
 real_estate_potential: {
     name: 'Potenziale Immobiliare',
-    property: 'indice_potenziale_immobiliare',
+    property: 'potenziale_immobiliare',
     colors: ['#ffffff', '#e0f2f1', '#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#009688', '#004d40'],
     unit: '%',
     format: (val) => `${val || 'N/D'}%`,
@@ -1992,7 +1992,7 @@ function removeTheme() {
 </div>
                     <div class="info-item">
                         <span class="info-label">Resilienza Economica:</span>
-                        <span class="info-value">${props['indice_di_resilienza_economica'] ? parseFloat(props['indice_di_resilienza_economica']).toFixed(2) : 'N/D'}</span>
+                        <span class="info-value">${props['resilienza_economica'] ? parseFloat(props['resilienza_economica']).toFixed(2) : 'N/D'}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Coesione Sociale:</span>
@@ -2036,14 +2036,14 @@ function removeTheme() {
     </div>
     <div class="info-item">
         <span class="info-label">Opportunità Riqualificazione:</span>
-        <span class="info-value">${props['indice_opportunità_di_riqualificazione'] ? parseFloat(props['indice_opportunità_di_riqualificazione']).toFixed(2) : 'N/D'}</span>
+        <span class="info-value">${props['opport_riqualificazione'] ? parseFloat(props['opport_riqualificazione']).toFixed(2) : 'N/D'}</span>
     </div>
 	
 	
 	
     <div class="info-item">
         <span class="info-label">Potenziale Immobiliare:</span>
-        <span class="info-value">${props['indice_potenziale_immobiliare'] ? parseFloat(props['indice_potenziale_immobiliare']).toFixed(2) : 'N/D'}</span>
+        <span class="info-value">${props['potenziale_immobiliare'] ? parseFloat(props['potenziale_immobiliare']).toFixed(2) : 'N/D'}</span>
     </div>
                     <div class="info-item">
                         <span class="info-label">CAP:</span>
