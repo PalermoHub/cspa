@@ -1357,10 +1357,11 @@ map.on('load', function() {
     }, 'catastale-hover');
     
     // Controlli navigazione
+	map.addControl(new SearchControl(), 'top-right');
     map.addControl(new maplibregl.NavigationControl());
-				    map.addControl(new SearchControl(), 'top-right');
     map.addControl(new InfoControl(), 'top-right');
-    
+
+					
     // Imposta il valore di default per uso del suolo
     document.getElementById('territorial-select').value = 'landuse';
     
