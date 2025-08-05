@@ -1,14 +1,44 @@
+// ===== STRUTTURA MODULARE - SUDDIVISIONE APP.JS =====
+
+// 1. config.js - Configurazioni e costanti
+// 2. map-init.js - Inizializzazione mappa e layer base
+// 3. themes.js - Definizioni temi e tematizzazioni
+// 4. legends.js - Gestione legende
+// 5. info-panel.js - Pannello informazioni
+// 6. search-controls.js - Controlli di ricerca e navigazione
+// 7. filters.js - Sistema filtri base
+// 8. dynamic-filters.js - Sistema filtri dinamici (NUOVO)
+// 9. event-handlers.js - Gestori eventi principali
+// 10. utils.js - Funzioni di utilità
+// 11. reset.js - Funzioni reset (già esistente)
+
+// ===== FILE: config.js =====
+/**
+ * Configurazioni globali e costanti dell'applicazione
+ */
+
 // Registra il protocollo PMTiles
 const protocol = new pmtiles.Protocol();
 maplibregl.addProtocol("pmtiles", protocol.tile);
 
 // Configurazione mappa
-const center = [13.3614, 38.1157];
-const zoom = 14;
-const maxBounds = [
-    [13.32, 38.09],
-    [13.40, 38.14]
-];
+const CONFIG = {
+    map: {
+        center: [13.3614, 38.1157],
+        zoom: 14,
+        maxBounds: [
+            [13.32, 38.09],
+            [13.40, 38.14]
+        ],
+        maxZoom: 17,
+        minZoom: 12
+    },
+    
+    pmtiles: {
+        source: 'pmtiles://https://palermohub.github.io/cspa/dati/pacs.pmtiles',
+        sourceLayer: 'catastale'
+    }
+};
 
 // Colori uso del suolo dal file QML
 const landUseColors = {
@@ -41,7 +71,7 @@ const landUseLabels = {
     "": "Non Classificato"
 };
 
-// Definizioni per le nuove mappe tematiche
+// Definizioni per le mappe tematiche categoriche
 const landCoverColors = {
     "1110": "rgba(255,255,100,0.7)",
     "2111": "rgba(34,139,34,0.7)",

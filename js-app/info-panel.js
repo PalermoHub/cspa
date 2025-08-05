@@ -1,4 +1,11 @@
-// Pannello informazioni
+// ===== FILE: info-panel.js =====
+/**
+ * Gestione pannello informazioni particelle
+ */
+
+/**
+ * Mostra informazioni feature selezionata
+ */
 function showFeatureInfo(feature) {
     const panel = document.getElementById('info-panel');
     const title = document.getElementById('panel-title');
@@ -20,11 +27,11 @@ function showFeatureInfo(feature) {
         <div class="info-group">
             <h3><i class="fas fa-map-marker-alt"></i> Informazioni Generali</h3>
             <div class="info-item">
-             <span class="info-label">Circoscrizione:</span>
+                <span class="info-label">Circoscrizione:</span>
                 <span class="info-value">I°</span>
             </div>
             <div class="info-item">
-             <span class="info-label">Mandamento:</span>
+                <span class="info-label">Mandamento:</span>
                 <span class="info-value">${mandamentoDisplay}</span>
             </div>
             <div class="info-item">
@@ -88,7 +95,7 @@ function showFeatureInfo(feature) {
                 <span class="info-value">${props.tasso_giovani_stranieri ? parseFloat(props.tasso_giovani_stranieri).toFixed(2) + '%' : 'N/D'}</span>
             </div>
         </div>
-                        
+                            
         <div class="info-group">
             <h3><i class="fas fa-briefcase"></i> Socio-Economici</h3>
             <div class="info-item">
@@ -148,11 +155,11 @@ function showFeatureInfo(feature) {
                 <span class="info-value">${props['superfice mq'] ? parseFloat(props['superfice mq']).toLocaleString('it-IT', {maximumFractionDigits: 2}) + ' m²' : 'N/D'}</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Elevazione Min:</span>
+                <span class="info-label">Quota al suolo Min:</span>
                 <span class="info-value">${props.elevation_min ? parseFloat(props.elevation_min).toFixed(2) + ' m' : 'N/D'}</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Elevazione Max:</span>
+                <span class="info-label">Quota al suolo Max:</span>
                 <span class="info-value">${props.elevation_max ? parseFloat(props.elevation_max).toFixed(2) + ' m' : 'N/D'}</span>
             </div>
             <div class="info-item">
@@ -201,6 +208,9 @@ function showFeatureInfo(feature) {
     panel.classList.add('visible');
 }
 
+/**
+ * Chiude pannello informazioni
+ */
 function closeInfoPanel() {
     document.getElementById('info-panel').classList.remove('visible');
 }

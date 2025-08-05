@@ -1,32 +1,57 @@
+// ===== FILE: map-init.js =====
+/**
+ * Inizializzazione mappa e layer base
+ */
+
 // Inizializza mappa
-map = new maplibregl.Map({
-    container: 'map',
-    style: {
+function initializeMap() {
+    map = new maplibregl.Map({
+        container: 'map',
+        style: createMapStyle(),
+        center: CONFIG.map.center,
+        zoom: CONFIG.map.zoom,
+        maxBounds: CONFIG.map.maxBounds,
+        maxZoom: CONFIG.map.maxZoom,
+        minZoom: CONFIG.map.minZoom,
+        hash: true,
+        pitch: 0,
+        dragRotate: false
+    });
+
+    // Event handlers per caricamento
+    map.on('load', onMapLoad);
+    map.on('sourcedata', onSourceData);
+    
+    return map;
+}
+
+function createMapStyle() {
+    return {
         version: 8,
         sources: {
             'carto-light': {
                 type: 'raster',
                 tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'],
                 tileSize: 256,
-                attribution: '© OpenStreetMap contributors, © CartoDB - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
+                attribution: '© OpenStreetMap contributors, © CartoDB - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025 - by <a href="https://x.com/opendatasicilia" title="@opendatasicilia" target="_blank">@opendatasicilia</a>'
             },
             'satellite': {
                 type: 'raster',
                 tiles: ['https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'],
                 tileSize: 256,
-                attribution: '© Google - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
+                attribution: '© Google - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025 - by <a href="https://x.com/opendatasicilia" title="@opendatasicilia" target="_blank">@opendatasicilia</a>'
             },
             'osm': {
                 type: 'raster',
                 tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
                 tileSize: 256,
-                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025 - by <a href="https://x.com/opendatasicilia" title="@opendatasicilia" target="_blank">@opendatasicilia</a>'
             },
             'google-maps': {
                 type: 'raster',
                 tiles: ['https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}'],
                 tileSize: 256,
-                attribution: '© Google Maps - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
+                attribution: '© Google Maps - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025 - by <a href="https://x.com/opendatasicilia" title="@opendatasicilia" target="_blank">@opendatasicilia</a>'
             }
         },
         layers: [
@@ -62,23 +87,30 @@ map = new maplibregl.Map({
                 layout: { visibility: 'none' }
             }
         ]
-    },
-    center: center,
-    zoom: zoom,
-    maxBounds: maxBounds,
-    maxZoom: 17,
-    minZoom: 12,
-    hash: true,
-    pitch: 0,
-    dragRotate: false
-});
+    };
+}
 
-// Caricamento mappa
-map.on('load', function() {
+function onMapLoad() {
+    console.log('Mappa caricata');
+    
+    addDataLayers();
+    addMapControls();
+    setupEventHandlers();
+    
+    // Imposta il valore di default per uso del suolo
+    document.getElementById('territorial-select').value = 'landuse';
+    
+    // Mostra legenda di base
+    showBaseLegenda();
+    
+    console.log('Tutti i layer aggiunti');
+}
+
+function addDataLayers() {
     // Aggiungi sorgente PMTiles
     map.addSource('palermo_catastale', {
         type: 'vector',
-        url: 'pmtiles://https://palermohub.github.io/cspa/dati/pacs.pmtiles'
+        url: CONFIG.pmtiles.source
     });
     
     // Layer base - uso del suolo
@@ -86,7 +118,7 @@ map.on('load', function() {
         id: 'catastale-base',
         type: 'fill',
         source: 'palermo_catastale',
-        'source-layer': 'catastale',
+        'source-layer': CONFIG.pmtiles.sourceLayer,
         paint: {
             'fill-color': [
                 'match',
@@ -114,7 +146,7 @@ map.on('load', function() {
         id: 'catastale-hover',
         type: 'fill',
         source: 'palermo_catastale',
-        'source-layer': 'catastale',
+        'source-layer': CONFIG.pmtiles.sourceLayer,
         paint: {
             'fill-color': '#ff9900',
             'fill-opacity': 0.8
@@ -127,7 +159,7 @@ map.on('load', function() {
         id: 'catastale-outline',
         type: 'line',
         source: 'palermo_catastale',
-        'source-layer': 'catastale',
+        'source-layer': CONFIG.pmtiles.sourceLayer,
         paint: {
             'line-color': '#333333',
             'line-width': 0.5,
@@ -138,9 +170,11 @@ map.on('load', function() {
         }
     });
 
-    // LAYER PERIMETRI AGGIUNTIVI
-    
-    // Perimetro Palermo - tratteggio lungo (12px line, 8px gap)
+    addPerimeterLayers();
+}
+
+function addPerimeterLayers() {
+    // Perimetro Palermo
     map.addLayer({
         id: 'palermo-perimeter',
         type: 'line',
@@ -157,7 +191,7 @@ map.on('load', function() {
         }
     }, 'catastale-hover');
 
-    // Centro Storico - tratteggio medio (8px line, 6px gap)
+    // Centro Storico
     map.addLayer({
         id: 'centro-storico-perimeter',
         type: 'line',
@@ -174,7 +208,7 @@ map.on('load', function() {
         }
     }, 'catastale-hover');
 
-    // UPL Centro Storico - tratteggio corto (4px line, 4px gap)
+    // UPL Centro Storico
     map.addLayer({
         id: 'upl-cs-perimeter',
         type: 'line',
@@ -190,59 +224,22 @@ map.on('load', function() {
             'visibility': 'visible'
         }
     }, 'catastale-hover');
-    
-    // Controlli navigazione
+}
+
+function addMapControls() {
+    map.addControl(new SearchControl(), 'top-right');
     map.addControl(new maplibregl.NavigationControl());
-    
-    // Imposta il valore di default per uso del suolo
-    document.getElementById('territorial-select').value = 'landuse';
-    
-    // Popola il dropdown dei fogli
-    populateFoglioFilter();
-    
-    // Event listener per caricamento dati (per calcoli dinamici)
-    map.querySourceFeatures('palermo_catastale', {
-        sourceLayer: 'catastale'
-    });
-    
-    // Mostra legenda di base
-    showBaseLegenda();
-});
+    map.addControl(new InfoControl(), 'top-right');
+}
 
-// Gestione hover
-map.on('mouseenter', 'catastale-base', (e) => {
-    map.getCanvas().style.cursor = 'pointer';
-    
-    if (e.features.length > 0) {
-        const feature = e.features[0];
-        const featureId = feature.properties.fid || feature.properties.particella || feature.id;
-        
-        if (hoveredPolygon !== null) {
-            map.setFilter('catastale-hover', ['==', ['get', 'fid'], '']);
-        }
-        
-        hoveredPolygon = featureId;
-        map.setFilter('catastale-hover', [
-            'any',
-            ['==', ['get', 'fid'], featureId],
-            ['==', ['get', 'particella'], featureId]
-        ]);
+function onSourceData(e) {
+    if (e.sourceId === 'palermo_catastale' && e.isSourceLoaded) {
+        setTimeout(() => {
+            populateFoglioFilter();
+            // Sostituisci con:
+            if (typeof initializeDynamicFilters === 'function') {
+                initializeDynamicFilters();
+            }
+        }, 500);
     }
-});
-
-map.on('mouseleave', 'catastale-base', () => {
-    map.getCanvas().style.cursor = '';
-    
-    if (hoveredPolygon !== null) {
-        map.setFilter('catastale-hover', ['==', ['get', 'fid'], '']);
-    }
-    hoveredPolygon = null;
-});
-
-// Gestione click
-map.on('click', 'catastale-base', (e) => {
-    if (e.features.length > 0) {
-        const feature = e.features[0];
-        showFeatureInfo(feature);
-    }
-});
+}

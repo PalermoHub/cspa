@@ -1,3 +1,8 @@
+// =====themes.js =====
+/**
+ * Definizioni temi e tematizzazioni
+ */
+
 // Configurazioni tematizzazioni con Jenks-Fisher
 const themes = {
     population: {
@@ -201,7 +206,7 @@ const themes = {
     },
 
     elevation_min: {
-        name: 'Quota al suolo Min',
+        name: 'Elevazione Minima',
         property: 'elevation_min',
         colors: ['#ffffff', '#e8f5e8', '#c8e6c8', '#a5d6a5', '#82c782', '#5fb85f', '#3ca83c', '#1b5e20'],
         unit: 'm',
@@ -211,7 +216,7 @@ const themes = {
     },
 
     elevation_max: {
-        name: 'Quota al suolo Max',
+        name: 'Elevazione Massima',
         property: 'elevation_max',
         colors: ['#ffffff', '#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#0d47a1'],
         unit: 'm',
@@ -256,7 +261,7 @@ const themes = {
         colors: ['#ffffff', '#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#4a148c'],
         unit: '',
         format: (val) => `${val || 'N/D'}`,
-        jenksBreaks: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        jenksBreaks: [0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8],
         type: 'jenks'
     },
 
@@ -325,4 +330,233 @@ const themes = {
         type: 'categorical'
     }
 };
+
+/**
+ * Applica tema alla mappa
+ */
+function applyTheme(themeKey) {
+    const theme = themes[themeKey];
+    if (!theme) return;
+
+    if (map.getLayer('catastale-thematic')) {
+        map.removeLayer('catastale-thematic');
+    }
+
+    const currentFilter = getCurrentFilter();
+
+    let layerConfig = {
+        id: 'catastale-thematic',
+        type: 'fill',
+        source: 'palermo_catastale',
+        'source-layer': CONFIG.pmtiles.sourceLayer,
+        paint: {
+            'fill-opacity': 0.8
+        }
+    };
+
+    // Configurazione per temi Jenks-Fisher
+    if (theme.type === 'jenks') {
+        const jenksBreaks = theme.jenksBreaks;
         
+        if (themeKey === 'population') {
+            layerConfig.paint['fill-color'] = [
+                'step',
+                ['coalesce', ['get', theme.property], 0],
+                theme.colors[0],
+                jenksBreaks[2], theme.colors[1],
+                jenksBreaks[3], theme.colors[2],
+                jenksBreaks[4], theme.colors[3],
+                jenksBreaks[5], theme.colors[4],
+                jenksBreaks[6], theme.colors[5],
+                jenksBreaks[7], theme.colors[6]
+            ];
+        } else if (themeKey === 'elderly') {
+            layerConfig.paint['fill-color'] = [
+                'step',
+                ['coalesce', ['get', theme.property], 0],
+                theme.colors[0],
+                jenksBreaks[1], theme.colors[1],
+                jenksBreaks[2], theme.colors[2],
+                jenksBreaks[3], theme.colors[3],
+                jenksBreaks[4], theme.colors[4],
+                jenksBreaks[5], theme.colors[5],
+                jenksBreaks[6], theme.colors[6],
+                jenksBreaks[7], theme.colors[7]
+            ];
+        } else if (themeKey === 'genderGap') {
+            layerConfig.paint['fill-color'] = [
+                'step',
+                ['coalesce', ['get', theme.property], -67],
+                theme.colors[0],
+                jenksBreaks[2], theme.colors[1],
+                jenksBreaks[3], theme.colors[2],
+                jenksBreaks[4], theme.colors[3],
+                jenksBreaks[5], theme.colors[4],
+                jenksBreaks[6], theme.colors[5],
+                jenksBreaks[7], theme.colors[6],
+                jenksBreaks[8], theme.colors[7]
+            ];
+        } else {
+            layerConfig.paint['fill-color'] = [
+                'step',
+                ['coalesce', ['get', theme.property], 0],
+                theme.colors[0],
+                jenksBreaks[2], theme.colors[1],
+                jenksBreaks[3], theme.colors[2],
+                jenksBreaks[4], theme.colors[3],
+                jenksBreaks[5], theme.colors[4],
+                jenksBreaks[6], theme.colors[5],
+                jenksBreaks[7], theme.colors[6],
+                jenksBreaks[8], theme.colors[7]
+            ];
+        }
+    }
+    // Configurazione per temi categorici
+    else if (theme.type === 'categorical') {
+        if (themeKey === 'land_cover') {
+            layerConfig.paint['fill-color'] = [
+                'match',
+                ['get', 'copertura del suolo'],
+                '1110', landCoverColors['1110'],
+                '2111', landCoverColors['2111'],
+                '2112', landCoverColors['2112'],
+                '2212', landCoverColors['2212'],
+                'rgba(200,200,200,0.5)'
+            ];
+        } else if (themeKey === 'flood_risk') {
+            layerConfig.paint['fill-color'] = [
+                'match',
+                ['downcase', ['coalesce', ['get', 'Ri alluvione'], '']],
+                'alto', floodRiskColors['alto'],
+                'no', floodRiskColors['no'],
+                floodRiskColors['no']
+            ];
+        } else if (themeKey === 'landslide_risk') {
+            layerConfig.paint['fill-color'] = [
+                'case',
+                [
+                    'any',
+                    ['==', ['downcase', ['to-string', ['get', 'rischio di frana']]], 'none'],
+                    ['==', ['get', 'rischio di frana'], 'none'],
+                    ['==', ['get', 'rischio di frana'], null],
+                    ['==', ['get', 'rischio di frana'], '']
+                ],
+                landslideRiskColors['none'],
+                'rgba(200,200,200,0.5)'
+            ];
+        } else if (themeKey === 'coastal_erosion') {
+            layerConfig.paint['fill-color'] = [
+                'case',
+                [
+                    'any',
+                    ['==', ['downcase', ['to-string', ['get', 'rischio di erosione costiera']]], 'none'],
+                    ['==', ['get', 'rischio di erosione costiera'], 'none'],
+                    ['==', ['get', 'rischio di erosione costiera'], null],
+                    ['==', ['get', 'rischio di erosione costiera'], '']
+                ],
+                coastalErosionColors['none'],
+                'rgba(200,200,200,0.5)'
+            ];
+        } else if (themeKey === 'seismic_risk') {
+            layerConfig.paint['fill-color'] = [
+                'case',
+                [
+                    'any',
+                    ['==', ['downcase', ['to-string', ['get', 'rischio sismico']]], 'low'],
+                    ['==', ['get', 'rischio sismico'], 'low'],
+                    ['==', ['get', 'rischio sismico'], 'LOW']
+                ],
+                seismicRiskColors['low'],
+                'rgba(200,200,200,0.5)'
+            ];
+        }
+    }
+    // Configurazione per temi numerici standard
+    else {
+        let range = calculateDynamicRange(themeKey) || getStaticRange(themeKey);
+        
+        const step = (range.max - range.min) / (theme.colors.length - 1);
+        layerConfig.paint['fill-color'] = [
+            'interpolate',
+            ['linear'],
+            ['coalesce', ['get', theme.property], range.min],
+            range.min, theme.colors[0],
+            range.min + step, theme.colors[1],
+            range.min + (step * 2), theme.colors[2],
+            range.min + (step * 3), theme.colors[3],
+            range.min + (step * 4), theme.colors[4],
+            range.min + (step * 5), theme.colors[5],
+            range.min + (step * 6), theme.colors[6],
+            range.max, theme.colors[7]
+        ];
+    }
+
+    if (currentFilter) {
+        layerConfig.filter = currentFilter;
+    }
+
+    map.addLayer(layerConfig, 'catastale-outline');
+    map.setPaintProperty('catastale-base', 'fill-opacity', 0);
+    
+    currentTheme = themeKey;
+    
+    // Mostra legenda appropriata
+    if (theme.type === 'jenks') {
+        showJenksLegend(theme);
+    } else {
+        const range = calculateDynamicRange(themeKey) || getStaticRange(themeKey);
+        showLegend(theme, range);
+    }
+}
+
+/**
+ * Rimuove tema corrente
+ */
+function removeTheme() {
+    if (map.getLayer('catastale-thematic')) {
+        map.removeLayer('catastale-thematic');
+    }
+    
+    map.setPaintProperty('catastale-base', 'fill-opacity', 0.75);
+    
+    const filter = getCurrentFilter();
+    map.setFilter('catastale-base', filter);
+    
+    currentTheme = 'landuse';
+    showBaseLegenda();
+}
+
+/**
+ * Calcola range dinamico per tema
+ */
+function calculateDynamicRange(themeKey) {
+    if (!currentMandamentoFilter && !currentFoglioFilter) return null;
+    
+    const theme = themes[themeKey];
+    if (!theme) return null;
+    
+    const filteredRanges = {
+        employment: { min: 0, max: 90 },
+        genderGap: { min: 0, max: 80 },
+        education: { min: 0, max: 90 },
+        resilience: { min: 0, max: 90 },
+        cohesion: { min: 0, max: 90 }
+    };
+    
+    return filteredRanges[themeKey];
+}
+
+/**
+ * Ottiene range statico per tema
+ */
+function getStaticRange(themeKey) {
+    const valueRanges = {
+        employment: { min: 0, max: 100 },
+        genderGap: { min: 0, max: 100 },
+        education: { min: 0, max: 100 },
+        resilience: { min: 0, max: 100 },
+        cohesion: { min: 0, max: 100 }
+    };
+    
+    return valueRanges[themeKey];
+}

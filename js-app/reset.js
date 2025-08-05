@@ -1,4 +1,3 @@
-// Aggiungi Reset mappa - VERSIONE AGGIORNATA CON CONTROLLI MAPLIBRE
 function resetMap() {
     console.log('Eseguendo reset completo della mappa...');
     

@@ -74,7 +74,7 @@
             margin: 0; 
             padding: 0; 
             font-family: "Titillium Web", sans-serif;
-            overflow-x: hidden;
+            overflow: hidden;
         }
         #map { 
             position: absolute; 
@@ -91,10 +91,10 @@
     bottom: 10px; /* Nuova posizione inferiore */
     z-index: 1000;
     background: rgba(255,255,255,0.70);
-    padding: 15px;
-    border-radius: 12px;
+    padding: 5px;
+    border-radius: 0px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    min-width: 230px;
+    min-width: 260px;
     backdrop-filter: blur(5px);
     overflow-y: auto;
     max-height: none; /* Rimuove l'altezza massima fissa */
@@ -245,8 +245,8 @@
             right: -380px;
             width: 370px;
             height: calc(100vh - 40px);
-            background: rgba(255,255,255,0.98);
-            border-radius: 12px 0 0 12px;
+            background: rgba(255,255,255,0.70);
+            border-radius: 0 0 0 0
             box-shadow: -5px 0 25px rgba(0,0,0,0.15);
             z-index: 1000;
             transition: right 0.4s ease;
@@ -259,11 +259,14 @@
         }
         
         .info-panel-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            /*background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);*/
+			background: #fff;
+			 box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            color: #313131;
             padding: 20px;
-            border-radius: 12px 0 0 0;
-            position: sticky;
+          border-radius: 0 0 0 0;
+
+		  position: sticky;
             top: 0;
             z-index: 10;
         }
@@ -281,7 +284,7 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: white;
+            color: #313131;
             font-size: 20px;
             cursor: pointer;
             width: 30px;
@@ -297,15 +300,15 @@
         }
         
         .info-content {
-            padding: 20px;
+            padding: 10px;
         }
         
         .info-group {
             margin-bottom: 15px;
             padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
+            background: #ffffff;
+            border-radius: 0px;
+            /*border-left: 4px solid #667eea;*/
         }
         
         .info-group h3 {
@@ -317,7 +320,7 @@
         
         .info-group h3 i {
             margin-right: 8px;
-            color: #667eea;
+            color: #313131;
         }
         
         .info-item {
@@ -351,10 +354,10 @@
         .legend {
             position: absolute;
             bottom: 10px;
-            left: 280px;
+            left: 290px;
             background: rgba(255,255,255,0.70);
             padding: 5px;
-            border-radius: 10px;
+            border-radius: 0px;
             box-shadow: 0 2px 15px rgba(0,0,0,0.1);
             min-width: 120px;
             backdrop-filter: blur(5px);
@@ -440,11 +443,13 @@
         
         .control-panel {
             top: 80px;
+
         }
         
         .info-panel {
             top: 80px;
             height: calc(100vh - 100px);
+			
         }
         
         /* Responsive */
@@ -467,7 +472,7 @@
 		
 /*extra*/		
 #ods { position:fixed; bottom:40px; right:20px; z-index: 1500;}
-#beta { position:fixed; bottom:90px; right:20px; z-index: 1500;}
+#beta { position:fixed; top:16px; right:20px; z-index: 1500;}
 
 hr  {border: 0;
     height: 1px;
@@ -498,3 +503,371 @@ hr  {border: 0;
 .reset-button:active {
     background-color: #d0d0d0;
 }	
+
+
+.value-color-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: middle;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.info-value {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.api {
+    display: block;
+    position: relative;
+    /* padding-left: 35px; */
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 11px;
+    user-select: none;
+    color: #495057;
+}
+ /* Stile per il loader personalizzato */
+        .custom-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9); /* Sfondo semi-trasparente */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10000;
+        }
+
+        /* Spinner con gradienti e ombre */
+        .custom-loader .spinner {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                #ff9100 0%,
+                #ff5100 25%,
+                #ff0055 50%,
+                #ff9100 75%,
+                #ff5100 100%
+            );
+            animation: spin 1.5s linear infinite;
+            box-shadow: 0 0 20px rgba(255, 145, 0, 0.6);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Testo del loader */
+        .custom-loader .loader-text {
+            margin-top: 20px;
+            font-family: 'Titillium Web', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.5;
+            color: #333;
+        }
+		
+.custom-control {
+    background: white;
+    border: none;
+    width: 29px;
+    height: 29px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    border-radius: 4px;
+}
+
+.custom-control:hover {
+    background-color: rgba(0,0,0,.05);
+}
+
+.search-control {
+    width: 200px;
+    height: 29px;
+    padding: 0 8px;
+    border: none;
+    outline: none;
+    font-size: 12px;
+    background: white;
+    border-radius: 4px;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.search-result-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
+}
+
+.search-result-item:hover {
+    background-color: #f5f5f5;
+}
+
+/* Popup informazioni */
+.info-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    padding: 20px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    z-index: 10000;
+    display: none;
+}
+
+.info-popup.visible {
+    display: block;
+}		
+
+   /* Allineamento titolo e pulsante chiusura */
+    .header-title-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .info-popup-header h3 {
+        margin: 0; /* Rimuove margine inferiore predefinito */
+        flex-grow: 1; /* Occupa tutto lo spazio disponibile */
+    }
+    
+    .info-popup-close {
+        margin-left: 15px; /* Spazio tra titolo e pulsante */
+    }
+li {
+    font-size: 14px; /* Imposta la dimensione del font a 16 pixel */
+}
+
+h4 {
+    font-size: 16px; /* Imposta la dimensione del font a 16 pixel */
+}
+
+h3 {
+    font-size: 17px; /* Imposta la dimensione del font a 16 pixel */
+}
+
+/* Stili per opzioni evidenziate */
+.highlighted-option {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
+    font-weight: bold !important;
+    border-left: 3px solid #2196f3 !important;
+}
+
+.highlighted-option:hover {
+    background-color: #bbdefb !important;
+}
+
+/* Stili per opzioni sfumate */
+.dimmed-option {
+    background-color: #f5f5f5 !important;
+    color: #999999 !important;
+    font-style: italic !important;
+}
+
+.dimmed-option:hover {
+    background-color: #eeeeee !important;
+}
+
+/* Indicatore evidenziazione */
+.highlight-indicator {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ff9800;
+    font-size: 12px;
+    animation: highlightPulse 2s infinite;
+    z-index: 10;
+}
+
+@keyframes highlightPulse {
+    0% { opacity: 1; transform: translateY(-50%) scale(1); }
+    50% { opacity: 0.7; transform: translateY(-50%) scale(1.1); }
+    100% { opacity: 1; transform: translateY(-50%) scale(1); }
+}
+
+/* Miglioramenti dropdown */
+#foglio-filter option {
+    padding: 8px 12px;
+    line-height: 1.4;
+}
+
+/* Stile per il contatore nel titolo */
+.control-section h3 small {
+    font-size: 12px;
+    margin-left: 8px;
+    padding: 2px 6px;
+    background-color: #e3f2fd;
+    border-radius: 10px;
+    border: 1px solid #2196f3;
+}
+
+/* ===== AGGIUNTE CSS PER LEGENDA DINAMICA ===== */
+/* DA AGGIUNGERE AL FILE cspa.css ESISTENTE - NON SOSTITUIRE */
+
+/* NUOVO: Stili per legenda dinamica */
+.legend-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    line-height: 1.2;
+}
+
+.legend-stats {
+    font-size: 10px;
+    color: #666;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+/* NUOVO: Toggle legenda dinamica */
+.legend-toggle-container {
+    margin: 8px 0;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.legend-toggle-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 11px;
+    color: #555;
+    gap: 6px;
+}
+
+.legend-toggle-label input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+}
+
+.legend-toggle-text {
+    flex: 1;
+}
+
+.legend-toggle-icon {
+    color: #ff9900;
+    font-size: 12px;
+}
+
+/* NUOVO: Warning per dati insufficienti */
+.data-warning {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 193, 7, 0.95);
+    color: #333;
+    padding: 8px 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 2000;
+    display: none;
+    backdrop-filter: blur(5px);
+}
+
+.data-warning.visible {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+.warning-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.warning-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+    font-size: 14px;
+    padding: 2px;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Responsive per legenda dinamica */
+@media (max-width: 768px) {
+    .legend-item {
+        flex-wrap: wrap;
+    }
+
+    .legend-text {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .legend-stats {
+        margin-top: 0;
+        margin-left: 8px;
+    }
+
+    .data-warning {
+        left: 10px;
+        right: 10px;
+        transform: none;
+    }
+}
+
+/* Animazione per aggiornamenti legenda */
+.legend-item {
+    transition: all 0.3s ease;
+}
+
+.legend.updating {
+    opacity: 0.7;
+}
