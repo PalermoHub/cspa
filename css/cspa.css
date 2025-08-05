@@ -647,7 +647,7 @@ hr  {border: 0;
     padding: 20px;
     max-width: 500px;
     width: 90%;
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
     z-index: 10000;
     display: none;
@@ -673,3 +673,14 @@ hr  {border: 0;
     .info-popup-close {
         margin-left: 15px; /* Spazio tra titolo e pulsante */
     }
+li {
+    font-size: 14px; /* Imposta la dimensione del font a 16 pixel */
+}
+
+h4 {
+    font-size: 16px; /* Imposta la dimensione del font a 16 pixel */
+}
+
+h3 {
+    font-size: 17px; /* Imposta la dimensione del font a 16 pixel */
+}
