@@ -471,7 +471,7 @@
 		
 /*extra*/		
 #ods { position:fixed; bottom:40px; right:20px; z-index: 1500;}
-#beta { position:fixed; bottom:90px; right:20px; z-index: 1500;}
+#beta { position:fixed; top:16px; right:20px; z-index: 1500;}
 
 hr  {border: 0;
     height: 1px;
