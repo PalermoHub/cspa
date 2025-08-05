@@ -417,9 +417,9 @@ function showBaseLegenda() {
             panel.classList.add('visible');
         }
 
-        function closeInfoPanel() {
-            document.getElementById('info-panel').classList.remove('visible');
-        }
+function closeInfoPanel() {
+    document.getElementById('info-panel').classList.remove('visible');
+}
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
@@ -435,10 +435,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Nuovo event listener per il filtro foglio
     document.getElementById('foglio-filter').addEventListener('change', (e) => {
         applyFoglioFilter(e.target.value);
-    });
-
-    document.getElementById('borders-toggle').addEventListener('change', (e) => {
-        toggleBorders(e.target.checked);
     });
 
     // Event listeners per perimetri
@@ -632,7 +628,7 @@ let map;
 let currentTheme = 'landuse';
 let hoveredPolygon = null;
 let currentMandamentoFilter = null;
-let currentFoglioFilter = null;
+let currentFoglioFilter = null; // Se utilizzi il filtro foglio
 let featuresData = [];
 let availableFogli = [];
 
@@ -1540,6 +1536,11 @@ function togglePerimeter(layerId, show) {
 function toggleBorders(show) {
     const visibility = show ? 'visible' : 'none';
     map.setLayoutProperty('catastale-outline', 'visibility', visibility);
+    
+    // AGGIUNGERE: Sincronizzazione con controlli MapLibre
+    if (typeof syncBordersControls === 'function') {
+        syncBordersControls(show);
+    }
 }
 
 // Event listeners per i controlli
@@ -1781,7 +1782,7 @@ function removeTheme() {
     map.setFilter('catastale-base', filter);
     
     currentTheme = 'landuse';
-    showBaseLegenda();
+    showBaseLegend();
 }
 
 function calculateDynamicRange(themeKey) {

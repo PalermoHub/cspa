@@ -168,19 +168,9 @@
                 Mandamenti
             </label>
         </div>
+		  </div>
         
-        <div class="control-section">
-            <h3><img src="img/gear.svg" alt="cspa" width="20" height="20"/> Visualizzazione</h3>
-            <label class="checkbox-container">
-                <input type="checkbox" id="borders-toggle">
-                <span class="checkmark"></span>
-                Mostra bordi poligoni
-            </label>
-			    <button id="reset-map" class="reset-button" title="RESET Vista predefinita">
-        <i class="fas fa-sync-alt" title="RESET Vista predefinita"></i> Vista predefinita
-    </button>
-        </div>
-		<p class="api">Fonte dati: <a href="https://zornade.com/" title="zornade.com" target="_blank">zornade.com</a> - Italian Cadastral <br>
+	<p class="api">Fonte dati: <a href="https://zornade.com/" title="zornade.com" target="_blank">zornade.com</a> - Italian Cadastral <br>
 Parcel Data & Geospatial Insights API</p>
     </div>
     
@@ -687,6 +677,7 @@ real_estate_potential: {
         let currentTheme = 'landuse';
         let hoveredPolygon = null;
         let currentMandamentoFilter = null;
+		let currentFoglioFilter = null; // Se utilizzi il filtro foglio
         let featuresData = [];
 
 class SearchControl {
@@ -992,10 +983,10 @@ function closeInfoPopup() {
         });
 
         // Funzioni controllo perimetri
-        function togglePerimeter(layerId, show) {
-            const visibility = show ? 'visible' : 'none';
-            map.setLayoutProperty(layerId, 'visibility', visibility);
-        }
+function togglePerimeter(layerId, show) {
+    const visibility = show ? 'visible' : 'none';
+    map.setLayoutProperty(layerId, 'visibility', visibility);
+}
 
         // Funzioni tematizzazione AGGIORNATE con Jenks-Fisher per popolazione, età, tasso anziani e buildings
         function applyTheme(themeKey) {
@@ -1579,10 +1570,15 @@ if (themeKey === 'buildings' || themeKey === 'population' || themeKey === 'age' 
             }
         }
 
-        function toggleBorders(show) {
-            const visibility = show ? 'visible' : 'none';
-            map.setLayoutProperty('catastale-outline', 'visibility', visibility);
-        }
+function toggleBorders(show) {
+    const visibility = show ? 'visible' : 'none';
+    map.setLayoutProperty('catastale-outline', 'visibility', visibility);
+    
+    // AGGIUNGERE: Sincronizzazione con controlli MapLibre
+    if (typeof syncBordersControls === 'function') {
+        syncBordersControls(show);
+    }
+}
 
 function removeTheme() {
     if (map.getLayer('catastale-thematic')) {
@@ -2259,9 +2255,9 @@ function removeTheme() {
             panel.classList.add('visible');
         }
 
-        function closeInfoPanel() {
-            document.getElementById('info-panel').classList.remove('visible');
-        }
+function closeInfoPanel() {
+    document.getElementById('info-panel').classList.remove('visible');
+}
 
         // Event listeners per i controlli
 function switchBasemap(value) {
@@ -2309,9 +2305,6 @@ function switchBasemap(value) {
             applyMandamentoFilter(e.target.value);
         });
 
-        document.getElementById('borders-toggle').addEventListener('change', (e) => {
-            toggleBorders(e.target.checked);
-        });
 
         // Event listeners per perimetri
         document.getElementById('palermo-perimeter').addEventListener('change', (e) => {
