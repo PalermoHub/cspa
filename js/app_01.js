@@ -70,262 +70,9 @@ function showJenksLegend(theme) {
             '35-49%',
             '50-69%',
             '70-100%'
-        ];
-    } else if (currentTheme === 'familySize') {
-        labels = [
-            '0 componenti (nessun dato)',
-            '1-1.5 componenti',
-            '1.6-2.2 componenti',
-            '2.3-2.8 componenti',
-            '2.9-3.5 componenti',
-            '3.6-4.2 componenti',
-            '4.3-5.0 componenti',
-            'Oltre 5 componenti'
-        ];
-    } else if (currentTheme === 'masculinity') {
-        labels = [
-            '0% (nessun dato)',
-            '1-45%',
-            '46-50%',
-            '51-55%',
-            '56-60%',
-            '61-70%',
-            '71-85%',
-            '86-100%'
-        ];
-    } else if (currentTheme === 'singlePerson') {
-        labels = [
-            '0% (nessun dato)',
-            '1-15%',
-            '16-25%',
-            '26-35%',
-            '36-45%',
-            '46-60%',
-            '61-80%',
-            '81-100%'
-        ];
-    } else if (currentTheme === 'largeFamilies') {
-        labels = [
-            '0% (nessun dato)',
-            '1-5%',
-            '6-12%',
-            '13-20%',
-            '21-30%',
-            '31-45%',
-            '46-65%',
-            '66-100%'
-        ];
-    } else if (currentTheme === 'femaleEmployment') {
-        labels = [
-            '0% (nessun dato)',
-            '1-20%',
-            '21-35%',
-            '36-45%',
-            '46-55%',
-            '56-70%',
-            '71-85%',
-            '86-100%'
-        ];
-    } else if (currentTheme === 'higherEducation') {
-        labels = [
-            '0% (nessun dato)',
-            '1-15%',
-            '16-25%',
-            '26-35%',
-            '36-50%',
-            '51-65%',
-            '66-80%',
-            '81-100%'
-        ];
-    } else if (currentTheme === 'lowEducation') {
-        labels = [
-            '0% (nessun dato)',
-            '1-10%',
-            '11-20%',
-            '21-35%',
-            '36-50%',
-            '51-65%',
-            '66-80%',
-            '81-100%'
-        ];
-    } else if (currentTheme === 'workIntegration') {
-        labels = [
-            '0% (nessun dato)',
-            '1-20%',
-            '21-35%',
-            '36-50%',
-            '51-65%',
-            '66-75%',
-            '76-85%',
-            '86-100%'
-        ];
-    } else if (currentTheme === 'nonEuForeigners') {
-        labels = [
-            '0% (nessun dato)',
-            '1-8%',
-            '9-18%',
-            '19-30%',
-            '31-45%',
-            '46-60%',
-            '61-80%',
-            '81-100%'
-        ];
-    } else if (currentTheme === 'youngForeigners') {
-        labels = [
-            '0% (nessun dato)',
-            '1-12%',
-            '13-22%',
-            '23-35%',
-            '36-50%',
-            '51-65%',
-            '66-80%',
-            '81-100%'
-        ];
-    } else if (currentTheme === 'employment') {
-        labels = [
-            '0% (nessun dato)',
-            '1-12%',
-            '13-25%',
-            '26-40%',
-            '41-55%',
-            '56-70%',
-            '71-85%',
-            '86-100%'
-        ];
-    } else if (currentTheme === 'genderGap') {
-        labels = [
-            'Molto negativo (-67% a -31%)',
-            'Negativo (-30% a -11%)',
-            'Lievemente negativo (-10% a -1%)',
-            'Equilibrato (0% a 14%)',
-            'Lievemente positivo (15% a 29%)',
-            'Positivo (30% a 49%)',
-            'Molto positivo (50% a 74%)',
-            'Estremo (75% a 100%)'
-        ];
-    } else if (currentTheme === 'resilience') {
-        labels = [
-            '0% (nessun dato)',
-            '1-12.5%',
-            '12.6-25%',
-            '25.1-37.5%',
-            '37.6-50%',
-            '50.1-62.5%',
-            '62.6-75%',
-            '75.1-100%'
-        ];
-    } else if (currentTheme === 'cohesion') {
-        labels = [
-            '0% (nessun dato)',
-            '1-12%',
-            '13-24%',
-            '25-36%',
-            '37-48%',
-            '49-60%',
-            '61-72%',
-            '73-96.7%'
-        ];
-    } else if (currentTheme === 'surface_area') {
-        labels = [
-            '0 m² (nessun dato)',
-            '1-85 m²',
-            '86-180 m²',
-            '181-320 m²',
-            '321-580 m²',
-            '581-1.200 m²',
-            '1.201-3.500 m²',
-            'Oltre 3.500 m²'
-        ];
-    } else if (currentTheme === 'elevation_min') {
-        labels = [
-            '0 m (nessun dato)',
-            '1-2 m',
-            '3-5 m',
-            '6-8 m',
-            '9-12 m',
-            '13-18 m',
-            '19-25 m',
-            '26-38.2 m'
-        ];
-    } else if (currentTheme === 'elevation_max') {
-        labels = [
-            '0 m (nessun dato)',
-            '1-3 m',
-            '4-6 m',
-            '7-10 m',
-            '11-15 m',
-            '16-20 m',
-            '21-28 m',
-            '29-38.7 m'
-        ];
-    } else if (currentTheme === 'building_occupancy') {
-        labels = [
-            '0% (nessun dato)',
-            '1-2%',
-            '3-4%',
-            '5-7%',
-            '8-12%',
-            '13-18%',
-            '19-25%',
-            '26-33%'
-        ];
-    } else if (currentTheme === 'structural_dependency') {
-        labels = [
-            '0% (nessun dato)',
-            '1-12%',
-            '13-25%',
-            '26-40%',
-            '41-58%',
-            '59-75%',
-            '76-88%',
-            '89-100%'
-        ];
-    } else if (currentTheme === 'robustness') {
-        labels = [
-            '0 (nessun dato)',
-            '0.01-0.15',
-            '0.16-0.30',
-            '0.31-0.45',
-            '0.46-0.60',
-            '0.61-0.80',
-            '0.81-1.00',
-            '1.01-1.20'
-        ];
-    } else if (currentTheme === 'requalification_opportunity') {
-        labels = [
-            'Nessuna opportunità',
-            'Molto bassa',
-            'Bassa',
-            'Medio-bassa',
-            'Media',
-            'Medio-alta',
-            'Alta',
-            'Molto alta'
-        ];
-    } else if (currentTheme === 'real_estate_potential') {
-        labels = [
-            '0% (nessun dato)',
-            '1-10%',
-            '11-20%',
-            '21-35%',
-            '36-50%',
-            '51-65%',
-            '66-75%',
-            '76-85%'
-        ];
-    } else if (currentTheme === 'buildings') {  // Nuovo tema aggiunto
-        labels = [
-            '0 edifici',
-            '1 edificio',
-            '2 edifici',
-            '3 edifici',
-            '4-6 edifici',
-            '7-9 edifici',
-            '10-15 edifici',
-            '16+ edifici'
-        ];
+        ];	
     } else {
-        // Labels generiche per temi non specificati (fallback)
+        // Labels generiche per altri temi
         const numClasses = currentTheme === 'population' ? 7 : 8;
         for (let i = 0; i < numClasses; i++) {
             labels.push(`Classe ${i + 1}`);
@@ -1007,15 +754,16 @@ const themes = {
         type: 'jenks'
     },
     
-            elderly: {
-                name: 'Tasso Anziani',
-                property: 'tasso_anziani',
-                colors: ['#f1f8e9', '#dcedc8', '#c5e1a5', '#aed581', '#9ccc65', '#8bc34a', '#7cb342', '#689f38'],
-                unit: '%',
-                format: (val) => `${val || 'N/D'}%`,
-                jenksBreaks: [0, 5.2, 15.4, 25.1, 35.4, 44.7, 52.1, 58.8], // Break points ottimizzati per range 0-58.8%
-                type: 'jenks'
-            },
+    elderly: {
+        name: 'Tasso Anziani',
+        property: 'tasso_anziani',
+        colors: ['#f1f8e9', '#dcedc8', '#c5e1a5', '#aed581', '#9ccc65', '#8bc34a', '#7cb342', '#689f38'],
+        unit: '%',
+        format: (val) => `${val || 'N/D'}%`,
+        jenksBreaks: [0, 5.2, 15.4, 25.1, 35.4, 44.7, 52.1, 58.8],
+        type: 'jenks'
+    },
+    
     density: {
         name: 'Densità Abitativa',
         property: 'densità abitativa',
@@ -1136,15 +884,15 @@ const themes = {
         type: 'jenks'
     },
 
-requalification_opportunity: {
-    name: 'Opportunità di Riqualificazione',
-    property: 'opport_riqualificazione',
-    colors: ['#ffffff', '#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#4a148c'],
-    unit: '',
-    format: (val) => `${val || 'N/D'}`,
-    jenksBreaks: [0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8], // MODIFICATO: valori realistici
-    type: 'jenks'
-},
+    requalification_opportunity: {
+        name: 'Opportunità di Riqualificazione',
+        property: 'opport_riqualificazione',
+        colors: ['#ffffff', '#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#4a148c'],
+        unit: '',
+        format: (val) => `${val || 'N/D'}`,
+        jenksBreaks: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        type: 'jenks'
+    },
 
     real_estate_potential: {
         name: 'Potenziale Immobiliare',
@@ -1708,7 +1456,7 @@ function applyMandamentoFilter(mandamento) {
     map.setFilter('catastale-outline', filter);
     
     // Se c'è un indicatore attivo (non uso del suolo), riapplicalo
-    if (activeTheme && activeTheme !== 'landuse') {
+    if (activeTheme && activeThema !== 'landuse') {
         applyTheme(activeTheme);
     } else {
         // Altrimenti assicurati che il layer base sia visibile
@@ -1879,21 +1627,6 @@ function applyTheme(themeKey) {
                 jenksBreaks[6], theme.colors[5], // 36-70 abitanti
                 jenksBreaks[7], theme.colors[6]  // 71-166 abitanti
             ];
-			  } else if (themeKey === 'elderly') {
-                    // Configurazione specifica per tasso anziani con 8 classi
-                    layerConfig.paint['fill-color'] = [
-                        'step',
-                        ['coalesce', ['get', theme.property], 0],
-                        theme.colors[0], // 0% (nessun dato)
-                        jenksBreaks[1], theme.colors[1], // 0.1-5.2%
-                        jenksBreaks[2], theme.colors[2], // 5.3-15.4%
-                        jenksBreaks[3], theme.colors[3], // 15.5-25.1%
-                        jenksBreaks[4], theme.colors[4], // 25.2-35.4%
-                        jenksBreaks[5], theme.colors[5], // 35.5-44.7%
-                        jenksBreaks[6], theme.colors[6], // 44.8-52.1%
-                        jenksBreaks[7], theme.colors[7]  // 52.2-58.8%
-                    ];
-			
         } else if (themeKey === 'genderGap') {
             layerConfig.paint['fill-color'] = [
                 'step',
@@ -1923,8 +1656,6 @@ function applyTheme(themeKey) {
             ];
         }
     }
-	
-	
     // Configurazione specifica per land_cover
     else if (themeKey === 'land_cover') {
         layerConfig.paint['fill-color'] = [
@@ -2051,7 +1782,7 @@ function removeTheme() {
     map.setFilter('catastale-base', filter);
     
     currentTheme = 'landuse';
-    showBaseLegenda();
+    showBaseLegend();
 }
 
 function calculateDynamicRange(themeKey) {
