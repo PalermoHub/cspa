@@ -261,6 +261,7 @@
         .info-panel-header {
             /*background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);*/
 			background: #fff;
+			 box-shadow: -5px 0 25px rgba(0,0,0,0.15);
             color: #313131;
             padding: 20px;
           border-radius: 0 0 0 0;
@@ -305,7 +306,7 @@
         .info-group {
             margin-bottom: 15px;
             padding: 10px;
-            background: #f8f9fa;
+            background: #ffffff;
             border-radius: 0px;
             /*border-left: 4px solid #667eea;*/
         }
@@ -319,7 +320,7 @@
         
         .info-group h3 i {
             margin-right: 8px;
-            color: #667eea;
+            color: #313131;
         }
         
         .info-item {
