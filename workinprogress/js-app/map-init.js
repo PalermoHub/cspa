@@ -104,13 +104,6 @@ function onMapLoad() {
     showBaseLegenda();
     
     console.log('Tutti i layer aggiunti');
-	
-	// Aggiungi questo nella funzione onMapLoad
-map.on('idle', () => {
-    if (typeof updateDynamicLegend === 'function') {
-        setTimeout(updateDynamicLegend, 1000);
-    }
-});
 }
 
 function addDataLayers() {
@@ -239,14 +232,13 @@ function addMapControls() {
     map.addControl(new InfoControl(), 'top-right');
 }
 
-// MODIFICA LA FUNZIONE onSourceData
 function onSourceData(e) {
     if (e.sourceId === 'palermo_catastale' && e.isSourceLoaded) {
-        // Non è più necessario popolare i filtri qui
-        // La gestione è ora completamente in dynamic-filters.js
         setTimeout(() => {
+            populateFoglioFilter();
+            // Sostituisci con:
             if (typeof initializeDynamicFilters === 'function') {
-                // Non chiamare qui, verrà chiamato da DOMContentLoaded
+                initializeDynamicFilters();
             }
         }, 500);
     }

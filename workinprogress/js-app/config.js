@@ -1,3 +1,17 @@
+// ===== STRUTTURA MODULARE - SUDDIVISIONE APP.JS =====
+
+// 1. config.js - Configurazioni e costanti
+// 2. map-init.js - Inizializzazione mappa e layer base
+// 3. themes.js - Definizioni temi e tematizzazioni
+// 4. legends.js - Gestione legende
+// 5. info-panel.js - Pannello informazioni
+// 6. search-controls.js - Controlli di ricerca e navigazione
+// 7. filters.js - Sistema filtri base
+// 8. dynamic-filters.js - Sistema filtri dinamici (NUOVO)
+// 9. event-handlers.js - Gestori eventi principali
+// 10. utils.js - Funzioni di utilità
+// 11. reset.js - Funzioni reset (già esistente)
+
 // ===== FILE: config.js =====
 /**
  * Configurazioni globali e costanti dell'applicazione
@@ -113,5 +127,4 @@ let hoveredPolygon = null;
 let currentMandamentoFilter = null;
 let currentFoglioFilter = null;
 let featuresData = [];
-
-// Note: availableFogli è stata rimossa perché viene gestita in unified-filters.js
+let availableFogli = [];

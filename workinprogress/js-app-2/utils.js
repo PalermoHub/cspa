@@ -74,11 +74,6 @@ function extendedResetMap() {
         resetMap();
     }
     
-    // Forza aggiornamento legenda
-    if (typeof forceLegendUpdate === 'function') {
-        setTimeout(forceLegendUpdate, 500);
-    }
-    
     console.log('✅ Reset completo esteso completato');
 }
 
@@ -120,35 +115,50 @@ document.addEventListener('DOMContentLoaded', function() {
 console.log('📦 Moduli caricati: config, map-init, dynamic-filters, event-handlers, filters, utils');
 
 // ===== NUOVE FUNZIONI UTILITY =====
-/**
- * Forza l'aggiornamento della legenda
- */
-function forceLegendUpdate() {
-    if (typeof window.forceLegendUpdate === 'function') {
-        window.forceLegendUpdate();
+
+function getCurrentViewportFeatures() {
+    if (!map) return [];
+    
+    // Ottieni solo le feature visibili nella viewport corrente
+    return map.queryRenderedFeatures({
+        layers: ['catastale-base', 'catastale-thematic', 'catastale-hover'],
+        filter: getCurrentFilter()
+    });
+}
+
+function throttle(func, limit) {
+    let lastFunc;
+    let lastRan;
+    return function() {
+        const context = this;
+        const args = arguments;
+        if (!lastRan) {
+            func.apply(context, args);
+            lastRan = Date.now();
+        } else {
+            clearTimeout(lastFunc);
+            lastFunc = setTimeout(function() {
+                if ((Date.now() - lastRan) >= limit) {
+                    func.apply(context, args);
+                    lastRan = Date.now();
+                }
+            }, limit - (Date.now() - lastRan));
+        }
     }
 }
 
-/**
- * Applica un tema con aggiornamento legenda
- */
-function applyThemeWithLegendUpdate(themeKey) {
-    if (themeKey === 'landuse' || themeKey === '' || !themeKey) {
-        removeTheme();
-    } else {
-        applyTheme(themeKey);
+function getCurrentFilter() {
+    const filters = [];
+    
+    if (currentMandamentoFilter && currentMandamentoFilter !== '') {
+        let dbValue = currentMandamentoFilter;
+        if (dbValue === 'Castellammare') dbValue = 'Castellamare';
+        filters.push(['==', ['get', 'Mandamento'], dbValue]);
     }
     
-    // Forza aggiornamento legenda dopo un ritardo
-    setTimeout(() => {
-        if (typeof forceLegendUpdate === 'function') {
-            forceLegendUpdate();
-        }
-    }, 300);
+    if (currentFoglioFilter && currentFoglioFilter !== '') {
+        filters.push(['==', ['get', 'foglio'], currentFoglioFilter]);
+    }
+    
+    return filters.length > 0 ? ['all', ...filters] : null;
 }
-
-// Override della funzione originale di tematizzazione
-const originalActivateTheme = window.activateTheme;
-window.activateTheme = function(themeKey) {
-    applyThemeWithLegendUpdate(themeKey);
-};

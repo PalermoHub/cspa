@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" href="https://palermohub.opendatasicilia.it/favicon.ico"/> 
     <link rel="icon" href="https://palermohub.opendatasicilia.it/favicon.png" type="image/png"/> 
-    <link rel="stylesheet" href="css/cspa-4.css">
-    <link rel="stylesheet" href="css/dynamic-legend.css">    
+    <link rel="stylesheet" href="css/cspa_din.css">
+    
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -54,14 +54,13 @@
                 <li><strong>Indicatori Socio-Economici</strong> - Livelli di occupazione, istruzione, integrazione lavorativa e resilienza economica del territorio.</li>
                 <li><strong>Analisi Territoriale</strong> - Densità abitativa, caratteristiche morfologiche, valutazione rischi ambientali e potenziale immobiliare.</li>
                 <li><strong>Filtri Dinamici Interconnessi</strong> - Sistema avanzato per Mandamenti e Fogli con aggiornamento in tempo reale</li>
-                <li><strong>Auto-centraggio Intelligente</strong> - La mappa si centra automaticamente sulle aree filtrate</li>
             </ul>
             
             <h4>Come Utilizzare la Piattaforma:</h4>        
             <ul>
                 <li><strong>Seleziona un Indicatore:</strong> Utilizza i menu tematici per visualizzare Demografia, Economia o Territorio</li>
                 <li><strong>Esplora i Dettagli:</strong> Clicca su qualsiasi particella per accedere ai dati specifici nel pannello laterale</li>
-                <li><strong>Filtra per Area:</strong> I filtri si aggiornano automaticamente - seleziona un mandamento per vedere solo i suoi fogli. La mappa si centrerà automaticamente sull'area selezionata</li>
+                <li><strong>Filtra per Area:</strong> I filtri si aggiornano automaticamente - seleziona un mandamento per vedere solo i suoi fogli</li>
                 <li><strong>Cerca Indirizzi:</strong> Utilizza la ricerca geografica ottimizzata per il centro storico di Palermo</li>
             </ul> 
             <hr>
@@ -153,12 +152,11 @@
                 <option value="robustness"><i class="fas fa-shield-alt"></i> Indice Robustezza</option>
                 <option value="requalification_opportunity"><i class="fas fa-hammer"></i> Opportunità Riqualificazione</option>
                 <option value="real_estate_potential"><i class="fas fa-chart-line"></i> Potenziale Immobiliare</option>
-                <option value="buildings"><i class="fas fa-city"></i> Numero Edifici</option>
                 <option value="flood_risk"><i class="fas fa-water"></i> Rischio alluvione</option>
                 <option value="land_cover"><i class="fas fa-leaf"></i> Copertura del suolo</option>
                 <option value="landslide_risk"><i class="fas fa-mountain"></i> Rischio di frana</option>
                 <option value="coastal_erosion"><i class="fas fa-umbrella-beach"></i> Rischio erosione costiera</option>
-                <option value="seismic_risk"><i class="fas fa-house-damage"></i> Rischio sismico</option>
+                <option value="seismic_risk"><i class="fas fa-quake"></i> Rischio sismico</option>
             </select>
         </div>
         
@@ -180,6 +178,8 @@
                 Mandamenti
             </label>
         </div>
+        
+        <!-- Il pulsante reset globale verrà aggiunto dinamicamente qui dai filtri dinamici -->
     </div>
     
     <div class="info-panel" id="info-panel">
@@ -196,24 +196,36 @@
             </p>
         </div>
     </div>
-    
-    <div class="legend" id="legend">
-        <h4 id="legend-title">Legenda</h4>
-        <div id="legend-items"></div>
-    </div>
 
-    <!-- JAVASCRIPT FILES - STRUTTURA MODULARE CORRETTA -->  
-    <script src="js-app/config.js"></script>
-    <script src="js-app/themes.js"></script>
-    <script src="js-app/legends.js"></script>
-    <script src="js-app/dynamic-legend.js"></script>
-    <script src="js-app/info-panel.js"></script>
-    <script src="js-app/search-controls.js"></script>
-    <script src="js-app/unified-filters.js"></script>
-    <script src="js-app/event-handlers.js"></script>
-    <script src="js-app/utils.js"></script>
-    <script src="js-app/map-init.js"></script>
-    <script src="js-app/reset.js"></script>
+<!--
+<div class="legend" id="legend">
+    <h4 id="legend-title">Legenda</h4>
+    <div id="legend-items"></div>
+</div>
+-->
+
+<!-- MODIFICA LA LEGENDA DINAMICA (nuova posizione) -->
+<div class="legend" id="dynamic-legend" style="left: 10px; bottom: 10px;">
+    <h4 id="dynamic-legend-title">Distribuzione vista corrente</h4>
+    <div id="dynamic-legend-stats"></div>
+    <div id="dynamic-legend-items"></div>
+</div>
+
+
+<!-- JAVASCRIPT FILES - STRUTTURA MODULARE -->  
+<script src="js-app-2/config.js"></script>
+<script src="js-app-2/themes.js"></script>
+<script src="js-app-2/legends.js"></script>
+<script src="js-app-2/info-panel.js"></script>
+<script src="js-app-2/search-controls.js"></script>
+<script src="js-app-2/filters.js"></script>
+<script src="js-app-2/dynamic-filters.js"></script>  
+<script src="js-app-2/event-handlers.js"></script>
+<script src="js-app-2/utils.js"></script>
+<script src="js-app-2/map-init.js"></script>
+<script src="js-app-2/reset.js"></script>
+<script src="js-app-2/dynamic-legend.js"></script>
+
 
     <!-- Loghi e badge -->
     <div id="tavolab"></div>           
@@ -242,25 +254,6 @@
         </div>
     </div>
 
-    <style>
-        /* Animazione per notifica filtri */
-        @keyframes slideDown {
-            from {
-                transform: translateX(-50%) translateY(-20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(-50%) translateY(0);
-                opacity: 1;
-            }
-        }
-        
-        /* Stile notifica filtri */
-        .filter-notification {
-            animation: slideDown 0.5s ease;
-        }
-    </style>
-
     <script>
         // Nasconde loader dopo inizializzazione
         setTimeout(function() {
@@ -271,7 +264,6 @@
         console.log('🚀 CSPA - Centro Storico Palermo Analytics');
         console.log('📦 Struttura modulare caricata');
         console.log('🔗 Filtri dinamici interconnessi attivi');
-        console.log('🎯 Auto-centraggio filtri attivo');
         console.log('✅ Sistema pronto');
     </script>
 </body>

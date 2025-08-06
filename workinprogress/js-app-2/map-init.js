@@ -97,20 +97,14 @@ function onMapLoad() {
     addMapControls();
     setupEventHandlers();
     
-    // Imposta il valore di default per uso del suolo
-    document.getElementById('territorial-select').value = 'landuse';
-    
-    // Mostra legenda di base
-    showBaseLegenda();
+    // Inizializza legenda dinamica dopo un breve ritardo
+    setTimeout(() => {
+        if (typeof initDynamicLegend === 'function') {
+            initDynamicLegend();
+        }
+    }, 1000);
     
     console.log('Tutti i layer aggiunti');
-	
-	// Aggiungi questo nella funzione onMapLoad
-map.on('idle', () => {
-    if (typeof updateDynamicLegend === 'function') {
-        setTimeout(updateDynamicLegend, 1000);
-    }
-});
 }
 
 function addDataLayers() {
@@ -239,14 +233,11 @@ function addMapControls() {
     map.addControl(new InfoControl(), 'top-right');
 }
 
-// MODIFICA LA FUNZIONE onSourceData
 function onSourceData(e) {
     if (e.sourceId === 'palermo_catastale' && e.isSourceLoaded) {
-        // Non è più necessario popolare i filtri qui
-        // La gestione è ora completamente in dynamic-filters.js
         setTimeout(() => {
             if (typeof initializeDynamicFilters === 'function') {
-                // Non chiamare qui, verrà chiamato da DOMContentLoaded
+                initializeDynamicFilters();
             }
         }, 500);
     }

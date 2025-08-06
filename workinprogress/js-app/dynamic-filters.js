@@ -1,14 +1,8 @@
 // ===== FILE: dynamic-filters.js =====
-/* SISTEMA FILTRI DINAMICI INTEGRATO - VERSIONE COMPLETA */
+/* SISTEMA FILTRI DINAMICI INTEGRATO */
 let mandamentoFoglioMap = new Map();
 let foglioMandamentoMap = new Map();
 let completeSystemReady = false;
-
-// Disabilita le funzioni duplicate di filters.js
-window.populateFoglioFilter = function() {};
-window.applyFoglioFilter = function() {};
-window.applyMandamentoFilter = function() {};
-window.restoreFilterSelections = function() {};
 
 function initializeDynamicFilters() {
     console.log('🎨 Inizializzazione sistema filtri dinamici...');
@@ -21,7 +15,6 @@ function initializeDynamicFilters() {
     buildFoglioMandamentoRelations();
     setupFilterEventListeners();
     addHighlightIndicator();
-    populateFoglioDropdown();
     
     completeSystemReady = true;
     
@@ -72,32 +65,6 @@ function buildFoglioMandamentoRelations() {
         console.log('🗺️ Relazioni costruite:', mandamentoFoglioMap);
     } catch (error) {
         console.error('❌ Errore costruzione relazioni:', error);
-    }
-}
-
-function populateFoglioDropdown() {
-    const foglioSelect = document.getElementById('foglio-filter');
-    const currentSelection = foglioSelect.value;
-    
-    // Rimuovi tutte le opzioni tranne la prima ("Tutti i Fogli")
-    while (foglioSelect.children.length > 1) {
-        foglioSelect.removeChild(foglioSelect.lastChild);
-    }
-    
-    // Aggiungi fogli ordinati per mandamento
-    mandamentoFoglioMap.forEach((fogli, mandamento) => {
-        fogli.forEach(foglio => {
-            const option = document.createElement('option');
-            option.value = foglio;
-            option.textContent = `Foglio ${foglio} - ${mandamento}`;
-            option.setAttribute('data-mandamento', mandamento);
-            foglioSelect.appendChild(option);
-        });
-    });
-    
-    // Ripristina selezione precedente
-    if (currentSelection) {
-        foglioSelect.value = currentSelection;
     }
 }
 
@@ -200,7 +167,6 @@ function applyCurrentFiltersToMap() {
     const filter = buildMapFilter();
     
     map.setFilter('catastale-base', filter);
-    map.setFilter('catastale-hover', ['==', ['get', 'fid'], '']);
     map.setFilter('catastale-outline', filter);
     
     // Riapplica il tema corrente
@@ -209,13 +175,6 @@ function applyCurrentFiltersToMap() {
     } else {
         showBaseLegenda();
     }
-    
-    // Aggiorna legenda dopo un ritardo
-    setTimeout(() => {
-        if (typeof forceLegendUpdate === 'function') {
-            forceLegendUpdate();
-        }
-    }, 800);
 }
 
 function buildMapFilter() {
@@ -276,4 +235,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-console.log('✅ dynamic-filters.js caricato - Versione Completa');
+console.log('✅ dynamic-filters.js caricato');

@@ -74,11 +74,6 @@ function extendedResetMap() {
         resetMap();
     }
     
-    // Forza aggiornamento legenda
-    if (typeof forceLegendUpdate === 'function') {
-        setTimeout(forceLegendUpdate, 500);
-    }
-    
     console.log('✅ Reset completo esteso completato');
 }
 
@@ -118,37 +113,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 console.log('📦 Moduli caricati: config, map-init, dynamic-filters, event-handlers, filters, utils');
-
-// ===== NUOVE FUNZIONI UTILITY =====
-/**
- * Forza l'aggiornamento della legenda
- */
-function forceLegendUpdate() {
-    if (typeof window.forceLegendUpdate === 'function') {
-        window.forceLegendUpdate();
-    }
-}
-
-/**
- * Applica un tema con aggiornamento legenda
- */
-function applyThemeWithLegendUpdate(themeKey) {
-    if (themeKey === 'landuse' || themeKey === '' || !themeKey) {
-        removeTheme();
-    } else {
-        applyTheme(themeKey);
-    }
-    
-    // Forza aggiornamento legenda dopo un ritardo
-    setTimeout(() => {
-        if (typeof forceLegendUpdate === 'function') {
-            forceLegendUpdate();
-        }
-    }, 300);
-}
-
-// Override della funzione originale di tematizzazione
-const originalActivateTheme = window.activateTheme;
-window.activateTheme = function(themeKey) {
-    applyThemeWithLegendUpdate(themeKey);
-};

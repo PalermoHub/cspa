@@ -1,0 +1,233 @@
+/* ===== STILI LEGENDA DINAMICA ===== */
+/* Aggiungi questi stili al file cspa-3.css esistente */
+
+/* Fix dimensioni legenda per stabilità */
+.legend {
+    min-width: 280px !important;
+    max-width: 320px !important;
+    width: 300px !important;
+}
+
+.legend#legend {
+    transition: none !important; /* Disabilita transizioni che causano flickering */
+}
+
+/* Container item dinamico */
+.legend-item-dynamic {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease; /* Solo transizione colore, non dimensioni */
+    position: relative;
+    min-height: 24px;
+    height: 24px; /* Altezza fissa */
+}
+
+/* Evidenzia items con particelle */
+.legend-item-dynamic.has-particles {
+    background-color: rgba(255, 153, 0, 0.05);
+    border-left: 2px solid #ff9900;
+    padding-left: 4px;
+}
+
+.legend-item-dynamic:hover {
+    background-color: rgba(255, 153, 0, 0.1);
+}
+
+/* Label dinamico con layout flessibile */
+.legend-label-dynamic {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    font-size: 12px;
+    color: #34495e;
+    gap: 8px;
+}
+
+/* Nome categoria */
+.category-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+/* Statistiche categoria */
+.category-stats {
+    flex-shrink: 0;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 11px;
+    background-color: rgba(255, 153, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 153, 0, 0.3);
+    white-space: nowrap;
+}
+
+/* Item totale particelle */
+.legend-total-item {
+    margin-bottom: 12px;
+    padding: 10px;
+    background: linear-gradient(135deg, rgba(255, 153, 0, 0.1) 0%, rgba(255, 81, 0, 0.1) 100%);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 153, 0, 0.3);
+}
+
+.total-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: #2c3e50;
+}
+
+.total-stats {
+    font-weight: 700;
+    color: #ff5100;
+    font-size: 14px;
+}
+
+/* Progress bar */
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff9900 0%, #ff5100 100%);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+    box-shadow: 0 1px 3px rgba(255, 81, 0, 0.3);
+    will-change: width; /* Ottimizza solo il cambio larghezza */
+}
+
+/* Separatore */
+.legend-separator {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #ddd, transparent);
+    margin: 8px 0;
+}
+
+/* Animazione conteggio */
+@keyframes countUpdate {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.category-stats.updating {
+    animation: countUpdate 0.3s ease;
+}
+
+/* Legenda espansa per spazio extra */
+.legend.expanded {
+    min-width: 280px;
+    max-width: 320px;
+}
+
+/* Responsività per statistiche */
+@media (max-width: 768px) {
+    .legend-label-dynamic {
+        font-size: 11px;
+    }
+    
+    .category-stats {
+        font-size: 10px;
+        padding: 1px 4px;
+    }
+    
+    .total-stats {
+        font-size: 12px;
+    }
+    
+    .legend-item-dynamic {
+        margin-bottom: 6px;
+        padding: 3px 4px;
+    }
+}
+
+/* Tooltip per hover (opzionale) */
+.legend-item-dynamic[title] {
+    cursor: help;
+}
+
+/* Stile per legenda quando non ci sono particelle */
+.legend-item-dynamic:not(.has-particles) {
+    opacity: 0.6;
+}
+
+.legend-item-dynamic:not(.has-particles) .category-stats {
+    background-color: rgba(128, 128, 128, 0.1);
+    border-color: rgba(128, 128, 128, 0.2);
+    color: #999;
+}
+
+/* Transizioni smooth per aggiornamenti - DISABILITATE per stabilità */
+.legend-items {
+    transition: none !important;
+}
+
+/* NO animazioni che causano resize */
+.category-stats {
+    transition: none !important;
+    animation: none !important;
+}
+
+/* Indicatore di caricamento */
+.legend.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ff9900;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Stile per legenda con filtri attivi */
+.legend-filter-indicator {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 6px;
+    background-color: #2196f3;
+    color: white;
+    font-size: 10px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+/* Migliora la visibilità dei colori nella legenda */
+.legend-color {
+    width: 20px;
+    height: 15px;
+    margin-right: 10px;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}

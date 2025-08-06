@@ -106,6 +106,13 @@ const seismicRiskLabels = {
     "low": "Basso rischio"
 };
 
+// Aggiungi in fondo:
+document.addEventListener('filterChanged', () => {
+    if (typeof updateDynamicLegend === 'function') {
+        setTimeout(updateDynamicLegend, 300);
+    }
+}); 
+
 // Variabili globali
 let map;
 let currentTheme = 'landuse';
@@ -113,5 +120,4 @@ let hoveredPolygon = null;
 let currentMandamentoFilter = null;
 let currentFoglioFilter = null;
 let featuresData = [];
-
-// Note: availableFogli è stata rimossa perché viene gestita in unified-filters.js
+let availableFogli = [];
