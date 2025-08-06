@@ -26,8 +26,6 @@ Applicazione web sviluppata attraverso una collaborazione human-[Claude AI (Anth
 
 ![social card](img/img_03.png)
 
-![social card](img/img_01.png)
-
 ![social card](img/img_02.png)
 
 
