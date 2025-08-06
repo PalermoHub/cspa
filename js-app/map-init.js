@@ -60,7 +60,7 @@ function createMapStyle() {
                 type: 'raster',
                 source: 'carto-light',
                 minzoom: 0,
-                maxzoom: 17
+                maxzoom: 18
             },
             {
                 id: 'satellite-layer',
