@@ -23,3 +23,9 @@ Applicazione web sviluppata attraverso una collaborazione human-[Claude AI (Anth
 [@gbvitrano](https://www.linkedin.com/in/gbvitrano/) by [@opendatasicilia](https://x.com/opendatasicilia "@opendatasicilia") - 2025 - [Licenza CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.it)
 
 ![social card](img/social_card_02.png)
+
+![social card](img/img_01.png)
+
+![social card](img/img_02.png)
+
+![social card](img/img_03.png)
