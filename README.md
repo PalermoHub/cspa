@@ -1,4 +1,4 @@
-#### **Studio Demografico e Socio-Economico del Centro Storico di Palermo**
+# Studio Demografico e Socio-Economico del Centro Storico di Palermo
 Un'innovativa piattaforma di analisi geospaziale che trasforma i dati catastali e demografici in **insights** strategici per la comprensione del tessuto urbano palermitano.
 #### **Funzionalità principali:**
 - **Visualizzazione Intelligente** - Esplora le particelle catastali con classificazione automatica dell'uso del suolo e indicatori territoriali avanzati.
