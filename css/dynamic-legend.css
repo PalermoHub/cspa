@@ -12,11 +12,20 @@
     overflow: auto;
 }
 		        /* Responsive */
+
+
+        @media (min-width: 240px) and (max-width: 400px){  .legend {left: 10px!important; min-width: 180px !important;
+    max-width: 350px !important;  width: 266px !important;  top: 465px;   height: calc(32vh - 10px); overflow-y: auto; }}	
+	
+	        @media (min-width: 401px) and (max-width: 450px){  .legend {left: 10px!important; min-width: 180px !important;
+    max-width: 350px !important;  width: 266px !important;  top: 530px;   height: calc(36vh - 10px); overflow-y: auto; }}
+
+	        @media (min-width: 451px) and (max-width: 540px){  .legend {left: 10px!important; min-width: 180px !important;
+    max-width: 350px !important;  width: 266px !important;  top: 405px;   height: calc(40vh - 10px); overflow-y: auto; }}	
+	
       @media (min-width: 737px) and (max-width: 768px){  .legend {left: 10px!important; min-width: 180px !important;
     max-width: 350px !important;  width: 320px !important;  top: 530px;   height: calc(45vh - 10px); overflow-y: auto; }}	
-
-        @media (min-width: 390px) and (max-width: 450px){  .legend {left: 10px!important; min-width: 180px !important;
-    max-width: 350px !important;  width: 266px !important;  top: 530px;   height: calc(36vh - 10px); overflow-y: auto; }}	
+	
 
 .legend#legend {
     transition: none !important; /* Disabilita transizioni che causano flickering */

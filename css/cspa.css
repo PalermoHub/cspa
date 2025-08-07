@@ -428,6 +428,17 @@ body {
 }
 
 /* Responsive - Tablet */
+
+	           @media (min-width: 240px) and (max-width: 400px){ 
+		#map { top: 105px; }
+		.search-control { width: 350px!important; }
+			.control-panel { top: 165px!important;  }}	
+
+	        @media (min-width: 451px) and (max-width: 540px){ 
+		#map { top: 86px; }
+			.control-panel { top: 100px!important;  }}	
+
+
 @media (max-width: 768px) {
     .control-panel {
         width: calc(100vw - 450px);
@@ -471,7 +482,7 @@ body {
 }
 
 /* Responsive - Mobile */
-@media (max-width: 450px) {
+@media (min-width: 401px) and (max-width: 450px) {
 	#map { top: 85px; }
 	
 	.search-control { width: 375px!important; }
