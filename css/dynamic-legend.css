@@ -3,10 +3,20 @@
 
 /* Fix dimensioni legenda per stabilità */
 .legend {
-    min-width: 280px !important;
-    max-width: 320px !important;
-    width: 300px !important;
+    min-width: 160px !important;
+    max-width: 300px !important;
+    width: auto !important;
+    min-height: 100px!important;
+    max-height: 1000px!important;
+    height: auto; !important;
+    overflow: auto;
 }
+		        /* Responsive */
+      @media (min-width: 737px) and (max-width: 768px){  .legend {left: 10px!important; min-width: 180px !important;
+    max-width: 350px !important;  width: 320px !important;  top: 530px;   height: calc(45vh - 10px); overflow-y: auto; }}	
+
+        @media (min-width: 390px) and (max-width: 450px){  .legend {left: 10px!important; min-width: 180px !important;
+    max-width: 350px !important;  width: 266px !important;  top: 530px;   height: calc(36vh - 10px); overflow-y: auto; }}	
 
 .legend#legend {
     transition: none !important; /* Disabilita transizioni che causano flickering */
@@ -55,6 +65,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     font-weight: 500;
+	 font-size: 11px;
 }
 
 /* Statistiche categoria */
@@ -62,7 +73,7 @@
     flex-shrink: 0;
     font-weight: 600;
     color: #2c3e50;
-    font-size: 11px;
+    font-size: 10px;
     background-color: rgba(255, 153, 0, 0.1);
     padding: 2px 6px;
     border-radius: 3px;
@@ -84,14 +95,15 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 6px;
-    font-size: 13px;
+    font-size: 12px;
     color: #2c3e50;
-}
+	    }
 
 .total-stats {
     font-weight: 700;
     color: #ff5100;
-    font-size: 14px;
+    font-size: 12x;
+	padding-left: 2px;
 }
 
 /* Progress bar */
