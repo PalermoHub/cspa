@@ -15,7 +15,7 @@
 
 
         @media (min-width: 240px) and (max-width: 400px){  .legend {left: 10px!important; min-width: 180px !important;
-    max-width: 350px !important;  width: 266px !important;  top: 465px;   height: calc(32vh - 10px); overflow-y: auto; }}	
+    max-width: 350px !important;  width: 264px !important;  top: 470px;   height: calc(32vh - 10px); overflow-y: auto; }}	
 	
 	        @media (min-width: 401px) and (max-width: 450px){  .legend {left: 10px!important; min-width: 180px !important;
     max-width: 350px !important;  width: 266px !important;  top: 530px;   height: calc(36vh - 10px); overflow-y: auto; }}
