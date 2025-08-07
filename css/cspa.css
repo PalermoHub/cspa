@@ -556,6 +556,13 @@ body {
 
 #beta { 
     position: fixed; 
+    bottom: 40px; 
+    right: 20px; 
+    z-index: 1500;
+}
+
+#hub { 
+    position: fixed; 
     top: 16px; 
     right: 20px; 
     z-index: 1500;
