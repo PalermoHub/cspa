@@ -6,25 +6,35 @@
     min-width: 160px !important;
     max-width: 300px !important;
     width: auto !important;
-    min-height: 100px!important;
-    max-height: 1000px!important;
-    height: auto; !important;
-    overflow: auto;
+    min-height: 10vh;
+    max-height: 100vh;
+    height: calc(40vh - 20px);
+      overflow: auto !important;
 }
-		        /* Responsive */
+		        /* Responsive 
 
 
-        @media (min-width: 240px) and (max-width: 400px){  .legend {left: 10px!important; min-width: 180px !important;
-    max-width: 350px !important;  width: 264px !important;  top: 470px;   height: calc(32vh - 10px); overflow-y: auto; }}	
+        @media (min-width: 240px) and (max-width: 400px){ .legend {height: calc(32vh - 20px);}
+             .floating-panel {	top: 155px !important;	}
+			 .panel-toggle { top: 155px!important;  }
+			 .panel-toggle.panel-open  { top: 155px!important;  }
 	
-	        @media (min-width: 401px) and (max-width: 450px){  .legend {left: 10px!important; min-width: 180px !important;
-    max-width: 350px !important;  width: 266px !important;  top: 530px;   height: calc(36vh - 10px); overflow-y: auto; }}
+	        @media (min-width: 401px) and (max-width: 450px){ .legend {height: calc(32vh - 20px);}
+             .floating-panel {	top: 155px !important;	height: calc(93vh - 80px) !important;	}
+			 .panel-toggle { top: 155px!important;  }
+			 .panel-toggle.panel-open  { top: 155px!important;  }
+			}	
 
-	        @media (min-width: 451px) and (max-width: 540px){  .legend {left: 10px!important; min-width: 180px !important;
-    max-width: 350px !important;  width: 266px !important;  top: 405px;   height: calc(40vh - 10px); overflow-y: auto; }}	
+	        @media (min-width: 451px) and (max-width: 540px){ 
+			.legend {height: calc(32vh - 20px);}
+             .floating-panel {	top: 110px !important;	height: calc(93vh - 80px) !important;	}
+			 .panel-toggle { top: 110px!important;  }
+			 .panel-toggle.panel-open  { top: 110px!important;  }
+			}	
 	
-      @media (min-width: 737px) and (max-width: 768px){  .legend {left: 10px!important; min-width: 180px !important;
-    max-width: 350px !important;  width: 320px !important;  top: 530px;   height: calc(45vh - 10px); overflow-y: auto; }}	
+	  @media (min-width: 401px) and (max-width: 450px){.legend {height: calc(34vh - 20px); }}
+	
+      @media (min-width: 737px) and (max-width: 768px){  .legend {height: calc(39vh - 20px); }}	*/
 	
 
 .legend#legend {
@@ -42,6 +52,7 @@
     position: relative;
     min-height: 24px;
     height: 24px; /* Altezza fissa */
+	  
 }
 
 /* Evidenzia items con particelle */
