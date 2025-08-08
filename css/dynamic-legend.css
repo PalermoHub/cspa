@@ -11,31 +11,7 @@
     height: calc(40vh - 20px);
       overflow: auto !important;
 }
-		        /* Responsive 
-
-
-        @media (min-width: 240px) and (max-width: 400px){ .legend {height: calc(32vh - 20px);}
-             .floating-panel {	top: 155px !important;	}
-			 .panel-toggle { top: 155px!important;  }
-			 .panel-toggle.panel-open  { top: 155px!important;  }
-	
-	        @media (min-width: 401px) and (max-width: 450px){ .legend {height: calc(32vh - 20px);}
-             .floating-panel {	top: 155px !important;	height: calc(93vh - 80px) !important;	}
-			 .panel-toggle { top: 155px!important;  }
-			 .panel-toggle.panel-open  { top: 155px!important;  }
-			}	
-
-	        @media (min-width: 451px) and (max-width: 540px){ 
-			.legend {height: calc(32vh - 20px);}
-             .floating-panel {	top: 110px !important;	height: calc(93vh - 80px) !important;	}
-			 .panel-toggle { top: 110px!important;  }
-			 .panel-toggle.panel-open  { top: 110px!important;  }
-			}	
-	
-	  @media (min-width: 401px) and (max-width: 450px){.legend {height: calc(34vh - 20px); }}
-	
-      @media (min-width: 737px) and (max-width: 768px){  .legend {height: calc(39vh - 20px); }}	*/
-	
+			
 
 .legend#legend {
     transition: none !important; /* Disabilita transizioni che causano flickering */
@@ -176,27 +152,6 @@
 .legend.expanded {
     min-width: 280px;
     max-width: 320px;
-}
-
-/* Responsività per statistiche */
-@media (max-width: 768px) {
-    .legend-label-dynamic {
-        font-size: 11px;
-    }
-    
-    .category-stats {
-        font-size: 10px;
-        padding: 1px 4px;
-    }
-    
-    .total-stats {
-        font-size: 12px;
-    }
-    
-    .legend-item-dynamic {
-        margin-bottom: 6px;
-        padding: 3px 4px;
-    }
 }
 
 /* Tooltip per hover (opzionale) */

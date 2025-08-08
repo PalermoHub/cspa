@@ -1,5 +1,4 @@
 
-
         /* PANNELLO FLOTTANTE INTEGRATO */
         .floating-panel {
             position: fixed;
@@ -339,49 +338,8 @@
             font-size: 12px;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .floating-panel {
-                width: 280px;
-                left: -280px;
-            }
 
-            .panel-toggle.panel-open {
-                left: 280px;
-            }
 
-            .controls-section, .legend-section {
-                padding: 15px;
-            }
-
-            .resize-handle {
-                display: none;
-            }
-
-            .controls-section {
-                min-height: 200px;
-            }
-
-            .legend-section {
-                min-height: 150px;
-            }
-        }
-
-        @media (max-width: 480px) {
-			.panel-toggle { top: 125px;  }
-				
-            .floating-panel {
-                width: 260px;
-                left: -270px;
-				top: 125px;
-				  height: calc(92vh - 80px);
-            }
-
-            .panel-toggle.panel-open {
-                left: 260px;
-				top: 125px;
-            }
-        }
 		
 /* Stile generale della barra di scorrimento */
 ::-webkit-scrollbar {

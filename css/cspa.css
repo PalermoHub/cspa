@@ -84,16 +84,17 @@ body {
 
 #map { 
     position: absolute; 
-    top: 60px;
+    top: 0px;
     bottom: 0; 
     width: 100%; 
-    height: calc(100vh - 60px);
+	height: 100%
+  /*  height: calc(100vh - 60px);*/
 }
 
 /* Pannello controlli */
 .control-panel {
     position: absolute;
-    top: 80px;
+    top: 50px;
     left: 10px;
     bottom: 10px;
     z-index: 1000;
@@ -386,7 +387,7 @@ body {
 /* Fix Map Controls Position */
 .maplibregl-ctrl-top-right,
 .mapboxgl-ctrl-top-right {
-    top: 20px !important;
+    top: 70px !important;
     right: 10px !important;
 }
 
@@ -427,40 +428,9 @@ body {
     transform: rotate(-125deg);
 }
 
-/* Responsive - Tablet */
-
-	           @media (min-width: 240px) and (max-width: 400px){ 
-		#map { top: 105px; }
-	/*	.search-control { width: 350px!important; }
-			.control-panel { top: 165px!important; */ }}	
-
-	/*        @media (min-width: 451px) and (max-width: 540px){ 
-		#map { top: 86px; }
-			.control-panel { top: 100px!important;  }}	*/
 
 
-@media (max-width: 768px) {
-    .control-panel {
-        width: calc(100vw - 450px);
-        max-width: calc(100vw - 450px);
-        max-height: 40vh;
-        overflow-y: auto;
-        top: 80px;
-    }
-    
-    .info-panel {
-        width: calc(100vw - 20px);
-        max-width: calc(100vw - 20px);
-        right: -100vw;
-    }
-    
-    .info-panel.visible {
-        right: 10px;
-    }
-    
-    .info-panel {
-        top: 80px;
-    }
+
     
     /* Fix legend position on tablet 
     .legend {
@@ -821,7 +791,7 @@ hr {
             }
         }
 
-        /* Media Queries specifiche per il loader */
+        /* Media Queries specifiche per il loader
         @media (max-width: 768px) {
             .loader-content-wrapper {
                 padding: 15px;
@@ -834,7 +804,7 @@ hr {
             .loader {
                 margin-bottom: 15px;
             }
-        }
+        } */
 
         /* Fix per dispositivi molto piccoli */
         @media (max-width: 400px) {

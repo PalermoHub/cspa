@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <title>Studio Demografico e Socio-Economico del Centro Storico di Palermo</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="https://palermohub.opendatasicilia.it/favicon.ico"/> 
     <link rel="icon" href="https://palermohub.opendatasicilia.it/favicon.png" type="image/png"/> 
     <link rel="stylesheet" href="css/cspa.css"> <link rel="stylesheet" href="css/cspa_responsive.css"> <link rel="stylesheet" href="css/dynamic-legend.css">     <link rel="stylesheet" href="css/floating-panel.css">
-    
+  
    <!--  FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -45,6 +45,16 @@
     </style>
 </head>
 <body>
+	   <!-- Palermo hub -->
+	   
+    <div id="hub"><a href="https://palermohub.opendatasicilia.it/" title="PalermoHub" target="_blank"> 
+        <img src="img/pa_hub.png" width="224" title="PalermoHub di opendatasicilia.it è un contenitore di mappe realizzate/rielaborate da liberi cittadini o da civic hackers prevalentemente sul territorio comunale di Palermo, non ha alcun intento commerciale, l’unica finalità è mostrare le possibilità di rielaborazione e comunicazione offerte dagli open data o dati pubblici comunali, regionali e nazionali." alt="PalermoHub"> </a>
+    </div>    
+
+    <!-- Beta version badge -->
+    <div id="beta"> 
+        <img src="https://palermohub.opendatasicilia.it/legend/beta.png" width="40" title="beta version" alt="beta version"> 
+    </div>
     <!-- Popup overlay e contenuto informazioni -->
     <div class="popup-overlay" id="popup-overlay" onclick="closeInfoPopup()"></div>
     <div class="info-popup" id="info-popup">
@@ -86,6 +96,8 @@
 	  <div class="header">
         <h1><img src="img/logo_cs.svg" alt="cspa" width="40" height="40"/> Studio Demografico e Socio-Economico del Centro Storico di Palermo</h1>
     </div>
+	
+
 
     <div id="map"></div>
 	
@@ -265,16 +277,6 @@
         </a>
     </div>    -->
 
-
-    <!-- Palermo hub -->
-    <div id="hub"><a href="https://palermohub.opendatasicilia.it/" title="PalermoHub" target="_blank"> 
-        <img src="img/pa_hub.png" width="224" title="PalermoHub di opendatasicilia.it è un contenitore di mappe realizzate/rielaborate da liberi cittadini o da civic hackers prevalentemente sul territorio comunale di Palermo, non ha alcun intento commerciale, l’unica finalità è mostrare le possibilità di rielaborazione e comunicazione offerte dagli open data o dati pubblici comunali, regionali e nazionali." alt="PalermoHub"> </a>
-    </div>    
-
-    <!-- Beta version badge -->
-    <div id="beta"> 
-        <img src="https://palermohub.opendatasicilia.it/legend/beta.png" width="40" title="beta version" alt="beta version"> 
-    </div>
 
     <!-- Loader -->
     <div class="loader-container" id="loader">

@@ -1,0 +1,92 @@
+@media only screen and (min-width: 1440px) and (max-width: 1919px) {
+
+
+
+ }
+
+ 
+
+
+@media only screen and (min-width: 1200px) and (max-width: 1439px) {
+
+ }	
+
+
+@media only screen and (min-width: 1024px) and (max-width: 1199px) {
+/* Fix Map Controls Position */
+.maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top:80px !important; }
+.header h1 {font-size: 1.5rem !important; }
+
+
+.control-panel { top: 50px !important; }
+.panel-toggle { top: 100px!important;   }		
+.floating-panel { width: 260px; left: -270px; top: 100px!important;  height: calc(89vh - 10px)!important;         }
+.panel-toggle.panel-open { left: 260px;	top: 100px!important;     }		
+
+
+
+/* Responsività per statistiche */
+.legend-label-dynamic {font-size: 11px; }
+.category-stats {font-size: 10px;    padding: 1px 4px;   }
+.total-stats {font-size: 12px;  }
+.legend-item-dynamic {margin-bottom: 6px;padding: 3px 4px; }
+
+ }				
+
+
+@media only screen and (min-width: 768px) and (max-width: 1023px) {
+/* Fix Map Controls Position */
+.maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top: 95px !important; }
+.header h1 {font-size: 1.75rem; }
+#hub {display: none;  }
+#beta {  right: 10%;      bottom: 50px;     z-index: 10000; }
+
+.panel-toggle { top: 100px!important;   }		
+.floating-panel { width: 260px; left: -270px; top: 100px!important;  height: calc(89vh - 10px)!important;         }
+.panel-toggle.panel-open { left: 260px;	top: 100px!important;     }		
+
+.info-panel { top: 100px!important; height: calc(90vh - 20px);   }		
+
+/* Responsività per statistiche */
+.legend-label-dynamic {font-size: 11px; }
+.category-stats {font-size: 10px;    padding: 1px 4px;   }
+.total-stats {font-size: 12px;  }
+.legend-item-dynamic {margin-bottom: 6px;padding: 3px 4px; }
+
+ /* Media Queries specifiche per il loader */
+ .loader-content-wrapper { padding: 15px;}			
+ .loading-static-content {margin-bottom: 20px;   } 
+ .loader {  margin-bottom: 15px;        } 
+ 
+			    
+     /*   .floating-panel {      width: 280px;   left: -280px;       }
+            .panel-toggle.panel-open {left: 280px;  }
+            .controls-section, .legend-section { padding: 15px;   }
+           .resize-handle {  display: none;   }
+           .controls-section {min-height: 200px; }
+           .legend-section { min-height: 150px; }   */		
+ }				
+
+
+ /* Fix per iPhone SE e dispositivi simili */
+@media only screen and (min-width: 375px) and (max-width: 767px) {
+			/* Fix Map Controls Position */
+.maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top: 80px !important; }
+.header h1 {font-size: .85rem; }
+#hub {display: none;  }
+#beta {  right: 10%;      bottom: 50px;     z-index: 10000; }
+.controls-section h2 { font-size: 14px!important;}
+.legend-section h2 { font-size: 14px!important;}
+
+.panel-toggle { top: 80px;  }		
+.floating-panel {width: 260px; left: -270px; top: 80px; height: calc(82vh - 10px)!important;         }
+.panel-toggle.panel-open { left: 260px;	top: 80px;     }	
+
+/*.control-panel { width: calc(100vw - 450px); max-width: calc(100vw - 450px);  max-height: 40vh;   overflow-y: auto;  top: 40px; }*/
+    
+.info-panel { width: calc(100vw - 20px); max-width: calc(100vw - 20px); right: -100vw;  }   
+.info-panel.visible {right: 10px;  }
+.info-panel { top: 80px;  height: calc(84vh - 20px); }		
+
+ }
+			
