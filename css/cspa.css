@@ -397,38 +397,7 @@ body {
     margin: 10px 10px 0 0 !important;
 }
 
-/* Header 
-.header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: #ffffff;
-    color: white;
-    padding: 15px 20px;
-    z-index: 999;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-}
 
-.header h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #313131;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.header h1 i {
-    margin-right: 10px;
-    color: #667eea;
-}
-
-.header h1 img {
-    transform: rotate(-125deg);
-}
-*/
         /* NUOVO HEADER UNIFICATO */
         .unified-header {
             background: #ffffff;
@@ -461,7 +430,7 @@ body {
 
         .logo-cs:hover {
             transform: scale(1.1);
-            filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.5));
+            filter: brightness(0) invert(1) drop-shadow(0 0 10px #313131;
         }
 
         .header-title {
