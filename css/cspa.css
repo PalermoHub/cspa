@@ -397,7 +397,7 @@ body {
     margin: 10px 10px 0 0 !important;
 }
 
-/* Header */
+/* Header 
 .header {
     position: absolute;
     top: 0;
@@ -428,11 +428,85 @@ body {
 .header h1 img {
     transform: rotate(-125deg);
 }
+*/
+        /* NUOVO HEADER UNIFICATO */
+        .unified-header {
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 0px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1000;
+           /* min-height: 80px;*/
+			height: 70px;
+        }
 
+        /* LATO SINISTRO - Logo CS + Titolo */
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
 
+        .logo-cs {
+            width: 45px;
+            height: 45px;
+           /* filter: brightness(0) invert(1);  Rende il logo bianco */
+            transition: all 0.3s ease;
+			transform: rotate(-125deg);
+        }
 
+        .logo-cs:hover {
+            transform: scale(1.1);
+            filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.5));
+        }
+
+        .header-title {
+            color: #313131;
+            font-size: 1.4rem;
+            font-weight: 600;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin: 0;
+        }
+
+        /* LATO DESTRO - Logo PalermoHub */
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .palermo-hub-link {
+            display: block;
+            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .palermo-hub-link:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .palermo-hub-logo {
+            height: 45px;
+            width: auto;
+            filter: brightness(1.1);
+            transition: all 0.3s ease;
+			    margin-right: -15px;
+        }
+
+        .palermo-hub-link:hover .palermo-hub-logo {
+            filter: brightness(1.3);
+        }
 
     
+	
+	
     /* Fix legend position on tablet 
     .legend {
         left: 10px;
@@ -515,14 +589,14 @@ h1 { font-size: 1rem!important;}
     right: 20px; 
     z-index: 1500;
 }
-
+/*
 #hub { 
     position: fixed; 
     top: 16px; 
     right: 20px; 
     z-index: 1500;
 }
-
+*/
 hr {
     border: 0;
     height: 1px;

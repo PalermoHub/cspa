@@ -23,8 +23,6 @@
 @media only screen and (min-width: 1024px) and (max-width: 1199px) {
 /* Fix Map Controls Position */
 .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top:75px !important; }
-#hub { left: 59%;!important; }	
-.header h1 {font-size: 1.5rem;}
 .controls-section h2 { font-size: 14px!important;}
 .legend-section h2 { font-size: 14px!important;}
 
@@ -45,7 +43,6 @@
  }				
 
 @media only screen and (min-width: 853px) and (max-width: 1023px) {
-#hub { top: 27px;}	
 .header h1 {font-size: 1.5rem; white-space: normal; width: 70%;}
 .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top: 110px !important; }
 .panel-toggle { top: 110px!important;   }		
@@ -60,8 +57,6 @@
 @media only screen and (min-width: 768px) and (max-width: 852px) {
 /* Fix Map Controls Position */
 .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top: 80px !important; }
-.header h1 {font-size: 1.35rem; }
-#hub {display: none;  }
 #beta {  right: 10%;      bottom: 50px;     z-index: 10000; }
 
 .panel-toggle { top: 80px!important;   }		
@@ -88,8 +83,10 @@
 @media only screen and (min-width: 320px) and (max-width: 767px) {
 			/* Fix Map Controls Position */
 .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top: 80px !important; }
-.header h1 {font-size: 1rem; }
-#hub {display: none;  }
+.palermo-hub-logo {display: none;  }
+.header-title {font-size: 1.09rem;}
+.logo-cs { margin-left: -10px;  }
+ 
 #beta {  right: 10%;      bottom: 50px;     z-index: 10000; }
 .controls-section h2 { font-size: 14px!important;}
 .legend-section h2 { font-size: 14px!important;}
