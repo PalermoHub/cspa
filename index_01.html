@@ -7,9 +7,7 @@
     <link rel="shortcut icon" href="https://palermohub.opendatasicilia.it/favicon.ico"/> 
     <link rel="icon" href="https://palermohub.opendatasicilia.it/favicon.png" type="image/png"/> 
     <link rel="stylesheet" href="css/cspa.css">
-    <link rel="stylesheet" href="css/dynamic-legend.css"> 
-<link rel="stylesheet" href="css/floating-panel.css"> 	
-	
+    <link rel="stylesheet" href="css/dynamic-legend.css">    
    <!--  FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -42,9 +40,6 @@
 
   gtag('config', 'G-KHR1GHDRQS');
 </script>
- <style>
-
-    </style>
 </head>
 <body>
     <!-- Popup overlay e contenuto informazioni -->
@@ -90,30 +85,6 @@
     </div>
 
     <div id="map"></div>
-	
-	        <div class="info-panel" id="info-panel">
-        <div class="info-panel-header">
-            <div>
-                <h2 id="panel-title">Dettagli Particella</h2>
-                <div id="panel-subtitle" style="font-size: 14px; opacity: 0.9; margin-top: 4px;"></div>
-            </div>
-            <button class="close-panel" onclick="closeInfoPanel()"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="info-content" id="info-content">
-            <p style="text-align: center; color: #7f8c8d; margin-top: 50px;">
-                Clicca su una particella per visualizzarne i dettagli
-            </p>
-        </div>
-    </div>
-	
-    <!-- PANNELLO FLOTTANTE INTEGRATO CON LEGENDA -->
-    <div class="floating-panel" id="floating-panel">
-        <!-- Indicatore Sezione Controlli -->
-        <div class="section-indicator active" id="controls-indicator"></div>
-        
-        <!-- Sezione Controlli (ridimensionabile) -->
-        <div class="controls-section" id="controls-section">
-            <h2><i class="fas fa-cogs"></i> Controlli</h2>	
     
     <div class="control-panel">
         <div class="control-section">
@@ -220,32 +191,26 @@
             </label>
         </div>
     </div>
-
-            <!-- Handle per ridimensionamento -->
-            <div class="resize-handle" id="resize-handle"></div>
+    
+    <div class="info-panel" id="info-panel">
+        <div class="info-panel-header">
+            <div>
+                <h2 id="panel-title">Dettagli Particella</h2>
+                <div id="panel-subtitle" style="font-size: 14px; opacity: 0.9; margin-top: 4px;"></div>
+            </div>
+            <button class="close-panel" onclick="closeInfoPanel()"><i class="fas fa-times"></i></button>
         </div>
-        
-        <!-- Sezione Legenda INTEGRATA -->
-        <div class="legend-section">
-            <h2><i class="fas fa-list-ul"></i> Legenda</h2>
-			    <div class="legend" id="legend">
+        <div class="info-content" id="info-content">
+            <p style="text-align: center; color: #7f8c8d; margin-top: 50px;">
+                Clicca su una particella per visualizzarne i dettagli
+            </p>
+        </div>
+    </div>
+    
+    <div class="legend" id="legend">
         <h4 id="legend-title">Legenda</h4>
         <div id="legend-items"></div>
     </div>
-   </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Pulsante Toggle Pannello -->
-    <button class="panel-toggle" id="panel-toggle" onclick="toggleFloatingPanel()">
-        <i class="fas fa-bars" id="toggle-icon"></i>
-    </button>
-
-    
-
 
     <!-- JAVASCRIPT FILES - STRUTTURA MODULARE CORRETTA -->  
     <script src="js-app/config.js"></script>
@@ -278,33 +243,18 @@
         <img src="https://palermohub.opendatasicilia.it/legend/beta.png" width="40" title="beta version" alt="beta version"> 
     </div>
 
-    <!-- Loader -->
-    <div class="loader-container" id="loader">
-        <div class="loader-content-wrapper">
-            <!-- Testo statico durante il caricamento -->
-            <div class="loading-static-content">
-                <h3>Studio Demografico e Socio-Economico del Centro Storico di Palermo</h3>
-                <p>
+    
+    <!-- Caricamento -->
+    <div class="custom-loader" id="custom-loader">
+        <div class="spinner"></div>
+        <div class="loader-text">
+            Analisi geospaziale in esecuzione...<br><br>
+            <h2>Studio Demografico e Socio-Economico del Centro Storico di Palermo</h2>
+            <p style="margin-top: 20px; font-size: 14px; opacity: 0.8;">
                 🔄 Inizializzazione filtri dinamici interconnessi...<br>
                 📊 Caricamento dati catastali e demografici...<br>
                 🗺️ Preparazione tematizzazioni avanzate...
-                </p>
-            </div>
-            
-            <!-- Animazione del loader -->
-            <div class="loader">
-                <div class="loader-circle"></div>
-                <div class="loader-circle"></div>
-                <div class="loader-circle"></div>
-                <div class="loader-dot"></div>
-            </div>
-            
-            <div class="loader-text">CARICAMENTO</div>
-            
-            <!-- Barra di progresso -->
-            <div class="progress-bar-container">
-                <div class="progress-bar1"></div>
-            </div>
+            </p>
         </div>
     </div>
 
@@ -327,78 +277,18 @@
         }
     </style>
 
-<!-- SCRIPT COMPLETO DEL LOADER -->
     <script>
-        // Funzione per gestire il loader
-        (function() {
-            'use strict';
-            
-            // Aggiungi classe al body quando il loader è attivo
-            document.body.classList.add('loading-active');
-            
-            // Funzione per nascondere il loader
-            function hideLoader() {
-                const loader = document.getElementById('loader');
-                if (loader) {
-                    loader.classList.add('hidden');
-                    document.body.classList.remove('loading-active');
-                }
-            }
-            
-            // Funzione per mostrare il loader
-            function showLoader() {
-                const loader = document.getElementById('loader');
-                if (loader) {
-                    loader.classList.remove('hidden');
-                    document.body.classList.add('loading-active');
-                }
-            }
-            
-            // Timer di sicurezza - nasconde il loader dopo massimo 8 secondi
-            const safetyTimer = setTimeout(function() {
-                console.log('Safety timer: hiding loader after 8 seconds');
-                hideLoader();
-            }, 9000);
-            
-            // Evento principale di caricamento
-            window.addEventListener('load', function() {
-                console.log('Page loaded, starting 5 second display timer');
-                
-                // Mostra il loader per 5 secondi dopo il caricamento
-                setTimeout(function() {
-                    console.log('Display timer complete, hiding loader');
-                    clearTimeout(safetyTimer); // Cancella il timer di sicurezza
-                    hideLoader();
-                }, 5000);
-            });
-            
-            // Gestione errori di caricamento
-            window.addEventListener('error', function(e) {
-                console.error('Loading error detected:', e);
-                // In caso di errore, nasconde il loader dopo 2 secondi
-                setTimeout(hideLoader, 2000);
-            });
-            
-            // Verifica se il DOM è già pronto (per casi edge)
-            if (document.readyState === 'complete') {
-                console.log('Document already complete, starting timer');
-                setTimeout(hideLoader, 5000);
-            }
-            
-            // Evento DOMContentLoaded come fallback
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('DOM Content Loaded');
-                // Non nasconde immediatamente, aspetta il timer principale
-            });
-            
-            // Esporta funzioni globalmente se necessario
-            window.loaderControl = {
-                show: showLoader,
-                hide: hideLoader
-            };
-            
-        })();
+        // Nasconde loader dopo inizializzazione
+        setTimeout(function() {
+            document.getElementById('custom-loader').style.display = 'none';
+        }, 4000);
+        
+        // Log di sistema per debug
+        console.log('🚀 CSPA - Centro Storico Palermo Analytics');
+        console.log('📦 Struttura modulare caricata');
+        console.log('🔗 Filtri dinamici interconnessi attivi');
+        console.log('🎯 Auto-centraggio filtri attivo');
+        console.log('✅ Sistema pronto');
     </script>
-   <script src="js-app/floating-panel.js"></script>	
 </body>
 </html>
