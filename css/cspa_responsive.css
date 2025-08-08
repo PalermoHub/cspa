@@ -7,7 +7,7 @@
 
 
 @media only screen and (min-width: 1440px) and (max-width: 1920px) {
-  .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top:70px !important; }
+  .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top:75px !important; }
   .floating-panel { width: 260px; left: -270px;  height: calc(100vh - 90px)!important;}
   .legend {	height: calc(40vh - 30px)!important; }
   .control-panel {height: calc(40vh - 30px)!important; }

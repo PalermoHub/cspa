@@ -12,9 +12,11 @@
             z-index: 1000;
             transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(10px);
-            border-right: 2px solid #31313173;
+            border-right: 1px solid #31313173;
             display: flex;
             flex-direction: column;
+			border-bottom: 1px solid #31313173;
+			border-top: 1px solid #31313173;
         }
 
         .floating-panel.open {
@@ -45,6 +47,7 @@
         .panel-toggle.panel-open {
             left: 300px;
            border-radius: 0px 8px 8px 0px;
+		   border-left: 1px solid #31313147;
         }
 
         .panel-toggle:hover {
@@ -58,7 +61,7 @@
             min-height: 250px;
             overflow-y: hidden;
             padding: 5px;
-            border-bottom: 2px solid #31313173;
+            border-bottom: 1px solid #31313173;
             background: white;
             position: relative;
         }
