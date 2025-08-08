@@ -6,7 +6,9 @@
 }
 
 
-@media only screen and (min-width: 1440px) and (max-width: 1919px) {
+@media only screen and (min-width: 1440px) and (max-width: 1920px) {
+	  .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top:70px !important; }
+  .floating-panel { width: 260px; left: -270px; top: 80px!important;  height: calc(97vh - 60px)!important;}
  }
 
 @media only screen and (min-width: 1200px) and (max-width: 1439px) {
