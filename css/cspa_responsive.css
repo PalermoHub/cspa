@@ -30,7 +30,7 @@
 
 .control-panel { top: 50px !important; }
 .panel-toggle { top: 80px!important;   }		
-.floating-panel { width: 260px; left: -270px; top:80px!important;  height: calc(94vh - 10px)!important;}
+.floating-panel { width: 260px; left: -270px; top:80px!important;  height: calc(90vh - 10px)!important;}
 .panel-toggle.panel-open { left: 260px;	top: 80px!important;     }		
 
 /* Responsività per statistiche */
@@ -39,8 +39,8 @@
 .total-stats {font-size: 12px;  }
 .legend-item-dynamic {margin-bottom: 6px;padding: 3px 4px; }
 
-.legend {	height: calc(43vh - 30px)!important; }
-.control-panel {height: calc(43vh - 30px)!important; }
+.legend {	height: calc(39vh - 30px)!important; }
+.control-panel {height: calc(38vh - 30px)!important; }
 
  }				
 
