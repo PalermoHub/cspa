@@ -44,7 +44,6 @@
  }				
 
 @media only screen and (min-width: 853px) and (max-width: 1023px) {
-.header h1 {font-size: 1.5rem; white-space: normal; width: 70%;}
 .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top: 110px !important; }
 .panel-toggle { top: 110px!important;   }		
 .floating-panel { width: 260px; left: -270px; top: 110px!important;  height: calc(89vh - 10px)!important; }
