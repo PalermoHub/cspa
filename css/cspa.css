@@ -105,7 +105,8 @@ body {
     min-width: 275px;
     backdrop-filter: blur(5px);
     overflow-y: auto;
-    max-height: calc(100vh - 100px);
+    max-height: calc(100vh - 30px);
+	height: calc(40vh - 30px);
 }
 
 .control-section {

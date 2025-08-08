@@ -7,15 +7,20 @@
 
 
 @media only screen and (min-width: 1440px) and (max-width: 1920px) {
-	  .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top:70px !important; }
-  .floating-panel { width: 260px; left: -270px; top: 80px!important;  height: calc(97vh - 60px)!important;}
+  .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top:70px !important; }
+  .floating-panel { width: 260px; left: -270px;  height: calc(100vh - 90px)!important;}
+  .legend {	height: calc(40vh - 30px)!important; }
+  .control-panel {height: calc(40vh - 30px)!important; }
  }
-
+ 
+ 
+/**/
 @media only screen and (min-width: 1200px) and (max-width: 1439px) {
+	.maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top:70px !important; }
  }	
 
 
-@media only screen and (min-width: 1021px) and (max-width: 1199px) {
+@media only screen and (min-width: 1024px) and (max-width: 1199px) {
 /* Fix Map Controls Position */
 .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top:70px !important; }
 .header h1 {font-size: 1.3rem !important; }
@@ -36,7 +41,7 @@
  }				
 
 
-@media only screen and (min-width: 768px) and (max-width: 1020px) {
+@media only screen and (min-width: 768px) and (max-width: 1023px) {
 /* Fix Map Controls Position */
 .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top: 95px !important; }
 .header h1 {font-size: 1.75rem; }

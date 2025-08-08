@@ -8,10 +8,10 @@
     width: auto !important;
     min-height: 10vh;
     max-height: 100vh;
-    height: calc(40vh - 20px);
+    height: calc(40vh - 30px);
       overflow: auto !important;
 }
-			
+		
 
 .legend#legend {
     transition: none !important; /* Disabilita transizioni che causano flickering */
