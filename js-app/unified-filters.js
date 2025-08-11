@@ -551,6 +551,14 @@ function resetUnifiedFilters() {
     currentMandamentoFilter = null;
     currentFoglioFilter = null;
     
+    // NUOVO: Reset filtri legenda
+    if (window.clearLegendFilters) {
+        window.clearLegendFilters();
+    }
+    
+    currentMandamentoFilter = null;
+    currentFoglioFilter = null;
+    
     // Reset UI
     const mandamentoSelect = document.getElementById('mandamento-filter');
     const foglioSelect = document.getElementById('foglio-filter');
@@ -585,6 +593,30 @@ function resetUnifiedFilters() {
 function getCurrentFilter() {
     return buildUnifiedMapFilter();
 }
+
+// Aggiungi dopo la funzione getCurrentFilter()
+window.getCombinedFilter = function() {
+    const territorialFilter = getCurrentFilter();
+    const legendFilter = window.legendFilterState && window.legendFilterState.isFiltering ? 
+        window.getCurrentLegendFilter() : null;
+    
+    if (territorialFilter && legendFilter) {
+        return ['all', territorialFilter, legendFilter];
+    }
+    return territorialFilter || legendFilter || null;
+};
+
+// Funzione helper per ottenere il filtro corrente della legenda
+window.getCurrentLegendFilter = function() {
+    if (!window.legendFilterState || window.legendFilterState.activeCategories.size === 0) {
+        return null;
+    }
+    
+    // Costruisci filtro basato sulle categorie selezionate
+    // (Logica già implementata in applyLegendFilters di dynamic-legend.js)
+    return null; // Placeholder - usa la logica da dynamic-legend.js
+};
+
 
 // ===== FUNZIONI UTILITY ESPORTATE =====
 

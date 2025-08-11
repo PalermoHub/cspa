@@ -1,7 +1,7 @@
 // ===== FILE: dynamic-legend.js =====
 /**
- * Sistema Legenda Dinamica con Conteggio Particelle in Tempo Reale
- * Versione stabile con dimensioni fisse
+ * Sistema Legenda Dinamica con Conteggio Particelle e Filtri Interattivi
+ * Versione 2.0 - Con supporto per filtri via legenda
  */
 
 // Costanti per il sistema legenda dinamica
@@ -11,171 +11,381 @@ let currentViewportStats = {};
 let isUpdatingLegend = false;
 let lastUpdateHash = '';
 let lastViewportState = { zoom: -1, center: [0, 0] };
-let isFilterApplied = false; // Nuova variabile per tracciare lo stato dei filtri
+let isFilterApplied = false;
+
+// NUOVO: Stato per filtri legenda
+window.legendFilterState = {
+    activeCategories: new Set(),
+    mode: 'all', // 'all' = mostra tutte, 'filter' = mostra solo selezionate
+    isFiltering: false
+};
 
 /**
  * Inizializza il sistema di legenda dinamica
  */
 function initializeDynamicLegend() {
-    console.log('🎯 Inizializzazione sistema legenda dinamica...');
+    console.log('🎯 Inizializzazione sistema legenda dinamica interattiva...');
     
     if (!map || !map.isSourceLoaded('palermo_catastale')) {
         setTimeout(initializeDynamicLegend, 1000);
         return;
     }
     
-    // Verifica il numero totale di particelle
     validateTotalParticles();
-    
-    // Aggiungi listener per aggiornamenti viewport
     setupViewportListeners();
     
-    // Aggiorna legenda iniziale
     setTimeout(() => {
         updateDynamicLegend();
     }, 500);
     
-    console.log('✅ Sistema legenda dinamica pronto');
+    console.log('✅ Sistema legenda dinamica interattiva pronto');
 }
 
 /**
- * Valida che il numero totale di particelle sia corretto
+ * NUOVO: Gestisce click su elemento legenda
  */
-function validateTotalParticles() {
+window.handleLegendItemClick = function(category, isCtrlPressed) {
+    console.log('🖱️ Click su legenda:', category, 'Ctrl:', isCtrlPressed);
+    
+    if (isCtrlPressed) {
+        // Ctrl+Click: aggiungi/rimuovi dalla selezione multipla
+        if (window.legendFilterState.activeCategories.has(category)) {
+            window.legendFilterState.activeCategories.delete(category);
+        } else {
+            window.legendFilterState.activeCategories.add(category);
+        }
+    } else {
+        // Click singolo: toggle o selezione esclusiva
+        if (window.legendFilterState.activeCategories.size === 1 && 
+            window.legendFilterState.activeCategories.has(category)) {
+            // Se è l'unico selezionato, deseleziona (mostra tutto)
+            window.legendFilterState.activeCategories.clear();
+        } else {
+            // Seleziona solo questo
+            window.legendFilterState.activeCategories.clear();
+            window.legendFilterState.activeCategories.add(category);
+        }
+    }
+    
+    // Applica filtri
+    applyLegendFilters();
+    
+    // Aggiorna UI legenda
+    updateLegendUI();
+    
+    // Mostra notifica
+    showLegendFilterNotification();
+};
+
+/**
+ * NUOVO: Applica filtri basati su selezione legenda
+ */
+function applyLegendFilters() {
+    let filter = null;
+    
+    if (window.legendFilterState.activeCategories.size > 0) {
+        window.legendFilterState.isFiltering = true;
+        
+        // Costruisci filtro basato sul tipo di tema corrente
+        if (currentTheme === 'landuse' || !currentTheme) {
+            // Filtro per uso del suolo
+            const conditions = Array.from(window.legendFilterState.activeCategories).map(cat => 
+                ['==', ['get', 'class'], cat]
+            );
+            filter = conditions.length === 1 ? conditions[0] : ['any', ...conditions];
+        } else {
+            const theme = themes[currentTheme];
+            if (theme) {
+                if (theme.type === 'categorical') {
+                    // Filtro per temi categorici
+                    const conditions = Array.from(window.legendFilterState.activeCategories).map(cat => {
+                        // Gestione speciale per valori che potrebbero essere in formati diversi
+                        if (currentTheme === 'flood_risk') {
+                            return ['==', ['downcase', ['coalesce', ['get', theme.property], '']], cat.toLowerCase()];
+                        }
+                        return ['==', ['get', theme.property], cat];
+                    });
+                    filter = conditions.length === 1 ? conditions[0] : ['any', ...conditions];
+                } else if (theme.type === 'jenks') {
+                    // Filtro per classi Jenks
+                    const conditions = Array.from(window.legendFilterState.activeCategories).map(cat => {
+                        const classIndex = parseInt(cat);
+                        if (isNaN(classIndex)) return null;
+                        
+                        const minVal = theme.jenksBreaks[classIndex];
+                        const maxVal = theme.jenksBreaks[classIndex + 1] || Infinity;
+                        
+                        return ['all',
+                            ['>=', ['get', theme.property], minVal],
+                            ['<', ['get', theme.property], maxVal]
+                        ];
+                    }).filter(c => c !== null);
+                    
+                    filter = conditions.length === 1 ? conditions[0] : ['any', ...conditions];
+                }
+            }
+        }
+    } else {
+        window.legendFilterState.isFiltering = false;
+    }
+    
+    // Combina con filtri territoriali esistenti (mandamento/foglio)
+    const territorialFilter = getCurrentFilter ? getCurrentFilter() : null;
+    
+    if (territorialFilter && filter) {
+        filter = ['all', territorialFilter, filter];
+    } else if (territorialFilter && !filter) {
+        filter = territorialFilter;
+    }
+    
+    // Applica filtro al layer appropriato
+    if (map.getLayer('catastale-thematic')) {
+        map.setFilter('catastale-thematic', filter);
+    } else {
+        map.setFilter('catastale-base', filter);
+    }
+    map.setFilter('catastale-outline', filter);
+    
+    // NUOVO: Auto-zoom sulle particelle filtrate
+    if (window.legendFilterState.activeCategories.size > 0) {
+        zoomToFilteredFeatures(filter);
+    }
+    
+    // Forza aggiornamento conteggi
+    setTimeout(() => {
+        lastUpdateHash = '';
+        updateDynamicLegend();
+    }, 300);
+}
+
+/**
+ * NUOVO: Zoom automatico sulle particelle filtrate
+ */
+function zoomToFilteredFeatures(filter) {
+    if (!filter) return;
+    
     try {
-        const allFeatures = map.querySourceFeatures('palermo_catastale', {
-            sourceLayer: CONFIG.pmtiles.sourceLayer
+        const layer = map.getLayer('catastale-thematic') ? 'catastale-thematic' : 'catastale-base';
+        
+        // Query features con il filtro applicato
+        const features = map.querySourceFeatures('palermo_catastale', {
+            sourceLayer: CONFIG.pmtiles.sourceLayer,
+            filter: filter
         });
         
-        const uniqueParticles = new Set();
-        allFeatures.forEach(f => {
-            if (f.properties.fid) { // Usiamo fid per l'unicità
-                uniqueParticles.add(f.properties.fid);
+        if (features.length === 0) {
+            console.log('⚠️ Nessuna feature trovata per lo zoom');
+            return;
+        }
+        
+        // Calcola bounding box
+        let bounds = null;
+        const uniqueFeatures = new Map();
+        
+        features.forEach(feature => {
+            const fid = feature.properties.fid;
+            if (fid && !uniqueFeatures.has(fid)) {
+                uniqueFeatures.set(fid, feature);
+                
+                if (feature.geometry && feature.geometry.coordinates) {
+                    const coords = feature.geometry.coordinates[0];
+                    
+                    coords.forEach(coord => {
+                        if (Array.isArray(coord[0])) {
+                            coord.forEach(innerCoord => {
+                                if (!bounds) {
+                                    bounds = [[innerCoord[0], innerCoord[1]], [innerCoord[0], innerCoord[1]]];
+                                } else {
+                                    bounds[0][0] = Math.min(bounds[0][0], innerCoord[0]);
+                                    bounds[0][1] = Math.min(bounds[0][1], innerCoord[1]);
+                                    bounds[1][0] = Math.max(bounds[1][0], innerCoord[0]);
+                                    bounds[1][1] = Math.max(bounds[1][1], innerCoord[1]);
+                                }
+                            });
+                        } else {
+                            if (!bounds) {
+                                bounds = [[coord[0], coord[1]], [coord[0], coord[1]]];
+                            } else {
+                                bounds[0][0] = Math.min(bounds[0][0], coord[0]);
+                                bounds[0][1] = Math.min(bounds[0][1], coord[1]);
+                                bounds[1][0] = Math.max(bounds[1][0], coord[0]);
+                                bounds[1][1] = Math.max(bounds[1][1], coord[1]);
+                            }
+                        }
+                    });
+                }
             }
         });
         
-        const actualTotal = uniqueParticles.size;
+        if (bounds) {
+            const isMobile = window.innerWidth <= 768;
+            const padding = isMobile ? 
+                { top: 100, bottom: 100, left: 50, right: 50 } :
+                { top: 100, bottom: 100, left: 380, right: 480 };
+            
+            map.fitBounds(bounds, {
+                padding: padding,
+                duration: 1500,
+                maxZoom: 16
+            });
+            
+            console.log('🎯 Zoom su', uniqueFeatures.size, 'particelle filtrate');
+        }
+    } catch (error) {
+        console.error('❌ Errore zoom automatico:', error);
+    }
+}
+
+/**
+ * NUOVO: Aggiorna UI degli elementi legenda
+ */
+window.updateLegendUI = function() {
+    const items = document.querySelectorAll('.legend-item-dynamic');
+    
+    items.forEach(item => {
+        const category = item.getAttribute('data-category');
+        const checkbox = item.querySelector('.legend-checkbox');
         
-        if (actualTotal !== TOTAL_PARTICELLE && actualTotal > 0) {
-            console.warn(`⚠️ ATTENZIONE: Numero particelle rilevato (${actualTotal}) diverso dal riferimento (${TOTAL_PARTICELLE})`);
+        if (window.legendFilterState.activeCategories.has(category)) {
+            item.classList.add('selected');
+            if (checkbox) checkbox.classList.add('checked');
         } else {
-            console.log(`✅ Validazione particelle OK: ${actualTotal} particelle totali`);
+            item.classList.remove('selected');
+            if (checkbox) checkbox.classList.remove('checked');
         }
-    } catch (error) {
-        console.error('❌ Errore validazione particelle:', error);
+    });
+};
+
+/**
+ * NUOVO: Mostra notifica filtri legenda
+ */
+function showLegendFilterNotification() {
+    const count = window.legendFilterState.activeCategories.size;
+    
+    const existingNotification = document.querySelector('.legend-filter-notification');
+    if (existingNotification) {
+        existingNotification.remove();
     }
+    
+    if (count === 0) return;
+    
+    const notification = document.createElement('div');
+    notification.className = 'legend-filter-notification';
+    notification.innerHTML = `
+        <i class="fas fa-filter"></i>
+        <span>${count} ${count === 1 ? 'categoria' : 'categorie'} filtrate</span>
+        <button onclick="window.clearLegendFilters()" class="clear-filters-btn">
+            <i class="fas fa-times"></i> Rimuovi filtri
+        </button>
+    `;
+    
+    notification.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #ff9900 0%, #ff5100 100%);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        animation: slideUp 0.5s ease;
+    `;
+    
+    document.body.appendChild(notification);
 }
 
 /**
- * Configura listener per aggiornamenti viewport
+ * NUOVO: Pulisci tutti i filtri legenda
  */
-function setupViewportListeners() {
-    // Aggiorna SOLO su eventi significativi
-    map.on('moveend', () => {
-        debounceUpdateLegend();
-    });
+window.clearLegendFilters = function() {
+    window.legendFilterState.activeCategories.clear();
+    window.legendFilterState.isFiltering = false;
     
-    map.on('zoomend', () => {
-        debounceUpdateLegend();
-    });
+    applyLegendFilters();
+    updateLegendUI();
     
-    // Listener speciale per filtri applicati
-    map.on('sourcedata', (e) => {
-        if (e.sourceId === 'palermo_catastale' && e.isSourceLoaded) {
-            isFilterApplied = true;
-            setTimeout(() => {
-                forceLegendUpdate();
-                isFilterApplied = false;
-            }, 1000);
-        }
-    });
-}
-
-/**
- * Debounce per ottimizzare performance
- */
-function debounceUpdateLegend() {
-    // Non aggiornare se è in corso un filtro
-    if (isFilterApplied) return;
-    
-    clearTimeout(legendUpdateTimer);
-    legendUpdateTimer = setTimeout(() => {
-        updateDynamicLegend();
-    }, 700); // Aumentato a 700ms per maggiore stabilità
-}
-
-/**
- * Crea hash per verificare se ci sono cambiamenti reali
- */
-function createUpdateHash(stats) {
-    return `${stats.total}-${Object.keys(stats.byCategory).length}-${currentTheme}-${currentMandamentoFilter}-${currentFoglioFilter}`;
-}
-
-/**
- * Aggiorna la legenda con conteggi dinamici
- */
-function updateDynamicLegend() {
-    // Previeni aggiornamenti multipli
-    if (isUpdatingLegend) return;
-    
-    // Non aggiornare se la legenda non è visibile
-    const legend = document.getElementById('legend');
-    if (!legend || !legend.classList.contains('visible')) return;
-    
-    isUpdatingLegend = true;
-    
-    try {
-        const stats = calculateViewportStatistics();
-        
-        // Aggiorna lastViewportState con lo stato attuale
-        const currentCenter = map.getCenter();
-        lastViewportState = {
-            zoom: map.getZoom(),
-            center: [currentCenter.lng, currentCenter.lat]
-        };
-        
-        // Verifica se ci sono cambiamenti reali
-        const currentHash = createUpdateHash(stats);
-        if (currentHash === lastUpdateHash) {
-            isUpdatingLegend = false;
-            return;
-        }
-        lastUpdateHash = currentHash;
-        
-        if (currentTheme === 'landuse' || !currentTheme) {
-            updateBaseLegendWithCounts(stats);
-        } else if (themes[currentTheme]) {
-            updateThematicLegendWithCounts(stats);
-        }
-        
-        currentViewportStats = stats;
-    } catch (error) {
-        console.error('❌ Errore aggiornamento legenda:', error);
-    } finally {
-        // Delay per evitare aggiornamenti troppo frequenti
-        setTimeout(() => {
-            isUpdatingLegend = false;
-        }, 100);
+    const notification = document.querySelector('.legend-filter-notification');
+    if (notification) {
+        notification.remove();
     }
-}
+};
+
+/**
+ * NUOVO: Crea controlli toggle per la legenda
+ */
+window.createToggleControls = function() {
+    const controls = document.createElement('div');
+    controls.className = 'legend-toggle-controls';
+    controls.innerHTML = `
+        <button class="toggle-all-btn" onclick="window.toggleAllLegendItems()">
+            <i class="fas fa-check-square"></i> Seleziona tutto
+        </button>
+        <button class="clear-all-btn" onclick="window.clearLegendFilters()">
+            <i class="fas fa-square"></i> Deseleziona tutto
+        </button>
+    `;
+    
+    controls.style.cssText = `
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+        padding: 8px;
+        background: rgba(0,0,0,0.05);
+        border-radius: 8px;
+    `;
+    
+    return controls;
+};
+
+/**
+ * NUOVO: Toggle tutti gli elementi
+ */
+window.toggleAllLegendItems = function() {
+    const items = document.querySelectorAll('.legend-item-dynamic');
+    
+    if (window.legendFilterState.activeCategories.size === items.length) {
+        // Se tutti sono selezionati, deseleziona tutto
+        window.clearLegendFilters();
+    } else {
+        // Altrimenti seleziona tutto
+        window.legendFilterState.activeCategories.clear();
+        items.forEach(item => {
+            const category = item.getAttribute('data-category');
+            if (category) {
+                window.legendFilterState.activeCategories.add(category);
+            }
+        });
+        
+        applyLegendFilters();
+        updateLegendUI();
+        showLegendFilterNotification();
+    }
+};
 
 /**
  * Calcola statistiche delle particelle nel viewport corrente
+ * MODIFICATO: Supporto migliorato per temi categorici
  */
 function calculateViewportStatistics() {
-    // Verifica che la mappa sia pronta
     if (!map || !map.getLayer('catastale-base')) {
         return { total: 0, byCategory: {}, byTheme: {}, uniqueParticles: new Set() };
     }
     
-    // Controlla se la vista è cambiata rispetto a lastViewportState
     const currentZoom = map.getZoom();
     const currentCenter = map.getCenter();
     if (currentZoom === lastViewportState.zoom && 
         currentCenter.lng === lastViewportState.center[0] && 
         currentCenter.lat === lastViewportState.center[1] &&
-        Object.keys(currentViewportStats).length > 0) {
-        return currentViewportStats; // Ritorna i dati precedenti se la vista non è cambiata
+        Object.keys(currentViewportStats).length > 0 &&
+        !window.legendFilterState.isFiltering) {
+        return currentViewportStats;
     }
     
     const features = map.queryRenderedFeatures(undefined, {
@@ -196,7 +406,6 @@ function calculateViewportStatistics() {
     };
     
     features.forEach(feature => {
-        // Usa fid come identificatore univoco
         const fid = feature.properties.fid;
         
         if (fid && !stats.uniqueParticles.has(fid)) {
@@ -210,22 +419,335 @@ function calculateViewportStatistics() {
             }
             stats.byCategory[landUse]++;
             
-            // Statistiche per tema corrente se applicabile
+            // MODIFICATO: Miglior supporto per temi categorici
             if (currentTheme && currentTheme !== 'landuse') {
                 const theme = themes[currentTheme];
-                if (theme && theme.property) {
-                    const value = feature.properties[theme.property];
-                    const category = getThemeCategory(value, theme);
-                    if (!stats.byTheme[category]) {
-                        stats.byTheme[category] = 0;
+                if (theme) {
+                    if (theme.type === 'categorical') {
+                        // Per temi categorici, usa il valore diretto della proprietà
+                        const value = feature.properties[theme.property];
+                        if (value !== null && value !== undefined) {
+                            if (!stats.byTheme[value]) {
+                                stats.byTheme[value] = 0;
+                            }
+                            stats.byTheme[value]++;
+                        }
+                    } else if (theme.property) {
+                        const value = feature.properties[theme.property];
+                        const category = getThemeCategory(value, theme);
+                        if (!stats.byTheme[category]) {
+                            stats.byTheme[category] = 0;
+                        }
+                        stats.byTheme[category]++;
                     }
-                    stats.byTheme[category]++;
                 }
             }
         }
     });
     
     return stats;
+}
+
+/**
+ * Aggiorna legenda tematica con conteggi
+ * MODIFICATO: Supporto per temi categorici
+ */
+function updateThematicLegendWithCounts(stats) {
+    const legend = document.getElementById('legend');
+    if (!legend || !legend.classList.contains('visible')) return;
+    
+    const items = document.getElementById('legend-items');
+    if (!items) return;
+    
+    const theme = themes[currentTheme];
+    if (!theme) return;
+    
+    let totalItem = items.querySelector('.legend-total-item');
+    
+    if (!totalItem) {
+        totalItem = createTotalItem(stats.total);
+        items.insertBefore(totalItem, items.firstChild);
+        
+        const separator = createSeparator();
+        items.insertBefore(separator, totalItem.nextSibling);
+    } else {
+        updateTotalItem(totalItem, stats.total);
+    }
+    
+    const legendItems = items.querySelectorAll('.legend-item:not(.legend-total-item), .legend-item-dynamic:not(.legend-total-item)');
+    
+    legendItems.forEach((item, index) => {
+        // Assicurati che l'item abbia la struttura corretta
+        if (!item.querySelector('.legend-label-dynamic')) {
+            const labelElement = item.querySelector('.legend-label');
+            if (labelElement) {
+                const originalText = labelElement.textContent;
+                const colorElement = item.querySelector('.legend-color');
+                const colorStyle = colorElement ? colorElement.style.backgroundColor : '';
+                
+                item.className = 'legend-item-dynamic interactive';
+                item.innerHTML = `
+                    <span class="legend-checkbox"></span>
+                    <div class="legend-color" style="background-color: ${colorStyle}"></div>
+                    <span class="legend-label-dynamic">
+                        <span class="category-name">${originalText}</span>
+                        <span class="category-stats">0 (0.0%)</span>
+                    </span>
+                `;
+            }
+        }
+        
+        // MODIFICATO: Calcolo conteggi per temi categorici
+        let count = 0;
+        
+        if (theme.type === 'categorical') {
+            // Per temi categorici, usa il data-category dell'elemento
+            const category = item.getAttribute('data-category');
+            if (category && stats.byTheme[category]) {
+                count = stats.byTheme[category];
+            }
+        } else if (theme.type === 'jenks') {
+            // Logica esistente per Jenks
+            const features = map.queryRenderedFeatures(undefined, {
+                layers: ['catastale-thematic'].filter(l => {
+                    try {
+                        return map.getLayer(l) !== undefined;
+                    } catch {
+                        return false;
+                    }
+                })
+            });
+            
+            const uniqueInClass = new Set();
+            features.forEach(f => {
+                const value = f.properties[theme.property];
+                const fid = f.properties.fid;
+                
+                if (fid && !uniqueInClass.has(fid) && 
+                    isInJenksClass(value, index, theme.jenksBreaks)) {
+                    uniqueInClass.add(fid);
+                    count++;
+                }
+            });
+        }
+        
+        const percentage = ((count / TOTAL_PARTICELLE) * 100).toFixed(1);
+        const statsElement = item.querySelector('.category-stats');
+        if (statsElement) {
+            statsElement.textContent = `${formatNumber(count)} (${percentage}%)`;
+        }
+        
+        if (count > 0) {
+            item.classList.add('has-particles');
+        } else {
+            item.classList.remove('has-particles');
+        }
+    });
+}
+
+// Resto del codice esistente rimane invariato...
+// (validateTotalParticles, setupViewportListeners, debounceUpdateLegend, etc.)
+
+/**
+ * Valida che il numero totale di particelle sia corretto
+ */
+function validateTotalParticles() {
+    try {
+        const allFeatures = map.querySourceFeatures('palermo_catastale', {
+            sourceLayer: CONFIG.pmtiles.sourceLayer
+        });
+        
+        const uniqueParticles = new Set();
+        allFeatures.forEach(f => {
+            if (f.properties.fid) {
+                uniqueParticles.add(f.properties.fid);
+            }
+        });
+        
+        const actualTotal = uniqueParticles.size;
+        
+        if (actualTotal !== TOTAL_PARTICELLE && actualTotal > 0) {
+            console.warn(`⚠️ ATTENZIONE: Numero particelle rilevato (${actualTotal}) diverso dal riferimento (${TOTAL_PARTICELLE})`);
+        } else {
+            console.log(`✅ Validazione particelle OK: ${actualTotal} particelle totali`);
+        }
+    } catch (error) {
+        console.error('❌ Errore validazione particelle:', error);
+    }
+}
+
+/**
+ * Configura listener per aggiornamenti viewport
+ */
+function setupViewportListeners() {
+    map.on('moveend', () => {
+        debounceUpdateLegend();
+    });
+    
+    map.on('zoomend', () => {
+        debounceUpdateLegend();
+    });
+    
+    map.on('sourcedata', (e) => {
+        if (e.sourceId === 'palermo_catastale' && e.isSourceLoaded) {
+            isFilterApplied = true;
+            setTimeout(() => {
+                forceLegendUpdate();
+                isFilterApplied = false;
+            }, 1000);
+        }
+    });
+}
+
+/**
+ * Debounce per ottimizzare performance
+ */
+function debounceUpdateLegend() {
+    if (isFilterApplied) return;
+    
+    clearTimeout(legendUpdateTimer);
+    legendUpdateTimer = setTimeout(() => {
+        updateDynamicLegend();
+    }, 700);
+}
+
+/**
+ * Crea hash per verificare se ci sono cambiamenti reali
+ */
+function createUpdateHash(stats) {
+    const filterHash = Array.from(window.legendFilterState.activeCategories).join(',');
+    return `${stats.total}-${Object.keys(stats.byCategory).length}-${currentTheme}-${currentMandamentoFilter}-${currentFoglioFilter}-${filterHash}`;
+}
+
+/**
+ * Aggiorna la legenda con conteggi dinamici
+ */
+function updateDynamicLegend() {
+    if (isUpdatingLegend) return;
+    
+    const legend = document.getElementById('legend');
+    if (!legend || !legend.classList.contains('visible')) return;
+    
+    isUpdatingLegend = true;
+    
+    try {
+        const stats = calculateViewportStatistics();
+        
+        const currentCenter = map.getCenter();
+        lastViewportState = {
+            zoom: map.getZoom(),
+            center: [currentCenter.lng, currentCenter.lat]
+        };
+        
+        const currentHash = createUpdateHash(stats);
+        if (currentHash === lastUpdateHash) {
+            isUpdatingLegend = false;
+            return;
+        }
+        lastUpdateHash = currentHash;
+        
+        if (currentTheme === 'landuse' || !currentTheme) {
+            updateBaseLegendWithCounts(stats);
+        } else if (themes[currentTheme]) {
+            updateThematicLegendWithCounts(stats);
+        }
+        
+        currentViewportStats = stats;
+    } catch (error) {
+        console.error('❌ Errore aggiornamento legenda:', error);
+    } finally {
+        setTimeout(() => {
+            isUpdatingLegend = false;
+        }, 100);
+    }
+}
+
+/**
+ * Aggiorna legenda base con conteggi
+ */
+function updateBaseLegendWithCounts(stats) {
+    const legend = document.getElementById('legend');
+    if (!legend || !legend.classList.contains('visible')) return;
+    
+    const items = document.getElementById('legend-items');
+    if (!items) return;
+    
+    const existingTotal = items.querySelector('.legend-total-item');
+    
+    if (existingTotal) {
+        updateTotalItem(existingTotal, stats.total);
+        
+        const categoryItems = items.querySelectorAll('.legend-item-dynamic:not(.legend-total-item)');
+        categoryItems.forEach(item => {
+            const categoryName = item.querySelector('.category-name');
+            if (categoryName) {
+                const originalText = categoryName.textContent;
+                let classKey = '';
+                for (const [key, label] of Object.entries(landUseLabels)) {
+                    if (label === originalText) {
+                        classKey = key;
+                        break;
+                    }
+                }
+                
+                const count = stats.byCategory[classKey] || 0;
+                const percentage = ((count / TOTAL_PARTICELLE) * 100).toFixed(1);
+                
+                const statsElement = item.querySelector('.category-stats');
+                if (statsElement) {
+                    statsElement.textContent = `${formatNumber(count)} (${percentage}%)`;
+                }
+                
+                if (count > 0) {
+                    item.classList.add('has-particles');
+                } else {
+                    item.classList.remove('has-particles');
+                }
+            }
+        });
+        
+        return;
+    }
+    
+    items.innerHTML = '';
+    
+    const totalItem = createTotalItem(stats.total);
+    items.appendChild(totalItem);
+    
+    items.appendChild(createSeparator());
+    
+    for (const [className, color] of Object.entries(landUseColors)) {
+        const label = landUseLabels[className];
+        const count = stats.byCategory[className] || 0;
+        const percentage = ((count / TOTAL_PARTICELLE) * 100).toFixed(1);
+        
+        const item = document.createElement('div');
+        item.className = 'legend-item-dynamic interactive';
+        item.setAttribute('data-category', className);
+        item.setAttribute('data-tooltip', 'Clicca per filtrare');
+        
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleLegendItemClick(className, e.ctrlKey || e.metaKey);
+        });
+        
+        item.innerHTML = `
+            <span class="legend-checkbox"></span>
+            <div class="legend-color" style="background-color: ${color}"></div>
+            <span class="legend-label-dynamic">
+                <span class="category-name">${label}</span>
+                <span class="category-stats">${formatNumber(count)} (${percentage}%)</span>
+            </span>
+        `;
+        
+        if (count > 0) {
+            item.classList.add('has-particles');
+        }
+        
+        items.appendChild(item);
+    }
+    
+    updateLegendUI();
 }
 
 /**
@@ -243,196 +765,6 @@ function getThemeCategory(value, theme) {
         }
     }
     return 'N/D';
-}
-
-/**
- * Aggiorna legenda base con conteggi - VERSIONE STABILE
- */
-function updateBaseLegendWithCounts(stats) {
-    const legend = document.getElementById('legend');
-    if (!legend || !legend.classList.contains('visible')) return;
-    
-    const items = document.getElementById('legend-items');
-    if (!items) return;
-    
-    // Salva il contenuto esistente se non ci sono stats
-    const existingTotal = items.querySelector('.legend-total-item');
-    
-    // Se esiste già il totale, aggiornalo senza ricreare tutto
-    if (existingTotal) {
-        updateTotalItem(existingTotal, stats.total);
-        
-        // Aggiorna solo i conteggi delle categorie esistenti
-        const categoryItems = items.querySelectorAll('.legend-item-dynamic:not(.legend-total-item)');
-        categoryItems.forEach(item => {
-            const categoryName = item.querySelector('.category-name');
-            if (categoryName) {
-                const originalText = categoryName.textContent;
-                // Trova la chiave corrispondente in landUseLabels
-                let classKey = '';
-                for (const [key, label] of Object.entries(landUseLabels)) {
-                    if (label === originalText) {
-                        classKey = key;
-                        break;
-                    }
-                }
-                
-                const count = stats.byCategory[classKey] || 0;
-                const percentage = ((count / TOTAL_PARTICELLE) * 100).toFixed(1);
-                
-                const statsElement = item.querySelector('.category-stats');
-                if (statsElement) {
-                    statsElement.textContent = `${formatNumber(count)} (${percentage}%)`;
-                }
-                
-                // Aggiorna classe has-particles
-                if (count > 0) {
-                    item.classList.add('has-particles');
-                } else {
-                    item.classList.remove('has-particles');
-                }
-            }
-        });
-        
-        return; // Esci senza ricreare tutto
-    }
-    
-    // Prima volta: crea la struttura completa
-    items.innerHTML = '';
-    
-    // Aggiungi totale in alto
-    const totalItem = createTotalItem(stats.total);
-    items.appendChild(totalItem);
-    
-    // Aggiungi separator
-    items.appendChild(createSeparator());
-    
-    // Aggiungi categorie con conteggi
-    for (const [className, color] of Object.entries(landUseColors)) {
-        const label = landUseLabels[className];
-        const count = stats.byCategory[className] || 0;
-        const percentage = ((count / TOTAL_PARTICELLE) * 100).toFixed(1);
-        
-        const item = document.createElement('div');
-        item.className = 'legend-item-dynamic';
-        
-        item.innerHTML = `
-            <div class="legend-color" style="background-color: ${color}"></div>
-            <span class="legend-label-dynamic">
-                <span class="category-name">${label}</span>
-                <span class="category-stats">${formatNumber(count)} (${percentage}%)</span>
-            </span>
-        `;
-        
-        if (count > 0) {
-            item.classList.add('has-particles');
-        }
-        
-        items.appendChild(item);
-    }
-}
-
-/**
- * Aggiorna legenda tematica con conteggi - VERSIONE STABILE
- */
-function updateThematicLegendWithCounts(stats) {
-    const legend = document.getElementById('legend');
-    if (!legend || !legend.classList.contains('visible')) return;
-    
-    const items = document.getElementById('legend-items');
-    if (!items) return;
-    
-    const theme = themes[currentTheme];
-    if (!theme) return;
-    
-    // Verifica se esiste già il totale
-    let totalItem = items.querySelector('.legend-total-item');
-    
-    if (!totalItem) {
-        // Crea e inserisci il totale solo se non esiste
-        totalItem = createTotalItem(stats.total);
-        items.insertBefore(totalItem, items.firstChild);
-        
-        const separator = createSeparator();
-        items.insertBefore(separator, totalItem.nextSibling);
-    } else {
-        // Aggiorna solo il totale esistente
-        updateTotalItem(totalItem, stats.total);
-    }
-    
-    // Aggiorna solo i conteggi negli items esistenti
-    const legendItems = items.querySelectorAll('.legend-item:not(.legend-total-item)');
-    
-    legendItems.forEach((item, index) => {
-        // Verifica se l'item ha già la struttura dinamica
-        if (!item.querySelector('.legend-label-dynamic')) {
-            // Converti l'item esistente in formato dinamico
-            const labelElement = item.querySelector('.legend-label');
-            if (labelElement) {
-                const originalText = labelElement.textContent;
-                const colorElement = item.querySelector('.legend-color');
-                const colorStyle = colorElement ? colorElement.style.backgroundColor : '';
-                
-                item.className = 'legend-item-dynamic';
-                item.innerHTML = `
-                    <div class="legend-color" style="background-color: ${colorStyle}"></div>
-                    <span class="legend-label-dynamic">
-                        <span class="category-name">${originalText}</span>
-                        <span class="category-stats">0 (0.0%)</span>
-                    </span>
-                `;
-            }
-        }
-        
-        // Aggiorna i conteggi
-        updateThematicItemCount(item, index, theme, stats);
-    });
-}
-
-/**
- * Aggiorna conteggio per item tematico
- */
-function updateThematicItemCount(item, index, theme, stats) {
-    let count = 0;
-    
-    // Calcola conteggio basato sul tipo di tema
-    if (theme.type === 'jenks') {
-        const features = map.queryRenderedFeatures(undefined, {
-            layers: ['catastale-thematic'].filter(l => {
-                try {
-                    return map.getLayer(l) !== undefined;
-                } catch {
-                    return false;
-                }
-            })
-        });
-        
-        const uniqueInClass = new Set();
-        features.forEach(f => {
-            const value = f.properties[theme.property];
-            const fid = f.properties.fid;
-            
-            if (fid && !uniqueInClass.has(fid) && 
-                isInJenksClass(value, index, theme.jenksBreaks)) {
-                uniqueInClass.add(fid);
-                count++;
-            }
-        });
-    }
-    
-    // Aggiorna solo il conteggio
-    const percentage = ((count / TOTAL_PARTICELLE) * 100).toFixed(1);
-    const statsElement = item.querySelector('.category-stats');
-    if (statsElement) {
-        statsElement.textContent = `${formatNumber(count)} (${percentage}%)`;
-    }
-    
-    // Aggiorna classe has-particles
-    if (count > 0) {
-        item.classList.add('has-particles');
-    } else {
-        item.classList.remove('has-particles');
-    }
 }
 
 /**
@@ -500,81 +832,3 @@ function createSeparator() {
 function formatNumber(num) {
     return num.toLocaleString('it-IT');
 }
-
-/**
- * Override SICURO delle funzioni legenda esistenti
- */
-function safeOverrideLegendFunctions() {
-    // Override showBaseLegenda
-    const originalShowBaseLegenda = window.showBaseLegenda;
-    if (originalShowBaseLegenda && !originalShowBaseLegenda._overridden) {
-        window.showBaseLegenda = function() {
-            originalShowBaseLegenda.apply(this, arguments);
-            // Reset hash per forzare aggiornamento
-            lastUpdateHash = '';
-            setTimeout(() => {
-                if (!isUpdatingLegend) {
-                    updateDynamicLegend();
-                }
-            }, 200);
-        };
-        window.showBaseLegenda._overridden = true;
-    }
-    
-    // Override showLegend
-    const originalShowLegend = window.showLegend;
-    if (originalShowLegend && !originalShowLegend._overridden) {
-        window.showLegend = function(theme, range) {
-            originalShowLegend.apply(this, arguments);
-            lastUpdateHash = '';
-            setTimeout(() => {
-                if (!isUpdatingLegend) {
-                    updateDynamicLegend();
-                }
-            }, 200);
-        };
-        window.showLegend._overridden = true;
-    }
-    
-    // Override showJenksLegend
-    const originalShowJenksLegend = window.showJenksLegend;
-    if (originalShowJenksLegend && !originalShowJenksLegend._overridden) {
-        window.showJenksLegend = function(theme) {
-            originalShowJenksLegend.apply(this, arguments);
-            lastUpdateHash = '';
-            setTimeout(() => {
-                if (!isUpdatingLegend) {
-                    updateDynamicLegend();
-                }
-            }, 200);
-        };
-        window.showJenksLegend._overridden = true;
-    }
-}
-
-/**
- * Funzione per forzare l'aggiornamento della legenda
- */
-function forceLegendUpdate() {
-    // Resetta lo stato della vista per forzare un nuovo calcolo
-    lastViewportState = { zoom: -1, center: [0,0] };
-    lastUpdateHash = ''; // Invalida l'hash
-    updateDynamicLegend();
-}
-
-// Inizializzazione con timing controllato
-document.addEventListener('DOMContentLoaded', () => {
-    // Attendi che tutti i moduli siano caricati
-    setTimeout(() => {
-        initializeDynamicLegend();
-        safeOverrideLegendFunctions();
-    }, 3000);
-});
-
-// Esporta funzioni per debug
-window.updateDynamicLegend = updateDynamicLegend;
-window.getCurrentViewportStats = () => currentViewportStats;
-window.validateTotalParticles = validateTotalParticles;
-window.forceLegendUpdate = forceLegendUpdate;
-
-console.log('✅ dynamic-legend.js caricato - Versione Stabile');
