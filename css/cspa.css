@@ -503,13 +503,6 @@ body {
     right: 20px; 
     z-index: 1500;
 }
-/*
-#beta { 
-    position: fixed; 
-    bottom: 100px; 
-    right: 20px; 
-    z-index: 1500;
-}*/
 
 #hub { 
     position: fixed; 
@@ -787,20 +780,6 @@ hr {
             }
         }
 
-        /* Media Queries specifiche per il loader
-        @media (max-width: 768px) {
-            .loader-content-wrapper {
-                padding: 15px;
-            }
-            
-            .loading-static-content {
-                margin-bottom: 20px;
-            }
-            
-            .loader {
-                margin-bottom: 15px;
-            }
-        } */
 
         /* Fix per dispositivi molto piccoli */
         @media (max-width: 400px) {
