@@ -211,10 +211,296 @@
 /* Migliora la visibilità dei colori nella legenda */
 .legend-color {
     width: 20px;
-    height: 15px;
+    height: 14px;
     margin-right: 10px;
     border-radius: 3px;
     border: 1px solid rgba(0, 0, 0, 0.2);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
+}
+/* Elementi legenda interattivi */
+.legend-item-dynamic.interactive {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    padding-left: 28px;
+    user-select: none;
+}
+
+.legend-item-dynamic.interactive:hover {
+    background: rgba(255, 153, 0, 0.1);
+    transform: translateX(3px);
+}
+
+/* Checkbox per selezione */
+.legend-checkbox {
+    position: absolute;
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.legend-checkbox.checked {
+    background: #ff9900;
+    border-color: #ff9900;
+}
+
+.legend-checkbox.checked::after {
+    content: '✓';
+    position: absolute;
+    top: -2px;
+    left: 2px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Stati selezionati */
+.legend-item-dynamic.selected {
+    background: linear-gradient(to right, rgba(255, 153, 0, 0.15), transparent);
+    border-left: 3px solid #ff9900;
+    padding-left: 25px;
+}
+
+.legend-item-dynamic.selected .legend-color {
+    box-shadow: 0 0 0 2px #ff9900;
+}
+
+/* Controlli toggle */
+.legend-toggle-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+}
+
+.legend-toggle-controls button {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.legend-toggle-controls button:hover {
+    background: #f5f5f5;
+    border-color: #ff9900;
+    color: #ff9900;
+}
+
+/* Notifica filtri legenda */
+.legend-filter-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ff9900 0%, #ff5100 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+.clear-filters-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.clear-filters-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Label dinamico con stats */
+.legend-label-dynamic {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+    padding-left: 10px;
+}
+
+.category-name {
+    font-weight: 500;
+}
+
+.category-stats {
+    font-size: 11px;
+    color: #666;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 6px;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Elemento con particelle */
+.legend-item-dynamic.has-particles .category-stats {
+    background: rgba(255, 153, 0, 0.1);
+    color: #ff6600;
+    font-weight: 600;
+}
+
+/* Totale particelle */
+.legend-total-item {
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(255, 81, 0, 0.05));
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255, 153, 0, 0.2);
+}
+
+.total-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.total-stats {
+    font-weight: 600;
+    color: #ff6600;
+}
+
+.progress-bar {
+    height: 6px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff9900, #ff5100);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+/* Separatore */
+.legend-separator {
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.1), transparent);
+    margin: 10px 0;
+}
+
+/* Tooltip */
+.legend-item-dynamic[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.legend-item-dynamic:hover[data-tooltip]::after {
+    opacity: 1;
+}
+
+/* Responsive per mobile */
+@media (max-width: 768px) {
+    .legend-filter-notification {
+        bottom: 60px;
+        width: calc(100% - 40px);
+        max-width: 400px;
+    }
+    
+    .legend-toggle-controls {
+        flex-direction: column;
+    }
+    
+    .legend-toggle-controls button {
+        width: 100%;
+    }
+    
+    .legend-label-dynamic {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .category-stats {
+        width: 100%;
+    }
+}
+
+/* Animazioni per filtri */
+@keyframes filterPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.legend-item-dynamic.selected .legend-color {
+    animation: filterPulse 2s infinite;
+}
+
+/* Stili per range numerici interattivi */
+.legend-item-dynamic[data-min][data-max] {
+    cursor: pointer;
+}
+
+.legend-item-dynamic[data-min][data-max]:hover {
+    background: rgba(255, 153, 0, 0.08);
+}
+
+/* Indicatore di filtro attivo nella legenda */
+.legend.has-active-filters #legend-title::after {
+    content: ' (Filtrato)';
+    color: #ff9900;
+    font-weight: 600;
+    font-size: 12px;
 }

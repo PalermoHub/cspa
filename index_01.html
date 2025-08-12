@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <title>Studio Demografico e Socio-Economico del Centro Storico di Palermo</title>
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" href="https://palermohub.opendatasicilia.it/favicon.ico"/> 
     <link rel="icon" href="https://palermohub.opendatasicilia.it/favicon.png" type="image/png"/> 
-    <link rel="stylesheet" href="css/cspa.css"> <link rel="stylesheet" href="css/cspa_responsive.css"> <link rel="stylesheet" href="css/dynamic-legend.css">     <link rel="stylesheet" href="css/floating-panel.css">
-  
+    <link rel="stylesheet" href="css/cspa.css">
+    <link rel="stylesheet" href="css/dynamic-legend.css">    
    <!--  FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -40,36 +40,8 @@
 
   gtag('config', 'G-KHR1GHDRQS');
 </script>
- <style>
-
-    </style>
 </head>
 <body>
-    <!-- NUOVO HEADER UNIFICATO -->
-    <header class="unified-header">
-        <!-- LATO SINISTRO: Logo CS + Titolo -->
-        <div class="header-left">
-            <img src="img/logo_cs.svg" alt="Centro Storico Palermo" class="logo-cs">
-            <h1 class="header-title">Studio Demografico e Socio-Economico del Centro Storico di Palermo</h1>
-        </div>
-        
-        <!-- LATO DESTRO: Logo PalermoHub -->
-        <div class="header-right">
-            <a href="https://palermohub.opendatasicilia.it/" 
-               title="PalermoHub - Contenitore di mappe su Palermo realizzato da OpenDataSicilia.it" 
-               target="_blank" 
-               class="palermo-hub-link">
-                <img src="img/pa_hub.png" 
-                     alt="PalermoHub" 
-                     class="palermo-hub-logo" title="PalermoHub di opendatasicilia.it è un contenitore di mappe realizzate/rielaborate da liberi cittadini o da civic hackers prevalentemente sul territorio comunale di Palermo, non ha alcun intento commerciale, l’unica finalità è mostrare le possibilità di rielaborazione e comunicazione offerte dagli open data o dati pubblici comunali, regionali e nazionali.">
-            </a>
-        </div>
-    </header>	
-
-    <!-- Beta version badge -->
-    <div id="beta"> 
-        <img src="img/beta.png" width="40" title="beta version" alt="beta version"> 
-    </div>
     <!-- Popup overlay e contenuto informazioni -->
     <div class="popup-overlay" id="popup-overlay" onclick="closeInfoPopup()"></div>
     <div class="info-popup" id="info-popup">
@@ -102,43 +74,17 @@
                 <li><strong>Filtra per Area:</strong> I filtri si aggiornano automaticamente - seleziona un mandamento per vedere solo i suoi fogli. La mappa si centrerà automaticamente sull'area selezionata</li>
                 <li><strong>Cerca Indirizzi:</strong> Utilizza la ricerca geografica ottimizzata per il centro storico di Palermo</li>
             </ul> 
-<p style="text-align: center;"><span style="color: #ff0000; font-size: 20px;"><strong><a title="Podcast, audio elaborato da Notebooklm" href="https://notebooklm.google.com/notebook/74230700-ca60-4341-933d-06e04d544560?artifactId=dc88f0f4-14a8-4584-be9a-2a3a38277b68" target="_blank" rel="noopener">Podcast</a> elaborato da Notebooklm</strong></span></p>
             <hr>
             <p class="api"><strong>Fonte dati:</strong><br> <a href="https://zornade.com/" target="_blank">zornade.com</a> - Italian Cadastral Parcel Data & Geospatial Insights API</p>
             <p class="api"><strong>Elaborazione dati:</strong><br> <a href="https://www.linkedin.com/in/gbvitrano/" target="_blank">@gbvitrano</a> by <a href="https://x.com/opendatasicilia" title="@opendatasicilia" target="_blank">@opendatasicilia</a> - 2025 - <a href="https://creativecommons.org/licenses/by/4.0/deed.it" target="_blank">Licenza CC BY 4.0</a></p>
 			<p class="api"><strong>Sviluppo tecnico:</strong><br> Applicazione web sviluppata attraverso una collaborazione human-<a href="https://claude.ai" target="_blank">Claude AI (Anthropic)</a>, che ha supportato la progettazione dell'architettura modulare, l'ottimizzazione del codice e l'implementazione di funzionalità avanzate di visualizzazione geospaziale. Il progetto rappresenta un esempio concreto di come la collaborazione tra sviluppatori e intelligenza artificiale possa trasformare concetti complessi in soluzioni software efficienti e scalabili.</p>
         </div>
     </div>
-
-
-
-
+	  <div class="header">
+        <h1><img src="img/logo_cs.svg" alt="cspa" width="40" height="40"/> Studio Demografico e Socio-Economico del Centro Storico di Palermo</h1>
+    </div>
 
     <div id="map"></div>
-	
-	        <div class="info-panel" id="info-panel">
-        <div class="info-panel-header">
-            <div>
-                <h2 id="panel-title">Dettagli Particella</h2>
-                <div id="panel-subtitle" style="font-size: 14px; opacity: 0.9; margin-top: 4px;"></div>
-            </div>
-            <button class="close-panel" onclick="closeInfoPanel()"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="info-content" id="info-content">
-            <p style="text-align: center; color: #7f8c8d; margin-top: 50px;">
-                Clicca su una particella per visualizzarne i dettagli
-            </p>
-        </div>
-    </div>
-	
-    <!-- PANNELLO FLOTTANTE INTEGRATO CON LEGENDA -->
-    <div class="floating-panel" id="floating-panel">
-        <!-- Indicatore Sezione Controlli -->
-        <div class="section-indicator active" id="controls-indicator"></div>
-        
-        <!-- Sezione Controlli (ridimensionabile) -->
-        <div class="controls-section" id="controls-section">
-            <h2><i class="fas fa-cogs"></i> Controlli</h2>	
     
     <div class="control-panel">
         <div class="control-section">
@@ -245,45 +191,39 @@
             </label>
         </div>
     </div>
-
-            <!-- Handle per ridimensionamento -->
-            <div class="resize-handle" id="resize-handle"></div>
+    
+    <div class="info-panel" id="info-panel">
+        <div class="info-panel-header">
+            <div>
+                <h2 id="panel-title">Dettagli Particella</h2>
+                <div id="panel-subtitle" style="font-size: 14px; opacity: 0.9; margin-top: 4px;"></div>
+            </div>
+            <button class="close-panel" onclick="closeInfoPanel()"><i class="fas fa-times"></i></button>
         </div>
-        
-        <!-- Sezione Legenda INTEGRATA -->
-        <div class="legend-section">
-            <h2><i class="fas fa-list-ul"></i> Legenda</h2>
-			    <div class="legend" id="legend">
+        <div class="info-content" id="info-content">
+            <p style="text-align: center; color: #7f8c8d; margin-top: 50px;">
+                Clicca su una particella per visualizzarne i dettagli
+            </p>
+        </div>
+    </div>
+    
+    <div class="legend" id="legend">
         <h4 id="legend-title">Legenda</h4>
         <div id="legend-items"></div>
     </div>
-   </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Pulsante Toggle Pannello -->
-    <button class="panel-toggle" id="panel-toggle" onclick="toggleFloatingPanel()">
-        <i class="fas fa-bars" id="toggle-icon"></i>
-    </button>
-
-    
-
 
     <!-- JAVASCRIPT FILES - STRUTTURA MODULARE CORRETTA -->  
-    <script src="js-app/01-config.js"></script>
-    <script src="js-app/02-themes.js"></script>
-    <script src="js-app/03-legends.js"></script>
-    <script src="js-app/04-dynamic-legend.js"></script>
-    <script src="js-app/05-info-panel.js"></script>
-    <script src="js-app/06-search-controls.js"></script>
-    <script src="js-app/07-unified-filters.js"></script>
-    <script src="js-app/08-event-handlers.js"></script>
-    <script src="js-app/09-utils.js"></script>
-    <script src="js-app/10-map-init.js"></script>
-    <script src="js-app/11-reset.js"></script>
+    <script src="js-app/config.js"></script>
+    <script src="js-app/themes.js"></script>
+    <script src="js-app/legends.js"></script>
+    <script src="js-app/dynamic-legend.js"></script>
+    <script src="js-app/info-panel.js"></script>
+    <script src="js-app/search-controls.js"></script>
+    <script src="js-app/unified-filters.js"></script>
+    <script src="js-app/event-handlers.js"></script>
+    <script src="js-app/utils.js"></script>
+    <script src="js-app/map-init.js"></script>
+    <script src="js-app/reset.js"></script>
 
     <!-- Loghi e badge 
     <div id="ods">
@@ -293,33 +233,28 @@
     </div>    -->
 
 
-    <!-- Loader -->
-    <div class="loader-container" id="loader">
-        <div class="loader-content-wrapper">
-            <!-- Testo statico durante il caricamento -->
-            <div class="loading-static-content">
-                <h3>Studio Demografico e Socio-Economico del Centro Storico di Palermo</h3>
-<p>
-  <i class="fas fa-file-import"></i> Elaborazione dati territoriali e popolazione...<br>
-  <i class="fas fa-map"></i> Generazione mappe tematiche specializzate...<br>
-  <i class="fas fa-filter"></i> Inizializzazione controlli di ricerca dinamici...
-</p>
-            </div>
-            
-            <!-- Animazione del loader -->
-            <div class="loader">
-                <div class="loader-circle"></div>
-                <div class="loader-circle"></div>
-                <div class="loader-circle"></div>
-                <div class="loader-dot"></div>
-            </div>
-            
-            <div class="loader-text">CARICAMENTO</div>
-            
-            <!-- Barra di progresso -->
-            <div class="progress-bar-container">
-                <div class="progress-bar1"></div>
-            </div>
+    <!-- Palermo hub -->
+    <div id="hub"><a href="https://palermohub.opendatasicilia.it/" title="PalermoHub" target="_blank"> 
+        <img src="img/pa_hub.png" width="224" title="PalermoHub di opendatasicilia.it è un contenitore di mappe realizzate/rielaborate da liberi cittadini o da civic hackers prevalentemente sul territorio comunale di Palermo, non ha alcun intento commerciale, l’unica finalità è mostrare le possibilità di rielaborazione e comunicazione offerte dagli open data o dati pubblici comunali, regionali e nazionali." alt="PalermoHub"> </a>
+    </div>    
+
+    <!-- Beta version badge -->
+    <div id="beta"> 
+        <img src="https://palermohub.opendatasicilia.it/legend/beta.png" width="40" title="beta version" alt="beta version"> 
+    </div>
+
+    
+    <!-- Caricamento -->
+    <div class="custom-loader" id="custom-loader">
+        <div class="spinner"></div>
+        <div class="loader-text">
+            Analisi geospaziale in esecuzione...<br><br>
+            <h2>Studio Demografico e Socio-Economico del Centro Storico di Palermo</h2>
+            <p style="margin-top: 20px; font-size: 14px; opacity: 0.8;">
+                🔄 Inizializzazione filtri dinamici interconnessi...<br>
+                📊 Caricamento dati catastali e demografici...<br>
+                🗺️ Preparazione tematizzazioni avanzate...
+            </p>
         </div>
     </div>
 
@@ -342,78 +277,18 @@
         }
     </style>
 
-<!-- SCRIPT COMPLETO DEL LOADER -->
     <script>
-        // Funzione per gestire il loader
-        (function() {
-            'use strict';
-            
-            // Aggiungi classe al body quando il loader è attivo
-            document.body.classList.add('loading-active');
-            
-            // Funzione per nascondere il loader
-            function hideLoader() {
-                const loader = document.getElementById('loader');
-                if (loader) {
-                    loader.classList.add('hidden');
-                    document.body.classList.remove('loading-active');
-                }
-            }
-            
-            // Funzione per mostrare il loader
-            function showLoader() {
-                const loader = document.getElementById('loader');
-                if (loader) {
-                    loader.classList.remove('hidden');
-                    document.body.classList.add('loading-active');
-                }
-            }
-            
-            // Timer di sicurezza - nasconde il loader dopo massimo 8 secondi
-            const safetyTimer = setTimeout(function() {
-                console.log('Safety timer: hiding loader after 8 seconds');
-                hideLoader();
-            }, 9000);
-            
-            // Evento principale di caricamento
-            window.addEventListener('load', function() {
-                console.log('Page loaded, starting 5 second display timer');
-                
-                // Mostra il loader per 5 secondi dopo il caricamento
-                setTimeout(function() {
-                    console.log('Display timer complete, hiding loader');
-                    clearTimeout(safetyTimer); // Cancella il timer di sicurezza
-                    hideLoader();
-                }, 5000);
-            });
-            
-            // Gestione errori di caricamento
-            window.addEventListener('error', function(e) {
-                console.error('Loading error detected:', e);
-                // In caso di errore, nasconde il loader dopo 2 secondi
-                setTimeout(hideLoader, 2000);
-            });
-            
-            // Verifica se il DOM è già pronto (per casi edge)
-            if (document.readyState === 'complete') {
-                console.log('Document already complete, starting timer');
-                setTimeout(hideLoader, 5000);
-            }
-            
-            // Evento DOMContentLoaded come fallback
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('DOM Content Loaded');
-                // Non nasconde immediatamente, aspetta il timer principale
-            });
-            
-            // Esporta funzioni globalmente se necessario
-            window.loaderControl = {
-                show: showLoader,
-                hide: hideLoader
-            };
-            
-        })();
+        // Nasconde loader dopo inizializzazione
+        setTimeout(function() {
+            document.getElementById('custom-loader').style.display = 'none';
+        }, 4000);
+        
+        // Log di sistema per debug
+        console.log('🚀 CSPA - Centro Storico Palermo Analytics');
+        console.log('📦 Struttura modulare caricata');
+        console.log('🔗 Filtri dinamici interconnessi attivi');
+        console.log('🎯 Auto-centraggio filtri attivo');
+        console.log('✅ Sistema pronto');
     </script>
-   <script src="js-app/12-floating-panel.js"></script>	
 </body>
 </html>
