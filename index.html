@@ -6,7 +6,7 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="https://palermohub.opendatasicilia.it/favicon.ico"/> 
     <link rel="icon" href="https://palermohub.opendatasicilia.it/favicon.png" type="image/png"/> 
-    <link rel="stylesheet" href="css/cspa.css"> <link rel="stylesheet" href="css/cspa_responsive.css"> <link rel="stylesheet" href="css/dynamic-legend.css">     <link rel="stylesheet" href="css/floating-panel.css">
+    <link rel="stylesheet" href="css/cspa.css"> <link rel="stylesheet" href="css/cspa_responsive.css"> <link rel="stylesheet" href="css/dynamic-legend.css">     <link rel="stylesheet" href="css/floating-panel.css"> <link rel="stylesheet" href="css/share.css">
   
    <!--  FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -66,10 +66,6 @@
         </div>
     </header>	
 
-    <!-- Beta version badge -->
-    <div id="beta"> 
-        <img src="img/beta.png" width="40" title="beta version" alt="beta version"> 
-    </div>
     <!-- Popup overlay e contenuto informazioni -->
     <div class="popup-overlay" id="popup-overlay" onclick="closeInfoPopup()"></div>
     <div class="info-popup" id="info-popup">
@@ -110,13 +106,8 @@
         </div>
     </div>
 
-
-
-
-
-    <div id="map"></div>
-	
-	        <div class="info-panel" id="info-panel">
+    <div id="map">
+		        <div class="info-panel" id="info-panel">
         <div class="info-panel-header">
             <div>
                 <h2 id="panel-title">Dettagli Particella</h2>
@@ -129,7 +120,8 @@
                 Clicca su una particella per visualizzarne i dettagli
             </p>
         </div>
-    </div>
+    </div>	  </div>
+
 	
     <!-- PANNELLO FLOTTANTE INTEGRATO CON LEGENDA -->
     <div class="floating-panel" id="floating-panel">
@@ -269,21 +261,19 @@
         <i class="fas fa-bars" id="toggle-icon"></i>
     </button>
 
-    
-
-
-    <!-- JAVASCRIPT FILES - STRUTTURA MODULARE CORRETTA -->  
+        <!-- JAVASCRIPT FILES - STRUTTURA MODULARE CORRETTA -->  
     <script src="js-app/01-config.js"></script>
     <script src="js-app/02-themes.js"></script>
     <script src="js-app/03-legends.js"></script>
     <script src="js-app/04-dynamic-legend.js"></script>
-    <script src="js-app/05-info-panel.js"></script>
+    <script src="js-app/05-info-panel.js"></script> 
     <script src="js-app/06-search-controls.js"></script>
     <script src="js-app/07-unified-filters.js"></script>
-    <script src="js-app/08-event-handlers.js"></script>
+   <script src="js-app/08-event-handlers.js"></script>
     <script src="js-app/09-utils.js"></script>
     <script src="js-app/10-map-init.js"></script>
     <script src="js-app/11-reset.js"></script>
+
 
     <!-- Loghi e badge 
     <div id="ods">
@@ -415,5 +405,65 @@
         })();
     </script>
    <script src="js-app/12-floating-panel.js"></script>	
+   
+<div class="synced-buttons-container">
+       <!-- Beta version badge -->
+    <div id="beta"> 
+        <img src="img/beta.png" width="40" title="beta version" alt="beta version"> 
+    </div>
+   
+   <!-- PULSANTE CONDIVISIONE -->
+<div id="share-button" class="share-button" onclick="shareConfiguration()" title="Condividi vista corrente">
+    <i class="fas fa-share-alt"></i>
+</div>
+
+<!-- POPUP CONDIVISIONE -->
+<div id="share-popup" class="share-popup">
+    <div class="share-popup-content">
+        <div class="share-popup-header">
+            <h3><i class="fas fa-share-alt"></i> Condividi Vista</h3>
+            <button class="share-popup-close" onclick="closeSharePopup()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="share-popup-body">
+            <p>Copia il link per condividere la vista corrente della mappa:</p>
+            <div class="share-url-container">
+                <input type="text" id="share-url" readonly class="share-url-input">
+                <button class="copy-btn" onclick="copyShareUrl()">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <div id="copy-feedback" class="copy-feedback"></div>
+            
+            <!-- Social sharing buttons -->
+            <div class="social-share-buttons">
+                <button class="social-btn whatsapp" onclick="shareViaWhatsApp()">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+                <button class="social-btn telegram" onclick="shareViaTelegram()">
+                    <i class="fab fa-telegram"></i> Telegram
+                </button>
+                <button class="social-btn facebook" onclick="shareViaFacebook()">
+                    <i class="fab fa-facebook"></i> Facebook
+                </button>
+                <button class="social-btn x-twitter" onclick="shareViaX()">
+                    <i class="fab fa-x-twitter"></i> X
+                </button>
+                <button class="social-btn email" onclick="shareViaEmail()">
+                    <i class="fas fa-envelope"></i> Email
+                </button>
+            </div>
+            
+            <div class="share-config-details">
+                <h4>Configurazione attuale:</h4>
+                <ul id="share-config-list"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+       <script src="js-app/13-share.js"></script>
+	   <script src="js-app/14-sincro.js"></script>
 </body>
 </html>
