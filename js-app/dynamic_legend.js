@@ -1,7 +1,7 @@
 // ===== FILE: dynamic-legend.js =====
 /**
  * Sistema Legenda Dinamica con Conteggio Particelle e Filtri Interattivi
- * Versione 2.1 - Con supporto per filtri via legenda e fix per valori null/zero in Jenks
+ * Versione 2.1 - Con FIX per conteggio corretto classe "nessun dato" Jenks
  */
 
 // Costanti per il sistema legenda dinamica
@@ -13,7 +13,7 @@ let lastUpdateHash = '';
 let lastViewportState = { zoom: -1, center: [0, 0] };
 let isFilterApplied = false;
 
-// Stato per filtri legenda
+// NUOVO: Stato per filtri legenda
 window.legendFilterState = {
     activeCategories: new Set(),
     mode: 'all', // 'all' = mostra tutte, 'filter' = mostra solo selezionate
@@ -42,7 +42,7 @@ function initializeDynamicLegend() {
 }
 
 /**
- * Gestisce click su elemento legenda
+ * NUOVO: Gestisce click su elemento legenda
  */
 window.handleLegendItemClick = function(category, isCtrlPressed) {
     console.log('🖱️ Click su legenda:', category, 'Ctrl:', isCtrlPressed);
@@ -78,7 +78,7 @@ window.handleLegendItemClick = function(category, isCtrlPressed) {
 };
 
 /**
- * Applica filtri basati su selezione legenda
+ * NUOVO: Applica filtri basati su selezione legenda
  */
 function applyLegendFilters() {
     let filter = null;
@@ -112,12 +112,23 @@ function applyLegendFilters() {
                         const classIndex = parseInt(cat);
                         if (isNaN(classIndex)) return null;
                         
+                        // Gestione speciale per classe 0 (nessun dato)
+                        if (classIndex === 0) {
+                            return ['any',
+                                ['==', ['get', theme.property], null],
+                                ['==', ['get', theme.property], 0],
+                                ['==', ['get', theme.property], ''],
+                                ['!', ['has', theme.property]]
+                            ];
+                        }
+                        
                         const minVal = theme.jenksBreaks[classIndex];
                         const maxVal = theme.jenksBreaks[classIndex + 1] || Infinity;
                         
                         return ['all',
                             ['>=', ['get', theme.property], minVal],
-                            ['<', ['get', theme.property], maxVal]
+                            ['<', ['get', theme.property], maxVal],
+                            ['!=', ['get', theme.property], 0] // Escludi zero dalle classi > 0
                         ];
                     }).filter(c => c !== null);
                     
@@ -146,7 +157,7 @@ function applyLegendFilters() {
     }
     map.setFilter('catastale-outline', filter);
     
-    // Auto-zoom sulle particelle filtrate
+    // NUOVO: Auto-zoom sulle particelle filtrate
     if (window.legendFilterState.activeCategories.size > 0) {
         zoomToFilteredFeatures(filter);
     }
@@ -159,7 +170,7 @@ function applyLegendFilters() {
 }
 
 /**
- * Zoom automatico sulle particelle filtrate
+ * NUOVO: Zoom automatico sulle particelle filtrate
  */
 function zoomToFilteredFeatures(filter) {
     if (!filter) return;
@@ -237,7 +248,7 @@ function zoomToFilteredFeatures(filter) {
 }
 
 /**
- * Aggiorna UI degli elementi legenda
+ * NUOVO: Aggiorna UI degli elementi legenda
  */
 window.updateLegendUI = function() {
     const items = document.querySelectorAll('.legend-item-dynamic');
@@ -257,7 +268,7 @@ window.updateLegendUI = function() {
 };
 
 /**
- * Mostra notifica filtri legenda
+ * NUOVO: Mostra notifica filtri legenda
  */
 function showLegendFilterNotification() {
     const count = window.legendFilterState.activeCategories.size;
@@ -302,7 +313,7 @@ function showLegendFilterNotification() {
 }
 
 /**
- * Pulisci tutti i filtri legenda
+ * NUOVO: Pulisci tutti i filtri legenda
  */
 window.clearLegendFilters = function() {
     window.legendFilterState.activeCategories.clear();
@@ -318,7 +329,7 @@ window.clearLegendFilters = function() {
 };
 
 /**
- * Crea controlli toggle per la legenda
+ * NUOVO: Crea controlli toggle per la legenda
  */
 window.createToggleControls = function() {
     const controls = document.createElement('div');
@@ -345,7 +356,7 @@ window.createToggleControls = function() {
 };
 
 /**
- * Toggle tutti gli elementi
+ * NUOVO: Toggle tutti gli elementi
  */
 window.toggleAllLegendItems = function() {
     const items = document.querySelectorAll('.legend-item-dynamic');
@@ -371,7 +382,6 @@ window.toggleAllLegendItems = function() {
 
 /**
  * Calcola statistiche delle particelle nel viewport corrente
- * Con gestione migliorata per valori null/undefined
  */
 function calculateViewportStatistics() {
     if (!map || !map.getLayer('catastale-base')) {
@@ -419,28 +429,16 @@ function calculateViewportStatistics() {
             }
             stats.byCategory[landUse]++;
             
-            // Gestione migliorata per temi
+            // Statistiche per temi categorici
             if (currentTheme && currentTheme !== 'landuse') {
                 const theme = themes[currentTheme];
-                if (theme) {
-                    if (theme.type === 'categorical') {
-                        const value = feature.properties[theme.property];
-                        // Gestisci valori null/undefined come categoria separata
-                        const categoryKey = (value === null || value === undefined || value === '') 
-                            ? 'N/D' 
-                            : value;
-                        
-                        if (!stats.byTheme[categoryKey]) {
-                            stats.byTheme[categoryKey] = 0;
+                if (theme && theme.type === 'categorical') {
+                    const value = feature.properties[theme.property];
+                    if (value !== null && value !== undefined) {
+                        if (!stats.byTheme[value]) {
+                            stats.byTheme[value] = 0;
                         }
-                        stats.byTheme[categoryKey]++;
-                    } else if (theme.property) {
-                        const value = feature.properties[theme.property];
-                        const category = getThemeCategory(value, theme);
-                        if (!stats.byTheme[category]) {
-                            stats.byTheme[category] = 0;
-                        }
-                        stats.byTheme[category]++;
+                        stats.byTheme[value]++;
                     }
                 }
             }
@@ -452,7 +450,7 @@ function calculateViewportStatistics() {
 
 /**
  * Aggiorna legenda tematica con conteggi
- * Con fix per valori null/zero in Jenks
+ * VERSIONE CORRETTA - Fix per conteggio classe "nessun dato" Jenks
  */
 function updateThematicLegendWithCounts(stats) {
     const legend = document.getElementById('legend');
@@ -508,7 +506,7 @@ function updateThematicLegendWithCounts(stats) {
                 count = stats.byTheme[category];
             }
         } else if (theme.type === 'jenks') {
-            // Gestione migliorata per classi Jenks con valori null/zero
+            // LOGICA CORRETTA per Jenks - Fix principale
             const features = map.queryRenderedFeatures(undefined, {
                 layers: ['catastale-thematic'].filter(l => {
                     try {
@@ -520,32 +518,16 @@ function updateThematicLegendWithCounts(stats) {
             });
             
             const uniqueInClass = new Set();
+            
             features.forEach(f => {
                 const value = f.properties[theme.property];
                 const fid = f.properties.fid;
                 
-                // Solo conta se il FID è unico
                 if (fid && !uniqueInClass.has(fid)) {
-                    // Verifica speciale per l'elemento "Nessun dato" o "0"
-                    const labelElement = item.querySelector('.category-name');
-                    const isNoDataItem = labelElement && 
-                        (labelElement.textContent.includes('Nessun dato') || 
-                         labelElement.textContent.includes('0') ||
-                         labelElement.textContent.includes('N/D'));
-                    
-                    if (isNoDataItem) {
-                        // Per l'elemento "Nessun dato", conta solo valori null/undefined/0
-                        if (value === null || value === undefined || value === '' || 
-                            value === 0 || value === '0') {
-                            uniqueInClass.add(fid);
-                            count++;
-                        }
-                    } else {
-                        // Per le classi normali, usa la funzione isInJenksClass corretta
-                        if (isInJenksClass(value, index, theme.jenksBreaks)) {
-                            uniqueInClass.add(fid);
-                            count++;
-                        }
+                    // Usa la funzione CORRETTA per verificare l'appartenenza alla classe
+                    if (isInJenksClass(value, index, theme.jenksBreaks)) {
+                        uniqueInClass.add(fid);
+                        count++;
                     }
                 }
             });
@@ -566,61 +548,34 @@ function updateThematicLegendWithCounts(stats) {
 }
 
 /**
- * Ottiene la categoria per un valore tematico
- * Con gestione corretta dei valori null/undefined
- */
-function getThemeCategory(value, theme) {
-    if (theme.type === 'categorical') {
-        return value || 'N/D';
-    } else if (theme.type === 'jenks' && theme.jenksBreaks) {
-        // Non convertire null/undefined in 0
-        if (value === null || value === undefined || value === '') {
-            return 'N/D';
-        }
-        
-        const numValue = parseFloat(value);
-        
-        // Se il parsing fallisce, ritorna N/D
-        if (isNaN(numValue)) {
-            return 'N/D';
-        }
-        
-        // Trova la classe appropriata per il valore
-        for (let i = theme.jenksBreaks.length - 1; i >= 0; i--) {
-            if (numValue >= theme.jenksBreaks[i]) {
-                return `Classe ${i + 1}`;
-            }
-        }
-        
-        return 'N/D';
-    }
-    return 'N/D';
-}
-
-/**
+ * VERSIONE CORRETTA - Fix per conteggio classe "nessun dato"
  * Verifica se un valore è nella classe Jenks specificata
- * Con gestione corretta di null/undefined/zero
  */
 function isInJenksClass(value, classIndex, breaks) {
-    // Se il valore è null, undefined o stringa vuota, non appartiene a nessuna classe
-    if (value === null || value === undefined || value === '') {
-        return false;
+    // FIX PRINCIPALE: Gestione speciale per la classe 0 (nessun dato)
+    if (classIndex === 0) {
+        // La classe 0 dovrebbe contenere solo valori nulli, undefined, 0, o esplicitamente "nessun dato"
+        return value === null || 
+               value === undefined || 
+               value === 0 || 
+               value === '' ||
+               (typeof value === 'string' && value.toLowerCase().includes('nessun'));
     }
     
+    // Per le altre classi, usa la logica normale
     const numValue = parseFloat(value);
     
-    // Se il parsing fallisce o il valore è NaN, non appartiene a nessuna classe
-    if (isNaN(numValue)) {
+    // Se il valore non è un numero valido, non appartiene a nessuna classe > 0
+    if (isNaN(numValue) || numValue === null || numValue === undefined) {
         return false;
     }
     
-    // Per valori zero, verifica se zero è effettivamente nel range della classe
     const minVal = breaks[classIndex] || 0;
-    const maxVal = breaks[classIndex + 1];
+    const maxVal = breaks[classIndex + 1] || Infinity;
     
-    // Se non c'è un max value (ultima classe), usa Infinity
-    if (maxVal === undefined) {
-        return numValue >= minVal;
+    // Per le classi > 0, escludiamo esplicitamente lo zero
+    if (classIndex > 0 && numValue === 0) {
+        return false;
     }
     
     return numValue >= minVal && numValue < maxVal;
@@ -829,6 +784,23 @@ function updateBaseLegendWithCounts(stats) {
 }
 
 /**
+ * Ottiene la categoria per un valore tematico
+ */
+function getThemeCategory(value, theme) {
+    if (theme.type === 'categorical') {
+        return value || 'N/D';
+    } else if (theme.type === 'jenks' && theme.jenksBreaks) {
+        const numValue = parseFloat(value) || 0;
+        for (let i = theme.jenksBreaks.length - 1; i >= 0; i--) {
+            if (numValue >= theme.jenksBreaks[i]) {
+                return `Classe ${i + 1}`;
+            }
+        }
+    }
+    return 'N/D';
+}
+
+/**
  * Crea elemento totale
  */
 function createTotalItem(count) {
@@ -884,9 +856,111 @@ function formatNumber(num) {
 }
 
 /**
- * Forza aggiornamento legenda
+ * Forza aggiornamento legenda (utile dopo filtri)
  */
 function forceLegendUpdate() {
     lastUpdateHash = '';
     updateDynamicLegend();
 }
+
+/**
+ * FUNZIONE DEBUG: Analizza distribuzione valori Jenks
+ * Utile per diagnosticare problemi di classificazione
+ */
+function debugJenksValues(theme) {
+    if (!theme || theme.type !== 'jenks') {
+        console.log('❌ Tema non Jenks o non trovato');
+        return;
+    }
+    
+    console.log('🔍 Debug valori Jenks per tema:', currentTheme);
+    
+    const features = map.queryRenderedFeatures(undefined, {
+        layers: ['catastale-thematic'].filter(l => {
+            try {
+                return map.getLayer(l) !== undefined;
+            } catch {
+                return false;
+            }
+        })
+    });
+    
+    const valueDistribution = {};
+    const classeDistribution = {};
+    const classe0Values = [];
+    
+    features.forEach(f => {
+        const value = f.properties[theme.property];
+        const fid = f.properties.fid;
+        
+        if (fid) {
+            // Conta distribuzione valori raw
+            const valueKey = value === null ? 'null' : 
+                           value === undefined ? 'undefined' :
+                           value === 0 ? 'zero' :
+                           value === '' ? 'empty' : value.toString();
+            
+            if (!valueDistribution[valueKey]) {
+                valueDistribution[valueKey] = 0;
+            }
+            valueDistribution[valueKey]++;
+            
+            // Conta distribuzione per classi
+            for (let i = 0; i < theme.jenksBreaks.length; i++) {
+                if (isInJenksClass(value, i, theme.jenksBreaks)) {
+                    if (!classeDistribution[i]) {
+                        classeDistribution[i] = 0;
+                    }
+                    classeDistribution[i]++;
+                    
+                    // Raccogli esempi per classe 0
+                    if (i === 0 && classe0Values.length < 10) {
+                        classe0Values.push(value);
+                    }
+                    break;
+                }
+            }
+        }
+    });
+    
+    console.log('📊 Distribuzione valori (prime 20):', 
+        Object.entries(valueDistribution)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 20)
+    );
+    
+    console.log('📈 Distribuzione classi Jenks:', classeDistribution);
+    console.log('🔍 Esempi valori classe 0:', [...new Set(classe0Values)]);
+    console.log('📐 Breaks Jenks:', theme.jenksBreaks);
+    
+    // Verifica coerenza
+    const totalFeatures = features.length;
+    const totalClassified = Object.values(classeDistribution).reduce((a, b) => a + b, 0);
+    
+    if (totalFeatures !== totalClassified) {
+        console.warn(`⚠️ ATTENZIONE: Features totali (${totalFeatures}) != Classificate (${totalClassified})`);
+    } else {
+        console.log('✅ Classificazione coerente');
+    }
+}
+
+// Funzione di utilità globale per debug da console
+window.debugJenks = function() {
+    const theme = themes[currentTheme];
+    debugJenksValues(theme);
+};
+
+// Funzione di utilità per forzare aggiornamento
+window.forceLegendUpdate = forceLegendUpdate;
+
+// Inizializzazione automatica quando il DOM è pronto
+if (typeof map !== 'undefined') {
+    initializeDynamicLegend();
+} else {
+    // Aspetta che la mappa sia inizializzata
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(initializeDynamicLegend, 2000);
+    });
+}
+
+console.log('🎯 Sistema Legenda Dinamica v2.1 caricato - Con FIX per classe "nessun dato" Jenks');
