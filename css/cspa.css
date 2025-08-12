@@ -398,7 +398,7 @@ body {
 
     /* NUOVO HEADER UNIFICATO */
         .unified-header {
-            background: #ffffff;
+            background:  rgb(255 255 255 / 98%);
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             padding: 0px 25px;
             display: flex;
@@ -408,6 +408,7 @@ body {
             z-index: 1000;
            /* min-height: 80px;*/
 			height: 70px;
+			border-bottom:1px solid #31313157;
         }
 
         /* LATO SINISTRO - Logo CS + Titolo */
