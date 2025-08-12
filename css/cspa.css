@@ -506,7 +506,7 @@ body {
 
 #beta { 
     position: fixed; 
-    bottom: 40px; 
+    bottom: 100px; 
     right: 20px; 
     z-index: 1500;
 }
