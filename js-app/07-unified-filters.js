@@ -1,7 +1,6 @@
 // ===== FILE: unified-filters.js =====
 /**
- * SISTEMA FILTRI UNIFICATO - Risolve conflitti tra dynamic-filters.js e filters.js
- * Combina le migliori funzionalità di entrambi gli script
+ * SISTEMA FILTRI UNIFICATO 
  */
 
 // ===== STRUTTURE DATI UNIFICATE =====
@@ -9,11 +8,6 @@ let mandamentoFoglioMap = new Map();           // mandamento -> array di fogli
 let foglioMandamentoMap = new Map();           // foglio -> mandamento
 let availableFogli = [];                       // array di tutti i fogli ordinati
 let completeSystemReady = false;
-
-// ===== VARIABILI GLOBALI =====
-let currentMandamentoFilter = null;
-let currentFoglioFilter = null;
-let currentTheme = null;
 
 // ===== FUNZIONI CORE UNIFICATE =====
 
@@ -112,7 +106,6 @@ function buildUnifiedRelations() {
         console.log('🗺️ Relazioni unificate costruite:');
         console.log('- Fogli totali:', availableFogli.length);
         console.log('- Mandamenti:', mandamentoFoglioMap.size);
-        console.log('- Mappa completa:', Object.fromEntries(mandamentoFoglioMap));
         
         updateUnifiedFoglioDropdown();
         
@@ -334,6 +327,18 @@ function applyUnifiedFiltersToMap() {
     map.setFilter('catastale-outline', filter);
     map.setFilter('catastale-hover', ['==', ['get', 'fid'], '']);
     
+    // Centra la vista sugli oggetti filtrati
+    if (filter) {
+        centerOnFilteredFeatures(filter);
+    } else {
+        // Se non ci sono filtri, torna alla vista iniziale
+        map.flyTo({
+            center: CONFIG.map.center,
+            zoom: CONFIG.map.zoom,
+            duration: 1500
+        });
+    }
+    
     // Riapplica il tema corrente se presente
     if (currentTheme && currentTheme !== 'landuse') {
         applyTheme(currentTheme);
@@ -355,6 +360,132 @@ function applyUnifiedFiltersToMap() {
             forceLegendUpdate();
         }
     }, 800);
+}
+
+/**
+ * Centra la mappa sugli oggetti filtrati
+ */
+function centerOnFilteredFeatures(filter) {
+    try {
+        // Ottieni tutte le features che corrispondono al filtro
+        const features = map.querySourceFeatures('palermo_catastale', {
+            sourceLayer: CONFIG.pmtiles.sourceLayer,
+            filter: filter
+        });
+        
+        if (features.length === 0) {
+            console.log('⚠️ Nessuna feature trovata per il filtro');
+            return;
+        }
+        
+        // Calcola il bounding box delle features filtrate
+        let minLng = Infinity;
+        let maxLng = -Infinity;
+        let minLat = Infinity;
+        let maxLat = -Infinity;
+        
+        features.forEach(feature => {
+            if (feature.geometry && feature.geometry.coordinates) {
+                const coords = feature.geometry.coordinates[0]; // Assumendo poligoni
+                
+                coords.forEach(coord => {
+                    // Gestisci array annidati per poligoni complessi
+                    if (Array.isArray(coord[0])) {
+                        coord.forEach(innerCoord => {
+                            minLng = Math.min(minLng, innerCoord[0]);
+                            maxLng = Math.max(maxLng, innerCoord[0]);
+                            minLat = Math.min(minLat, innerCoord[1]);
+                            maxLat = Math.max(maxLat, innerCoord[1]);
+                        });
+                    } else {
+                        minLng = Math.min(minLng, coord[0]);
+                        maxLng = Math.max(maxLng, coord[0]);
+                        minLat = Math.min(minLat, coord[1]);
+                        maxLat = Math.max(maxLat, coord[1]);
+                    }
+                });
+            }
+        });
+        
+        // Verifica che i bounds siano validi
+        if (minLng === Infinity || maxLng === -Infinity || 
+            minLat === Infinity || maxLat === -Infinity) {
+            console.log('⚠️ Bounds non validi');
+            return;
+        }
+        
+        // Calcola il centro e applica padding
+        const bounds = [[minLng, minLat], [maxLng, maxLat]];
+        
+        // Adatta la vista con padding per dispositivi mobili e desktop
+        const isMobile = window.innerWidth <= 768;
+        const padding = isMobile ? 
+            { top: 100, bottom: 100, left: 50, right: 50 } :
+            { top: 100, bottom: 100, left: 320, right: 420 }; // Considera pannelli laterali
+        
+        // Anima la transizione verso i nuovi bounds
+        map.fitBounds(bounds, {
+            padding: padding,
+            duration: 1500,
+            maxZoom: 16 // Non zoomare troppo
+        });
+        
+        console.log('🎯 Vista centrata su', features.length, 'features');
+        
+        // Mostra notifica temporanea (opzionale)
+        showFilterNotification(features.length);
+        
+    } catch (error) {
+        console.error('❌ Errore nel centrare le features:', error);
+    }
+}
+
+/**
+ * Mostra notifica temporanea del numero di particelle filtrate
+ */
+function showFilterNotification(count) {
+    // Rimuovi notifiche esistenti
+    const existingNotification = document.querySelector('.filter-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // Crea nuova notifica
+    const notification = document.createElement('div');
+    notification.className = 'filter-notification';
+    notification.innerHTML = `
+        <i class="fas fa-filter"></i>
+        <span>${count} particelle selezionate</span>
+    `;
+    
+    // Aggiungi stili inline temporanei
+    notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #ff9900 0%, #ff5100 100%);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        animation: slideDown 0.5s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Rimuovi dopo 3 secondi con fade out
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
 }
 
 /**
@@ -419,6 +550,14 @@ function resetUnifiedFilters() {
     currentMandamentoFilter = null;
     currentFoglioFilter = null;
     
+    // NUOVO: Reset filtri legenda
+    if (window.clearLegendFilters) {
+        window.clearLegendFilters();
+    }
+    
+    currentMandamentoFilter = null;
+    currentFoglioFilter = null;
+    
     // Reset UI
     const mandamentoSelect = document.getElementById('mandamento-filter');
     const foglioSelect = document.getElementById('foglio-filter');
@@ -429,14 +568,54 @@ function resetUnifiedFilters() {
     // Reset evidenziazioni
     highlightFogliForMandamento('');
     
-    // Applica filtri (che saranno nulli)
+    // Applica filtri (che saranno nulli) - questo ricentrerà anche la mappa
     applyUnifiedFiltersToMap();
     
     // Nascondi indicatori
     document.querySelectorAll('.filter-indicator').forEach(indicator => {
         indicator.style.display = 'none';
     });
+    
+    // Rimuovi eventuali notifiche
+    const notification = document.querySelector('.filter-notification');
+    if (notification) {
+        notification.remove();
+    }
 }
+
+// ===== FUNZIONI CRITICHE PER THEMES.JS =====
+
+/**
+ * Ottiene il filtro corrente per i layer tematici
+ * QUESTA È LA FUNZIONE MANCANTE CHE CAUSA IL PROBLEMA!
+ */
+function getCurrentFilter() {
+    return buildUnifiedMapFilter();
+}
+
+// Aggiungi dopo la funzione getCurrentFilter()
+window.getCombinedFilter = function() {
+    const territorialFilter = getCurrentFilter();
+    const legendFilter = window.legendFilterState && window.legendFilterState.isFiltering ? 
+        window.getCurrentLegendFilter() : null;
+    
+    if (territorialFilter && legendFilter) {
+        return ['all', territorialFilter, legendFilter];
+    }
+    return territorialFilter || legendFilter || null;
+};
+
+// Funzione helper per ottenere il filtro corrente della legenda
+window.getCurrentLegendFilter = function() {
+    if (!window.legendFilterState || window.legendFilterState.activeCategories.size === 0) {
+        return null;
+    }
+    
+    // Costruisci filtro basato sulle categorie selezionate
+    // (Logica già implementata in applyLegendFilters di dynamic-legend.js)
+    return null; // Placeholder - usa la logica da dynamic-legend.js
+};
+
 
 // ===== FUNZIONI UTILITY ESPORTATE =====
 
@@ -493,10 +672,6 @@ function applyMandamentoFilter(mandamento) {
     return applyUnifiedMandamentoFilter(mandamento);
 }
 
-function getCurrentFilter() {
-    return buildUnifiedMapFilter();
-}
-
 function populateFoglioFilter() {
     return buildUnifiedRelations();
 }
@@ -518,7 +693,13 @@ function applyCurrentFiltersToMap() {
     return applyUnifiedFiltersToMap();
 }
 
+// Funzione per forzare l'aggiornamento completo
+function resetAllDynamicFilters() {
+    return resetUnifiedFilters();
+}
+
 // ===== ESPORTAZIONE FUNZIONI GLOBALI =====
+window.getCurrentFilter = getCurrentFilter;  // CRITICO!
 window.getMandamentoForFoglio = getMandamentoForFoglio;
 window.getFogliForMandamento = getFogliForMandamento;
 window.getUnifiedFilterStats = getUnifiedFilterStats;
@@ -532,6 +713,7 @@ window.applyUnifiedMandamentoFilter = applyUnifiedMandamentoFilter;
 window.applyFoglioFilter = applyFoglioFilter;
 window.applyMandamentoFilter = applyMandamentoFilter;
 window.resetDynamicFilters = resetDynamicFilters;
+window.resetAllDynamicFilters = resetAllDynamicFilters;
 
 // ===== INIZIALIZZAZIONE =====
 document.addEventListener('DOMContentLoaded', () => {
