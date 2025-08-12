@@ -12,6 +12,16 @@ Un'innovativa piattaforma di analisi geospaziale che trasforma i dati catastali 
 - **Esplora i Dettagli:** Clicca su qualsiasi particella per accedere ai dati specifici nel pannello laterale
 - **Filtra per Area:** I filtri si aggiornano automaticamente - seleziona un mandamento per vedere solo i suoi fogli. La mappa si centrerà automaticamente sull'area selezionata. legende interattive che fungono da filtri. Funzionalità standard nelle moderne applicazioni di data visualization e mapping. Cliccare sui colori/elementi della legenda per attivare/disattivare i relativi dataset è una UX pattern molto comune e intuitiva.
 - **Cerca Indirizzi:** Utilizza la ricerca geografica ottimizzata per il centro storico di Palermo
+## 📤 **Funzionalità di Condivisione**
+### **Cattura completa dello stato**:
+- ✅ Basemap selezionato (CartoDB, OSM, Google Maps, Satellite)
+- ✅ Mandamento filtrato
+- ✅ Foglio filtrato  
+- ✅ Tema corrente (sia categorici che Jenks-Fisher)
+- ✅ Perimetri attivi (Palermo, Centro Storico, Mandamenti)
+- ✅ Stato dei bordi
+- ✅ Filtri della legenda
+- ✅ Posizione e zoom della mappa (tramite hash)
 -----
 **Fonte dati:**\
 [zornade.com](https://zornade.com/) - Italian Cadastral Parcel Data & Geospatial Insights API
