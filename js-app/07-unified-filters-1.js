@@ -1,6 +1,6 @@
 // ===== FILE: unified-filters.js =====
 /**
- * SISTEMA FILTRI UNIFICATO CON SELECT PERSONALIZZATI E ICONE FONT AWESOME
+ * SISTEMA FILTRI UNIFICATO 
  */
 
 // ===== STRUTTURE DATI UNIFICATE =====
@@ -9,386 +9,7 @@ let foglioMandamentoMap = new Map();           // foglio -> mandamento
 let availableFogli = [];                       // array di tutti i fogli ordinati
 let completeSystemReady = false;
 
-// ===== CONFIGURAZIONE SELECT PERSONALIZZATI =====
-const customSelectOptions = {
-    'demographic-select': [
-        { value: '', text: 'Seleziona indicatore...', icon: '' },
-        { value: 'population', text: 'Popolazione Stimata', icon: 'fas fa-users' },
-        { value: 'masculinity', text: 'Tasso di Mascolinità', icon: 'fas fa-mars' },
-        { value: 'singlePerson', text: 'Tasso Persona Singola', icon: 'fas fa-user' },
-        { value: 'familySize', text: 'Dimensione Media Famiglia', icon: 'fas fa-home-heart' },
-        { value: 'largeFamilies', text: 'Tasso Famiglie Numerose', icon: 'fas fa-users' },
-        { value: 'age', text: 'Età Media', icon: 'fas fa-user-clock' },
-        { value: 'elderly', text: 'Tasso Anziani', icon: 'fas fa-user-friends' },
-        { value: 'foreign', text: 'Popolazione Straniera', icon: 'fas fa-globe' },
-        { value: 'nonEuForeigners', text: 'Stranieri Non-UE', icon: 'fas fa-passport' },
-        { value: 'youngForeigners', text: 'Giovani Stranieri', icon: 'fas fa-child' }
-    ],
-    'economic-select': [
-        { value: '', text: 'Seleziona indicatore...', icon: '' },
-        { value: 'higherEducation', text: 'Istruzione Superiore', icon: 'fas fa-graduation-cap' },
-        { value: 'lowEducation', text: 'Basso Tasso Istruzione', icon: 'fas fa-book' },
-        { value: 'workIntegration', text: 'Integrazione Lavoro', icon: 'fas fa-handshake' },
-        { value: 'employment', text: 'Tasso Occupazione', icon: 'fas fa-briefcase' },
-        { value: 'femaleEmployment', text: 'Tasso Occupazione Femminile', icon: 'fas fa-female' },
-        { value: 'genderGap', text: 'Divario Genere Occupazione', icon: 'fas fa-balance-scale' },
-        { value: 'resilience', text: 'Resilienza Economica', icon: 'fas fa-shield-alt' },
-        { value: 'cohesion', text: 'Coesione Sociale', icon: 'fas fa-handshake' }
-    ],
-    'territorial-select': [
-        { value: 'landuse', text: 'Seleziona indicatore...', icon: '' },
-        { value: 'density', text: 'Densità Abitativa', icon: 'fas fa-home' },
-        { value: 'surface_area', text: 'Superficie Particella', icon: 'fas fa-expand-arrows-alt' },
-        { value: 'elevation_min', text: 'Elevazione Minima', icon: 'fas fa-mountain' },
-        { value: 'elevation_max', text: 'Elevazione Massima', icon: 'fas fa-mountain' },
-        { value: 'building_occupancy', text: 'Occupazione Media Edificio', icon: 'fas fa-building' },
-        { value: 'structural_dependency', text: 'Dipendenza Strutturale', icon: 'fas fa-tools' },
-        { value: 'robustness', text: 'Indice Robustezza', icon: 'fas fa-shield-alt' },
-        { value: 'requalification_opportunity', text: 'Opportunità Riqualificazione', icon: 'fas fa-hammer' },
-        { value: 'real_estate_potential', text: 'Potenziale Immobiliare', icon: 'fas fa-chart-line' },
-        { value: 'buildings', text: 'Numero Edifici', icon: 'fas fa-city' },
-        { value: 'flood_risk', text: 'Rischio alluvione', icon: 'fas fa-water' },
-        { value: 'land_cover', text: 'Copertura del suolo', icon: 'fas fa-leaf' },
-        { value: 'landslide_risk', text: 'Rischio di frana', icon: 'fas fa-mountain' },
-        { value: 'coastal_erosion', text: 'Rischio erosione costiera', icon: 'fas fa-umbrella-beach' },
-        { value: 'seismic_risk', text: 'Rischio sismico', icon: 'fas fa-house-damage' }
-    ]
-};
-
-// ===== FUNZIONI SELECT PERSONALIZZATI =====
-
-/**
- * Inizializza i select personalizzati sostituendo quelli HTML standard
- */
-function initializeCustomSelects() {
-    console.log('🎨 Inizializzazione select personalizzati con icone...');
-    
-    // Sostituisci i select standard con versioni personalizzate
-    Object.keys(customSelectOptions).forEach(selectId => {
-        const originalSelect = document.getElementById(selectId);
-        if (originalSelect) {
-            const customSelect = createCustomSelect(selectId, customSelectOptions[selectId]);
-            originalSelect.parentNode.replaceChild(customSelect, originalSelect);
-        }
-    });
-    
-    // Aggiungi CSS per i select personalizzati se non esiste
-    addCustomSelectStyles();
-    
-    console.log('✅ Select personalizzati inizializzati');
-}
-
-/**
- * Crea un select personalizzato con supporto per icone
- */
-function createCustomSelect(selectId, options) {
-    const container = document.createElement('div');
-    container.className = 'custom-select';
-    container.id = selectId;
-    
-    // Pulsante principale del select
-    const button = document.createElement('div');
-    button.className = 'select-button';
-    button.onclick = () => toggleCustomSelect(selectId);
-    
-    const selectedSpan = document.createElement('span');
-    selectedSpan.id = selectId + '-selected';
-    selectedSpan.innerHTML = options[0].icon ? `<i class="${options[0].icon}"></i> ${options[0].text}` : options[0].text;
-    
-    button.appendChild(selectedSpan);
-    
-    // Container delle opzioni
-    const optionsContainer = document.createElement('div');
-    optionsContainer.className = 'select-options';
-    optionsContainer.id = selectId + '-options';
-    
-    // Crea le opzioni
-    options.forEach(option => {
-        const optionElement = document.createElement('div');
-        optionElement.className = 'select-option';
-        optionElement.setAttribute('data-value', option.value);
-        optionElement.onclick = () => selectCustomOption(selectId, option.value, optionElement);
-        
-        if (option.icon) {
-            optionElement.innerHTML = `<i class="${option.icon}"></i> ${option.text}`;
-        } else {
-            optionElement.textContent = option.text;
-        }
-        
-        optionsContainer.appendChild(optionElement);
-    });
-    
-    container.appendChild(button);
-    container.appendChild(optionsContainer);
-    
-    return container;
-}
-
-/**
- * Gestisce il toggle del dropdown personalizzato
- */
-function toggleCustomSelect(selectId) {
-    const select = document.getElementById(selectId);
-    const button = select.querySelector('.select-button');
-    const options = select.querySelector('.select-options');
-    
-    // Chiudi tutti gli altri select
-    document.querySelectorAll('.custom-select').forEach(otherSelect => {
-        if (otherSelect.id !== selectId) {
-            otherSelect.querySelector('.select-button').classList.remove('open');
-            otherSelect.querySelector('.select-options').classList.remove('show');
-        }
-    });
-    
-    // Toggle questo select
-    button.classList.toggle('open');
-    options.classList.toggle('show');
-}
-
-/**
- * Gestisce la selezione di un'opzione personalizzata
- */
-function selectCustomOption(selectId, value, element) {
-    const select = document.getElementById(selectId);
-    const selectedSpan = select.querySelector('span[id$="-selected"]');
-    const button = select.querySelector('.select-button');
-    const options = select.querySelector('.select-options');
-    
-    // Aggiorna il testo selezionato
-    selectedSpan.innerHTML = element.innerHTML;
-    
-    // Chiudi il dropdown
-    button.classList.remove('open');
-    options.classList.remove('show');
-    
-    // Gestisci la selezione in base al tipo di select
-    handleCustomSelectChange(selectId, value);
-}
-
-/**
- * Gestisce i cambiamenti dei select personalizzati
- */
-function handleCustomSelectChange(selectId, value) {
-    console.log(`📋 Select personalizzato ${selectId} cambiato:`, value);
-    
-    switch (selectId) {
-        case 'demographic-select':
-            // Gestisci selezione demografica
-            if (typeof applyTheme === 'function') {
-                applyTheme(value || 'landuse');
-            }
-            break;
-            
-        case 'economic-select':
-            // Gestisci selezione economica
-            if (typeof applyTheme === 'function') {
-                applyTheme(value || 'landuse');
-            }
-            break;
-            
-        case 'territorial-select':
-            // Gestisci selezione territoriale
-            if (typeof applyTheme === 'function') {
-                applyTheme(value || 'landuse');
-            }
-            break;
-    }
-    
-    // Trigger evento personalizzato per compatibilità
-    const event = new CustomEvent('customSelectChanged', {
-        detail: { 
-            selectId: selectId, 
-            value: value 
-        }
-    });
-    document.dispatchEvent(event);
-}
-
-/**
- * Ottiene il valore corrente di un select personalizzato
- */
-function getCustomSelectValue(selectId) {
-    const select = document.getElementById(selectId);
-    if (!select) return null;
-    
-    const selectedOption = select.querySelector('.select-option.selected');
-    return selectedOption ? selectedOption.getAttribute('data-value') : '';
-}
-
-/**
- * Imposta il valore di un select personalizzato
- */
-function setCustomSelectValue(selectId, value) {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-    
-    const options = select.querySelectorAll('.select-option');
-    const targetOption = Array.from(options).find(opt => opt.getAttribute('data-value') === value);
-    
-    if (targetOption) {
-        selectCustomOption(selectId, value, targetOption);
-    }
-}
-
-/**
- * Aggiunge gli stili CSS per i select personalizzati
- */
-function addCustomSelectStyles() {
-    // Controlla se gli stili esistono già
-    if (document.getElementById('custom-select-styles')) return;
-    
-    const styles = document.createElement('style');
-    styles.id = 'custom-select-styles';
-    styles.textContent = `
-        .custom-select {
-            position: relative;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        .select-button {
-            width: 84%;
-			    margin: 6px 0;
-            padding: 1px 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: #f8f9fa;
-            cursor: pointer;
-            text-align: left;
-            position: relative;
-            font-size: 12px;
-            min-height: 38px;
-            display: flex;
-            align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        .select-button:hover {
-            border-color: #ff9900;
-            box-shadow: 0 2px 4px rgba(255, 153, 0, 0.1);
-        }
-
-        .select-button:after {
-            content: '\\f078';
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            transition: transform 0.2s;
-            color: #666;
-        }
-
-        .select-button.open {
-            border-color: #ff9900;
-            box-shadow: 0 0 0 2px rgba(255, 153, 0, 0.1);
-        }
-
-        .select-button.open:after {
-            transform: translateY(-50%) rotate(180deg);
-        }
-
-        .select-options {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-top: none;
-            border-radius: 0 0 4px 4px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-			font-size: 12px;
-        }
-
-        .select-options.show {
-            display: block;
-			
-        }
-
-        .select-option {
-            padding: 10px 12px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-            transition: background-color 0.2s;
-            display: flex;
-            align-items: center;
-			    height: 5px;
-        }
-
-     .select-option:hover {
-            background-color: #767676!important;
-			color: #ffffff;
-        }
-
-        .select-option:active {
-            background-color: #e9ecef;
-        }
-
-        .select-option:last-child {
-            border-bottom: none;
-        }
-
-        .select-option i {
-            margin-right: 8px;
-            color: #666;
-            width: 16px;
-            text-align: center;
-        }
-
-        .select-option[data-value=""] i {
-            opacity: 0.5;
-        }
-
-        /* Stili responsive */
-        @media (max-width: 768px) {
-            .select-options {
-                max-height: 150px;
-            }
-            
-            .select-option {
-                padding: 10px;
-                font-size: 12px;
-            }
-        }
-
-        /* Stili per opzioni evidenziate */
-        .highlighted-option {
-            background-color: #fff3cd !important;
-            border-left: 3px solid #ff9900 !important;
-        }
-
-        .dimmed-option {
-            opacity: 0.5 !important;
-            background-color: #f8f9fa !important;
-        }
-
-        /* Animazioni */
-        .select-options {
-            animation: slideDown 0.2s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    `;
-    
-    document.head.appendChild(styles);
-}
-
-// ===== FUNZIONI CORE UNIFICATE (MANTENUTE COME ORIGINALE) =====
+// ===== FUNZIONI CORE UNIFICATE =====
 
 /**
  * Inizializzazione completa del sistema filtri
@@ -400,9 +21,6 @@ function initializeUnifiedFilters() {
         setTimeout(initializeUnifiedFilters, 1000);
         return;
     }
-    
-    // Inizializza select personalizzati PRIMA della logica dei filtri
-    initializeCustomSelects();
     
     buildUnifiedRelations();
     setupUnifiedEventListeners();
@@ -497,13 +115,12 @@ function buildUnifiedRelations() {
 }
 
 /**
- * Setup event listeners unificati (AGGIORNATO per select personalizzati)
+ * Setup event listeners unificati
  */
 function setupUnifiedEventListeners() {
     const mandamentoSelect = document.getElementById('mandamento-filter');
     const foglioSelect = document.getElementById('foglio-filter');
     
-    // Event listeners per select standard (mandamento e foglio)
     if (mandamentoSelect) {
         mandamentoSelect.addEventListener('change', function(e) {
             if (!completeSystemReady) return;
@@ -539,29 +156,7 @@ function setupUnifiedEventListeners() {
             applyUnifiedFoglioFilter(selectedFoglio);
         });
     }
-    
-    // Event listener per select personalizzati
-    document.addEventListener('customSelectChanged', function(event) {
-        if (!completeSystemReady) return;
-        
-        const { selectId, value } = event.detail;
-        console.log('🎨 Select personalizzato cambiato:', selectId, value);
-        
-        // La gestione è già stata fatta in handleCustomSelectChange
-    });
-    
-    // Chiudi dropdown quando si clicca fuori
-    document.addEventListener('click', function(event) {
-        if (!event.target.closest('.custom-select')) {
-            document.querySelectorAll('.custom-select').forEach(select => {
-                select.querySelector('.select-button').classList.remove('open');
-                select.querySelector('.select-options').classList.remove('show');
-            });
-        }
-    });
 }
-
-// ===== RESTO DELLE FUNZIONI (MANTENUTE COME ORIGINALE) =====
 
 /**
  * Aggiorna dropdown fogli con formato migliorato
@@ -878,7 +473,7 @@ function showFilterNotification(count) {
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 600;
         animation: slideDown 0.5s ease;
     `;
