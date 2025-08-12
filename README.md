@@ -5,7 +5,7 @@ Un'innovativa piattaforma di analisi geospaziale che trasforma i dati catastali 
 - **Demografia Avanzata** - Analisi della popolazione residente, composizione per età, struttura familiare e dinamiche migratorie.
 - **Indicatori Socio-Economici** - Livelli di occupazione, istruzione, integrazione lavorativa e resilienza economica del territorio.
 - **Analisi Territoriale** - Densità abitativa, caratteristiche morfologiche, valutazione rischi ambientali e potenziale immobiliare.
-- **Filtri Dinamici Interconnessi** - Sistema avanzato per Mandamenti e Fogli con aggiornamento in tempo reale
+- **Filtri Dinamici Interconnessi** - Sistema avanzato per Mandamenti e Fogli di mappa e colori legenda con aggiornamento in tempo reale
 - **Auto-centraggio Intelligente** - La mappa si centra automaticamente sulle aree filtrate
 #### **Come Utilizzare la Piattaforma:**
 - **Seleziona un Indicatore:** Utilizza i menu tematici per visualizzare Demografia, Economia o Territorio
