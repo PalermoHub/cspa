@@ -10,7 +10,7 @@ Un'innovativa piattaforma di analisi geospaziale che trasforma i dati catastali 
 #### **Come Utilizzare la Piattaforma:**
 - **Seleziona un Indicatore:** Utilizza i menu tematici per visualizzare Demografia, Economia o Territorio
 - **Esplora i Dettagli:** Clicca su qualsiasi particella per accedere ai dati specifici nel pannello laterale
-- **Filtra per Area:** I filtri si aggiornano automaticamente - seleziona un mandamento per vedere solo i suoi fogli. La mappa si centrerà automaticamente sull'area selezionata
+- **Filtra per Area:** I filtri si aggiornano automaticamente - seleziona un mandamento per vedere solo i suoi fogli. La mappa si centrerà automaticamente sull'area selezionata. legende interattive che fungono da filtri. Funzionalità standard nelle moderne applicazioni di data visualization e mapping. Cliccare sui colori/elementi della legenda per attivare/disattivare i relativi dataset è una UX pattern molto comune e intuitiva.
 - **Cerca Indirizzi:** Utilizza la ricerca geografica ottimizzata per il centro storico di Palermo
 -----
 **Fonte dati:**\
