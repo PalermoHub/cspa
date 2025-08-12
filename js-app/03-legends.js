@@ -1,10 +1,11 @@
-// =====legends.js =====
+// ===== legends.js =====
 /**
  * Gestione legende per tutti i tipi di tema
+ * Versione 2.0 - Con supporto per legende interattive e filtri
  */
 
 /**
- * Mostra legenda Jenks-Fisher
+ * Mostra legenda Jenks-Fisher con interattività
  */
 function showJenksLegend(theme) {
     const legend = document.getElementById('legend');
@@ -22,25 +23,58 @@ function showJenksLegend(theme) {
     
     items.innerHTML = '';
     
+    // Aggiungi controlli toggle
+    if (window.createToggleControls) {
+        const toggleControls = window.createToggleControls();
+        items.appendChild(toggleControls);
+    }
+    
     const labels = getJenksLabels(currentTheme);
     const numClasses = currentTheme === 'population' ? 7 : 8;
     
     for (let i = 0; i < numClasses; i++) {
         const item = document.createElement('div');
-        item.className = 'legend-item';
+        item.className = 'legend-item legend-item-dynamic interactive';
         
+        // Attributi per interattività
+        item.setAttribute('data-category', i.toString());
+        item.setAttribute('data-tooltip', 'Clicca per filtrare');
+        
+        // Event listener per click
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.handleLegendItemClick) {
+                window.handleLegendItemClick(i.toString(), e.ctrlKey || e.metaKey);
+            }
+        });
+        
+        // Struttura HTML con checkbox
         item.innerHTML = `
+            <span class="legend-checkbox"></span>
             <div class="legend-color" style="background-color: ${theme.colors[i]}"></div>
-            <span class="legend-label">${labels[i]}</span>
+            <span class="legend-label legend-label-dynamic">
+                <span class="category-name">${labels[i]}</span>
+                <span class="category-stats">0 (0.0%)</span>
+            </span>
         `;
         items.appendChild(item);
     }
     
     legend.classList.add('visible');
+    
+    // Aggiorna UI se ci sono filtri attivi
+    if (window.updateLegendUI) {
+        setTimeout(() => window.updateLegendUI(), 100);
+    }
+    
+    // Aggiorna conteggi dinamici
+    if (window.updateDynamicLegend) {
+        setTimeout(() => window.updateDynamicLegend(), 200);
+    }
 }
 
 /**
- * Mostra legenda standard
+ * Mostra legenda standard con interattività
  */
 function showLegend(theme, range) {
     const legend = document.getElementById('legend');
@@ -57,6 +91,12 @@ function showLegend(theme, range) {
     title.textContent = titleText;
     
     items.innerHTML = '';
+    
+    // Aggiungi controlli toggle
+    if (window.createToggleControls) {
+        const toggleControls = window.createToggleControls();
+        items.appendChild(toggleControls);
+    }
     
     if (theme.type === 'categorical') {
         let colorMap = {};
@@ -89,14 +129,32 @@ function showLegend(theme, range) {
             const label = labelMap[code] || code;
             
             const item = document.createElement('div');
-            item.className = 'legend-item';
+            item.className = 'legend-item legend-item-dynamic interactive';
+            
+            // Attributi interattività
+            item.setAttribute('data-category', code);
+            item.setAttribute('data-tooltip', 'Clicca per filtrare');
+            
+            // Event listener
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (window.handleLegendItemClick) {
+                    window.handleLegendItemClick(code, e.ctrlKey || e.metaKey);
+                }
+            });
+            
             item.innerHTML = `
+                <span class="legend-checkbox"></span>
                 <div class="legend-color" style="background-color: ${color}"></div>
-                <span class="legend-label">${label}</span>
+                <span class="legend-label legend-label-dynamic">
+                    <span class="category-name">${label}</span>
+                    <span class="category-stats">0 (0.0%)</span>
+                </span>
             `;
             items.appendChild(item);
         }
     } else {
+        // Per temi numerici non-Jenks
         const step = (range.max - range.min) / (theme.colors.length - 1);
         
         theme.colors.forEach((color, i) => {
@@ -106,23 +164,50 @@ function showLegend(theme, range) {
                 Math.round(range.min + (step * (i + 1)));
             
             const item = document.createElement('div');
-            item.className = 'legend-item';
+            item.className = 'legend-item legend-item-dynamic interactive';
             
             let label = `${minVal} - ${maxVal} ${theme.unit}`;
             
+            // Attributi e listener per range
+            item.setAttribute('data-category', `range-${i}`);
+            item.setAttribute('data-min', minVal);
+            item.setAttribute('data-max', maxVal);
+            item.setAttribute('data-tooltip', 'Clicca per filtrare');
+            
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (window.handleLegendRangeClick) {
+                    window.handleLegendRangeClick(minVal, maxVal, theme.property, e.ctrlKey || e.metaKey);
+                }
+            });
+            
             item.innerHTML = `
+                <span class="legend-checkbox"></span>
                 <div class="legend-color" style="background-color: ${color}"></div>
-                <span class="legend-label">${label}</span>
+                <span class="legend-label legend-label-dynamic">
+                    <span class="category-name">${label}</span>
+                    <span class="category-stats">0 (0.0%)</span>
+                </span>
             `;
             items.appendChild(item);
         });
     }
     
     legend.classList.add('visible');
+    
+    // Aggiorna UI se ci sono filtri attivi
+    if (window.updateLegendUI) {
+        setTimeout(() => window.updateLegendUI(), 100);
+    }
+    
+    // Aggiorna conteggi dinamici
+    if (window.updateDynamicLegend) {
+        setTimeout(() => window.updateDynamicLegend(), 200);
+    }
 }
 
 /**
- * Mostra legenda base uso del suolo
+ * Mostra legenda base uso del suolo con interattività
  */
 function showBaseLegenda() {
     const legend = document.getElementById('legend');
@@ -140,21 +225,142 @@ function showBaseLegenda() {
     
     items.innerHTML = '';
     
+    // Aggiungi controlli toggle
+    if (window.createToggleControls) {
+        const toggleControls = window.createToggleControls();
+        items.appendChild(toggleControls);
+    }
+    
     for (const [className, color] of Object.entries(landUseColors)) {
         const label = landUseLabels[className];
         
         const item = document.createElement('div');
-        item.className = 'legend-item';
+        item.className = 'legend-item legend-item-dynamic interactive';
+        
+        // Attributi interattività
+        item.setAttribute('data-category', className);
+        item.setAttribute('data-tooltip', 'Clicca per filtrare');
+        
+        // Event listener per filtro interattivo
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.handleLegendItemClick) {
+                window.handleLegendItemClick(className, e.ctrlKey || e.metaKey);
+            }
+        });
         
         item.innerHTML = `
+            <span class="legend-checkbox"></span>
             <div class="legend-color" style="background-color: ${color}"></div>
-            <span class="legend-label">${label}</span>
+            <span class="legend-label legend-label-dynamic">
+                <span class="category-name">${label}</span>
+                <span class="category-stats">0 (0.0%)</span>
+            </span>
         `;
         items.appendChild(item);
     }
     
     legend.classList.add('visible');
+    
+    // Aggiorna UI se ci sono filtri attivi
+    if (window.updateLegendUI) {
+        setTimeout(() => window.updateLegendUI(), 100);
+    }
+    
+    // Chiama la funzione di aggiornamento dinamico se esiste
+    if (window.updateDynamicLegend) {
+        setTimeout(() => window.updateDynamicLegend(), 200);
+    }
 }
+
+/**
+ * Gestione click su range numerici
+ */
+window.handleLegendRangeClick = function(minVal, maxVal, property, isCtrlPressed) {
+    console.log('📊 Click su range:', minVal, '-', maxVal, property);
+    
+    // Per semplicità, convertiamo in categoria per riusare la logica esistente
+    const rangeKey = `${minVal}-${maxVal}`;
+    
+    if (!window.legendFilterState) {
+        window.legendFilterState = {
+            activeCategories: new Set(),
+            mode: 'all',
+            isFiltering: false
+        };
+    }
+    
+    if (isCtrlPressed) {
+        if (window.legendFilterState.activeCategories.has(rangeKey)) {
+            window.legendFilterState.activeCategories.delete(rangeKey);
+        } else {
+            window.legendFilterState.activeCategories.add(rangeKey);
+        }
+    } else {
+        if (window.legendFilterState.activeCategories.size === 1 && 
+            window.legendFilterState.activeCategories.has(rangeKey)) {
+            window.legendFilterState.activeCategories.clear();
+        } else {
+            window.legendFilterState.activeCategories.clear();
+            window.legendFilterState.activeCategories.add(rangeKey);
+        }
+    }
+    
+    // Costruisci filtro per range
+    let filter = null;
+    if (window.legendFilterState.activeCategories.size > 0) {
+        const rangeFilters = [];
+        window.legendFilterState.activeCategories.forEach(range => {
+            const [min, max] = range.split('-').map(Number);
+            rangeFilters.push([
+                'all',
+                ['>=', ['get', property], min],
+                ['<=', ['get', property], max]
+            ]);
+        });
+        
+        filter = rangeFilters.length === 1 ? rangeFilters[0] : ['any', ...rangeFilters];
+    }
+    
+    // Combina con filtri esistenti
+    const existingFilter = getCurrentFilter ? getCurrentFilter() : null;
+    if (existingFilter && filter) {
+        filter = ['all', existingFilter, filter];
+    } else if (existingFilter && !filter) {
+        filter = existingFilter;
+    }
+    
+    // Applica filtro
+    if (map.getLayer('catastale-thematic')) {
+        map.setFilter('catastale-thematic', filter);
+    } else {
+        map.setFilter('catastale-base', filter);
+    }
+    map.setFilter('catastale-outline', filter);
+    
+    // Auto-zoom sulle particelle filtrate
+    if (window.legendFilterState.activeCategories.size > 0 && window.zoomToFilteredFeatures) {
+        window.zoomToFilteredFeatures(filter);
+    }
+    
+    // Aggiorna UI
+    if (window.updateLegendUI) {
+        window.updateLegendUI();
+    }
+    
+    // Mostra notifica
+    if (window.showLegendFilterNotification) {
+        window.showLegendFilterNotification();
+    }
+    
+    // Forza aggiornamento conteggi
+    if (window.updateDynamicLegend) {
+        setTimeout(() => {
+            window.lastUpdateHash = ''; // Forza ricalcolo
+            window.updateDynamicLegend();
+        }, 300);
+    }
+};
 
 /**
  * Ottiene labels per temi Jenks
@@ -444,3 +650,9 @@ function getJenksLabels(themeKey) {
     
     return labelMaps[themeKey] || Array.from({length: 8}, (_, i) => `Classe ${i + 1}`);
 }
+
+// Esporta funzioni per uso globale
+window.showJenksLegend = showJenksLegend;
+window.showLegend = showLegend;
+window.showBaseLegenda = showBaseLegenda;
+window.getJenksLabels = getJenksLabels;
