@@ -250,6 +250,8 @@ body {
     transition: right 0.4s ease;
     overflow-y: auto;
     backdrop-filter: blur(10px);
+	border-bottom: 10px solid rgba(255,255,255,0.90);
+	
 }
 
 .info-panel.visible {
