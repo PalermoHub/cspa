@@ -353,7 +353,7 @@
 .synced-buttons-container {
     position: fixed;
     left: 10px; /* Posizione iniziale quando pannello chiuso */
-    bottom: 20px;
+    bottom: 45px;
     z-index: 1490;
     display: flex;
     flex-direction: column;
@@ -535,7 +535,7 @@
 @media (min-width: 1440px) {
     .synced-buttons-container {
         left: 10px;
-        bottom: 30px;
+        bottom: 45px;
     }
     
     .synced-buttons-container.panel-open {

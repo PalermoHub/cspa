@@ -8,8 +8,8 @@
 
 @media only screen and (min-width: 1440px) and (max-width: 1920px) {
   .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top:75px !important; }
-  .floating-panel { width: 260px; left: -270px;  height: calc(100vh - 90px)!important;}
-  .legend {	height: calc(40vh - 30px)!important; }
+  .floating-panel { width: 260px; left: -270px;  height: calc(100vh - 130px)!important;}
+  .legend {	height: calc(40vh - 45px)!important; }
   .control-panel {height: calc(40vh - 30px)!important; }
  }
  
@@ -18,6 +18,8 @@
 @media only screen and (min-width: 1200px) and (max-width: 1439px) {
 	.maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top:75px !important; }
 	.header-title {font-size: 1.7rem;}
+	.floating-panel { width: 260px; left: -270px; top:80px!important;  height: calc(88vh - 10px)!important;}
+	.info-panel { top: 80px!important; height: calc(88vh - 10px);   }
  }	
 
 
@@ -29,7 +31,7 @@
 
 .control-panel { top: 50px !important; }
 .panel-toggle { top: 80px!important;   }		
-.floating-panel { width: 260px; left: -270px; top:80px!important;  height: calc(90vh - 10px)!important;}
+.floating-panel { width: 260px; left: -270px; top:80px!important;  height: calc(84vh - 10px)!important;}
 .panel-toggle.panel-open { left: 260px;	top: 80px!important;     }		
 
 /* Responsività per statistiche */
@@ -38,9 +40,9 @@
 .total-stats {font-size: 12px;  }
 .legend-item-dynamic {margin-bottom: 6px;padding: 3px 4px; }
 
-.legend {	height: calc(39vh - 30px)!important; }
+.legend {	height: calc(36vh - 30px)!important; }
 .control-panel {height: calc(38vh - 30px)!important; }
-
+.info-panel { top: 80px!important; height: calc(84vh - 10px);   }
  }				
 
 @media only screen and (min-width: 853px) and (max-width: 1023px) {
@@ -82,6 +84,7 @@
  /* Fix per iPhone SE e dispositivi simili */
 @media only screen and (min-width: 320px) and (max-width: 767px) {
 			/* Fix Map Controls Position */
+.app-footer {font-size: 8px;			}
 .maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top: 80px !important; }
 .palermo-hub-logo {display: none;  }
 .header-title {font-size: 1.09rem;}
@@ -91,7 +94,7 @@
 .legend-section h2 { font-size: 14px!important;}
 
 .panel-toggle { top: 85px!important;    }		
-.floating-panel {width: 260px; left: -270px; top: 85px!important; height: calc(87vh - 10px)!important;         }
+.floating-panel {width: 260px; left: -270px; top: 85px!important; height: calc(81vh - 10px)!important;         }
 .panel-toggle.panel-open { left: 260px;	top: 85px!important;   }	
 
 /*.control-panel { width: calc(100vw - 450px); max-width: calc(100vw - 450px);  max-height: 40vh;   overflow-y: auto;  top: 40px; }*/
