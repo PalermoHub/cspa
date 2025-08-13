@@ -236,7 +236,7 @@ function addPerimeterLayers() {
 function addMapControls() {
     map.addControl(new SearchControl(), 'top-right');
     map.addControl(new maplibregl.NavigationControl());
-    map.addControl(new InfoControl(), 'top-right');
+  //  map.addControl(new InfoControl(), 'top-right');
 }
 
 // MODIFICA LA FUNZIONE onSourceData

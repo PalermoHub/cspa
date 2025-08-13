@@ -104,10 +104,15 @@ body {
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     min-width: 275px;
     backdrop-filter: blur(5px);
-    overflow-y: auto;
+    overflow-y: auto!important;
     max-height: calc(100vh - 100px);
 }
 
+        .panel-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
 .control-section {
     margin-bottom: 20px;
 }
@@ -193,22 +198,22 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    height: 12px;
-    width: 12px;
+    height: 14px;
+    width: 14px;
     background-color: #f8f9fa;
-    border: 2px solid #dee2e6;
+    border: 1px solid #ccc;
     border-radius: 4px;
     transition: all 0.3s ease;
 }
 
 .checkbox-container:hover input ~ .checkmark {
-    background-color: #e9ecef;
-    border-color: #667eea;
+    background-color: #ff9900;
+    border-color: #ccc;
 }
 
 .checkbox-container input:checked ~ .checkmark {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: #667eea;
+    background: #ff9900;
+    border-color: #ccc;
 }
 
 .checkmark:after {
@@ -237,9 +242,9 @@ body {
     top: 80px;
     right: -310px;
     width: 300px;
-    height: calc(100vh - 108px);
+    height: calc(88vh - 10px);
     background: rgba(255,255,255,0.70);
-    border-radius: 0;
+    border-radius: 15px;
     box-shadow: -5px 0 25px rgba(0,0,0,0.15);
     z-index: 1000;
     transition: right 0.4s ease;
@@ -256,7 +261,7 @@ body {
     box-shadow: -5px 0 25px rgba(0,0,0,0.15);
     color: #313131;
     padding: 20px;
-    border-radius: 0;
+    border-radius: 15px 15px 0 0;
     position: sticky;
     top: 0;
     z-index: 10;
@@ -441,11 +446,19 @@ body {
             margin: 0;
         }
 
-       LATO DESTRO - Logo PalermoHub 
+        /* LATO DESTRO - Logo PalermoHub */
         .header-right {
             display: flex;
             align-items: center;
+            gap: 16px;
         }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
 
         .palermo-hub-link {
             display: block;
@@ -465,13 +478,12 @@ body {
             width: auto;
             filter: brightness(1.1);
             transition: all 0.3s ease;
-			    margin-right: -15px;
+            margin-right: -15px;
         }
 
         .palermo-hub-link:hover .palermo-hub-logo {
             filter: brightness(1.3);
         }
-
 
 
     /* Adjust map controls for mobile */
@@ -904,4 +916,131 @@ hr {
 
         .footer-logo:hover {
             opacity: 1;
+        }
+		
+		  /* Popup informazioni */
+		          .header-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            background: #f8f9fa;
+            color: #313131;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .header-btn:hover {
+            background: #FF9900;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+        }
+		  
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+        }
+
+        .info-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            padding: 0;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow: hidden;
+            z-index: 10000;
+            display: none;
+        }
+
+        .info-popup.visible {
+            display: block;
+        }
+
+        .info-popup-header {
+            background: linear-gradient(135deg, #FF9900, #ff6600);
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+
+        .header-title-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-popup-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .info-popup-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .info-popup-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .info-popup-content {
+            padding: 25px;
+            overflow-y: auto;
+            max-height: calc(90vh - 100px);
+        }
+
+        .info-popup-content h4 {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .info-popup-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-popup-content li {
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .info-popup-content li:before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #FF9900;
+            font-size: 12px;
         }

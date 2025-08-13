@@ -53,15 +53,20 @@
             <h1 class="header-title">Studio Demografico e Socio-Economico del Centro Storico di Palermo</h1>
         </div>
         
-        <!-- LATO DESTRO: Logo PalermoHub -->
+        <!-- LATO DESTRO: Azioni + Logo PalermoHub -->
         <div class="header-right">
+            <div class="header-actions">
+                <button class="header-btn" onclick="showInfoPopup()" title="Informazioni progetto">
+                    <i class="fas fa-info"></i>
+                </button>
+            </div>
             <a href="https://palermohub.opendatasicilia.it/" 
                title="PalermoHub - Contenitore di mappe su Palermo realizzato da OpenDataSicilia.it" 
                target="_blank" 
                class="palermo-hub-link">
                 <img src="img/pa_hub.png" 
                      alt="PalermoHub" 
-                     class="palermo-hub-logo" title="PalermoHub di opendatasicilia.it è un contenitore di mappe realizzate/rielaborate da liberi cittadini o da civic hackers prevalentemente sul territorio comunale di Palermo, non ha alcun intento commerciale, l’unica finalità è mostrare le possibilità di rielaborazione e comunicazione offerte dagli open data o dati pubblici comunali, regionali e nazionali.">
+                     class="palermo-hub-logo">
             </a>
         </div>
     </header>	
@@ -97,13 +102,13 @@
                 <li><strong>Esplora i Dettagli:</strong> Clicca su qualsiasi particella per accedere ai dati specifici nel pannello laterale</li>
                 <li><strong>Filtra per Area:</strong> I filtri si aggiornano automaticamente - seleziona un mandamento per vedere solo i suoi fogli. La mappa si centrerà automaticamente sull'area selezionata</li>
                 <li><strong>Cerca Indirizzi:</strong> Utilizza la ricerca geografica ottimizzata per il centro storico di Palermo</li>
-				<li><strong>Funzionalità di Condivisione:</strong> Il sistema di condivisione garantisce una cattura completa dello stato dell'applicazione, preservando tutti gli elementi essenziali per una visualizzazione accurata dei dati cartografici. Include il basemap selezionato (CartoDB, OSM, Google Maps o Satellite), i filtri applicati per mandamento e foglio, il tema corrente sia per le classificazioni categoriche che per quelle basate su Jenks-Fisher, nonché lo stato di tutti i perimetri attivi come Palermo, Centro Storico e Mandamenti. La funzionalità mantiene inoltre la configurazione dei bordi, i filtri della legenda applicati dall'utente e, attraverso un sistema di hash, la posizione esatta e il livello di zoom della mappa, assicurando che ogni condivisione riproduca fedelmente l'esperienza di visualizzazione originale. </li>
+                <li><strong>Funzionalità di Condivisione:</strong> Il sistema di condivisione garantisce una cattura completa dello stato dell'applicazione, preservando tutti gli elementi essenziali per una visualizzazione accurata dei dati cartografici.</li>
             </ul> 
-<p style="text-align: center;"><span style="color: #ff0000; font-size: 20px;"><strong><a title="Podcast, audio elaborato da Notebooklm" href="https://notebooklm.google.com/notebook/74230700-ca60-4341-933d-06e04d544560?artifactId=dc88f0f4-14a8-4584-be9a-2a3a38277b68" target="_blank" rel="noopener">Podcast</a> elaborato da Notebooklm</strong></span></p>
-            <hr>
+            <p style="text-align: center;"><span style="color: #ff0000; font-size: 20px;"><strong><a title="Podcast, audio elaborato da Notebooklm" href="https://notebooklm.google.com/notebook/74230700-ca60-4341-933d-06e04d544560?artifactId=dc88f0f4-14a8-4584-be9a-2a3a38277b68" target="_blank" rel="noopener">Podcast</a> elaborato da Notebooklm</strong></span></p>
+            <hr style="border: 0; height: 1px; background: #ff9900; background-image: linear-gradient(to right, #eee, #ff9900, #eee); margin: 20px 0;">
             <p class="api"><strong>Fonte dati:</strong><br> <a href="https://zornade.com/" target="_blank">zornade.com</a> - Italian Cadastral Parcel Data & Geospatial Insights API</p>
             <p class="api"><strong>Elaborazione dati:</strong><br> <a href="https://www.linkedin.com/in/gbvitrano/" target="_blank">@gbvitrano</a> by <a href="https://x.com/opendatasicilia" title="@opendatasicilia" target="_blank">@opendatasicilia</a> - 2025 - <a href="https://creativecommons.org/licenses/by/4.0/deed.it" target="_blank">Licenza CC BY 4.0</a></p>
-			<p class="api"><strong>Sviluppo tecnico:</strong><br> Applicazione web sviluppata attraverso una collaborazione human-<a href="https://claude.ai" target="_blank">Claude AI (Anthropic)</a>, che ha supportato la progettazione dell'architettura modulare, l'ottimizzazione del codice e l'implementazione di funzionalità avanzate di visualizzazione geospaziale. Il progetto rappresenta un esempio concreto di come la collaborazione tra sviluppatori e intelligenza artificiale possa trasformare concetti complessi in soluzioni software efficienti e scalabili.</p>
+            <p class="api"><strong>Sviluppo tecnico:</strong><br> Applicazione web sviluppata attraverso una collaborazione human-<a href="https://claude.ai" target="_blank">Claude AI (Anthropic)</a>, che ha supportato la progettazione dell'architettura modulare, l'ottimizzazione del codice e l'implementazione di funzionalità avanzate di visualizzazione geospaziale.</p>
         </div>
     </div>
 
@@ -121,147 +126,148 @@
                 Clicca su una particella per visualizzarne i dettagli
             </p>
         </div>
-    </div>	  </div>
-
-	
-    <!-- PANNELLO FLOTTANTE INTEGRATO CON LEGENDA -->
-    <div class="floating-panel" id="floating-panel">
-        <!-- Indicatore Sezione Controlli -->
-        <div class="section-indicator active" id="controls-indicator"></div>
-        
-        <!-- Sezione Controlli (ridimensionabile) -->
-        <div class="controls-section" id="controls-section">
-            <h2><i class="fas fa-cogs"></i> Controlli</h2>	
-    
-    <div class="control-panel">
-        <div class="control-section">
-            <h3><img src="img/map_01.svg" alt="cspa" width="20" height="20"/> Seleziona la mappa base</h3>
-            <select id="basemap-select" class="form-control">
-                <option value="carto-light">CartoDB Light</option>
-                <option value="osm">OSM Standard</option>
-                <option value="google-maps">Google Maps</option>
-                <option value="satellite">Google Satellite</option>
-            </select>
-        </div>
-        
-        <!-- FILTRI DINAMICI INTERCONNESSI -->
-        <div class="control-section">
-            <h3><img src="img/logo_cs.svg" alt="cspa" width="20" height="20"/> Filtra per Mandamento</h3>
-            <select id="mandamento-filter" class="form-control">
-                <option value="">Tutti i Mandamenti</option>
-                <option value="Castellammare">Castellammare</option>
-                <option value="Tribunali">Tribunali</option>
-                <option value="Palazzo Reale">Palazzo Reale</option>
-                <option value="Monte di Pietà">Monte di Pietà</option>
-            </select>
-        </div>
-        
-        <div class="control-section">
-            <h3><img src="img/logo_cs_01.svg" alt="foglio" width="20" height="20"/> Filtra per Foglio</h3>
-            <select id="foglio-filter" class="form-control">
-                <option value="">Tutti i Fogli</option>
-                <!-- Le opzioni verranno popolate dinamicamente -->
-            </select>
-        </div>
-        
-        <!-- INDICATORI TEMATICI -->
-        <div class="control-section">
-            <h3><img src="img/people.svg" alt="cspa" width="20" height="20"/> Indicatori Demografici</h3>
-            <select id="demographic-select" class="form-control">
-                <option value="">Seleziona indicatore...</option>
-                <option value="population"><i class="fas fa-users"></i> Popolazione Stimata</option>
-                <option value="masculinity"><i class="fas fa-mars"></i> Tasso di Mascolinità</option>
-                <option value="singlePerson"><i class="fas fa-user"></i> Tasso Persona Singola</option>
-                <option value="familySize"><i class="fas fa-home-heart"></i> Dimensione Media Famiglia</option>
-                <option value="largeFamilies"><i class="fas fa-users"></i> Tasso Famiglie Numerose</option>
-                <option value="age"><i class="fas fa-user-clock"></i> Età Media</option>
-                <option value="elderly"><i class="fas fa-user-friends"></i> Tasso Anziani</option>
-                <option value="foreign"><i class="fas fa-globe"></i> Popolazione Straniera</option>        
-                <option value="nonEuForeigners"><i class="fas fa-passport"></i> Stranieri Non-UE</option>
-                <option value="youngForeigners"><i class="fas fa-child"></i> Giovani Stranieri</option>
-            </select>
-        </div>
-        
-        <div class="control-section">
-            <h3><img src="img/people_02.svg" alt="cspa" width="20" height="20"/> Indicatori Socio-Economici</h3>
-            <select id="economic-select" class="form-control">
-                <option value="">Seleziona indicatore...</option>
-                <option value="higherEducation"><i class="fas fa-graduation-cap"></i> Istruzione Superiore</option>
-                <option value="lowEducation"><i class="fas fa-book"></i> Basso Tasso Istruzione</option>
-                <option value="workIntegration"><i class="fas fa-handshake"></i> Integrazione Lavoro</option>
-                <option value="employment"><i class="fas fa-briefcase"></i> Tasso Occupazione</option>
-                <option value="femaleEmployment"><i class="fas fa-female"></i> Tasso Occupazione Femminile</option>
-                <option value="genderGap"><i class="fas fa-balance-scale"></i> Divario Genere Occupazione</option>
-                <option value="resilience"><i class="fas fa-shield-alt"></i> Resilienza Economica</option>
-                <option value="cohesion"><i class="fas fa-handshake"></i> Coesione Sociale</option>
-            </select>
-        </div>
-        
-        <div class="control-section">
-            <h3><img src="img/chart-area.svg" alt="cspa" width="20" height="20"/> Indicatori Territoriali</h3>
-            <select id="territorial-select" class="form-control">
-                <option value="landuse">Seleziona indicatore...</option>
-                <option value="density"><i class="fas fa-home"></i> Densità Abitativa</option>
-                <option value="surface_area"><i class="fas fa-expand-arrows-alt"></i> Superficie Particella</option>
-                <option value="elevation_min"><i class="fas fa-mountain"></i> Elevazione Minima</option>
-                <option value="elevation_max"><i class="fas fa-mountain"></i> Elevazione Massima</option>
-                <option value="building_occupancy"><i class="fas fa-building"></i> Occupazione Media Edificio</option>
-                <option value="structural_dependency"><i class="fas fa-tools"></i> Dipendenza Strutturale</option>
-                <option value="robustness"><i class="fas fa-shield-alt"></i> Indice Robustezza</option>
-                <option value="requalification_opportunity"><i class="fas fa-hammer"></i> Opportunità Riqualificazione</option>
-                <option value="real_estate_potential"><i class="fas fa-chart-line"></i> Potenziale Immobiliare</option>
-                <option value="buildings"><i class="fas fa-city"></i> Numero Edifici</option>
-                <option value="flood_risk"><i class="fas fa-water"></i> Rischio alluvione</option>
-                <option value="land_cover"><i class="fas fa-leaf"></i> Copertura del suolo</option>
-                <option value="landslide_risk"><i class="fas fa-mountain"></i> Rischio di frana</option>
-                <option value="coastal_erosion"><i class="fas fa-umbrella-beach"></i> Rischio erosione costiera</option>
-                <option value="seismic_risk"><i class="fas fa-house-damage"></i> Rischio sismico</option>
-            </select>
-        </div>
-        
-        <div class="control-section">
-            <h3><img src="img/logo_cs_01.svg" alt="cspa" width="20" height="20"/> Perimetri</h3>
-            <label class="checkbox-container">
-                <input type="checkbox" id="palermo-perimeter">
-                <span class="checkmark"></span>
-                Limite Amministrativo Palermo
-            </label>
-            <label class="checkbox-container">
-                <input type="checkbox" id="centro-storico-perimeter">
-                <span class="checkmark"></span>
-                Centro Storico
-            </label>
-            <label class="checkbox-container">
-                <input type="checkbox" id="upl-cs-perimeter" checked>
-                <span class="checkmark"></span>
-                Mandamenti
-            </label>
-        </div>
     </div>
 
-            <!-- Handle per ridimensionamento -->
-            <div class="resize-handle" id="resize-handle"></div>
-        </div>
+   <!-- Pannello Flottante con Header Fisso -->
+<div class="floating-panel" id="floating-panel">
+    <!-- Sezione Controlli con Header Fisso -->
+    <div class="controls-section" id="controls-section">
+        <div class="section-size-indicator" id="controls-size">50%</div>
         
-        <!-- Sezione Legenda INTEGRATA -->
-        <div class="legend-section">
-            <h2><i class="fas fa-list-ul"></i> Legenda</h2>
-			    <div class="legend" id="legend">
-        <h4 id="legend-title">Legenda</h4>
-        <div id="legend-items"></div>
-    </div>
-   </div>
-                    </div>
+        <!-- Header Fisso -->
+        <h2><i class="fas fa-sliders-h"></i> Controlli & Filtri</h2>
+		<p class="api">&nbsp;&nbsp;&nbsp;&nbsp;Configura visualizzazione e filtri</p>
+	      
+        <!-- Contenuto Scrollabile -->
+        <div class="controls-content">
+            <div class="control-section">
+                <div>
+                    <h3><i class="fas fa-map"></i>Seleziona la mappa base</h3>
+                    <select id="basemap-select" class="form-control">
+                        <option value="carto-light">CartoDB Light</option>
+                        <option value="osm">OSM Standard</option>
+                        <option value="google-maps">Google Maps</option>
+                        <option value="satellite">Google Satellite</option>
+                    </select>
+                </div>
+                
+                <!-- FILTRI DINAMICI INTERCONNESSI -->
+                <div class="control-section">
+                    <h3><img src="img/logo_cs.svg" alt="cspa" width="20" height="20"/> Filtra per Mandamento</h3>
+                    <select id="mandamento-filter" class="form-control">
+                        <option value="">Tutti i Mandamenti</option>
+                        <option value="Castellammare">Castellammare</option>
+                        <option value="Tribunali">Tribunali</option>
+                        <option value="Palazzo Reale">Palazzo Reale</option>
+                        <option value="Monte di Pietà">Monte di Pietà</option>
+                    </select>
+                </div>
+                
+                <div class="control-section">
+                    <h3><i class="fas fa-layer-group"></i>Filtra per Foglio</h3>
+                    <select id="foglio-filter" class="form-control">
+                        <option value="">Tutti i Fogli</option>
+                        <!-- Le opzioni verranno popolate dinamicamente -->
+                    </select>
+                </div>
+                
+                <!-- INDICATORI TEMATICI -->
+                <div class="control-section">
+                    <h3> <i class="fas fa-users"></i> Indicatori Demografici</h3>
+                    <select id="demographic-select" class="form-control">
+                        <option value="">Seleziona indicatore...</option>
+                        <option value="population"><i class="fas fa-users"></i> Popolazione Stimata</option>
+                        <option value="masculinity"><i class="fas fa-mars"></i> Tasso di Mascolinità</option>
+                        <option value="singlePerson"><i class="fas fa-user"></i> Tasso Persona Singola</option>
+                        <option value="familySize"><i class="fas fa-home-heart"></i> Dimensione Media Famiglia</option>
+                        <option value="largeFamilies"><i class="fas fa-users"></i> Tasso Famiglie Numerose</option>
+                        <option value="age"><i class="fas fa-user-clock"></i> Età Media</option>
+                        <option value="elderly"><i class="fas fa-user-friends"></i> Tasso Anziani</option>
+                        <option value="foreign"><i class="fas fa-globe"></i> Popolazione Straniera</option>        
+                        <option value="nonEuForeigners"><i class="fas fa-passport"></i> Stranieri Non-UE</option>
+                        <option value="youngForeigners"><i class="fas fa-child"></i> Giovani Stranieri</option>
+                    </select>
+                </div>
+                
+                <div class="control-section">
+                    <h3>  <i class="fas fa-chart-line"></i> Indicatori Socio-Economici</h3>
+                    <select id="economic-select" class="form-control">
+                        <option value="">Seleziona indicatore...</option>
+                        <option value="higherEducation"><i class="fas fa-graduation-cap"></i> Istruzione Superiore</option>
+                        <option value="lowEducation"><i class="fas fa-book"></i> Basso Tasso Istruzione</option>
+                        <option value="workIntegration"><i class="fas fa-handshake"></i> Integrazione Lavoro</option>
+                        <option value="employment"><i class="fas fa-briefcase"></i> Tasso Occupazione</option>
+                        <option value="femaleEmployment"><i class="fas fa-female"></i> Tasso Occupazione Femminile</option>
+                        <option value="genderGap"><i class="fas fa-balance-scale"></i> Divario Genere Occupazione</option>
+                        <option value="resilience"><i class="fas fa-shield-alt"></i> Resilienza Economica</option>
+                        <option value="cohesion"><i class="fas fa-handshake"></i> Coesione Sociale</option>
+                    </select>
+                </div>
+
+                <div class="control-section">
+                    <h3> <i class="fas fa-mountain"></i> Indicatori Territoriali</h3>
+                    <select id="territorial-select" class="form-control">
+                        <option value="landuse">Seleziona indicatore...</option>
+                        <option value="density"><i class="fas fa-home"></i> Densità Abitativa</option>
+                        <option value="surface_area"><i class="fas fa-expand-arrows-alt"></i> Superficie Particella</option>
+                        <option value="elevation_min"><i class="fas fa-mountain"></i> Elevazione Minima</option>
+                        <option value="elevation_max"><i class="fas fa-mountain"></i> Elevazione Massima</option>
+                        <option value="building_occupancy"><i class="fas fa-building"></i> Occupazione Media Edificio</option>
+                        <option value="structural_dependency"><i class="fas fa-tools"></i> Dipendenza Strutturale</option>
+                        <option value="robustness"><i class="fas fa-shield-alt"></i> Indice Robustezza</option>
+                        <option value="requalification_opportunity"><i class="fas fa-hammer"></i> Opportunità Riqualificazione</option>
+                        <option value="real_estate_potential"><i class="fas fa-chart-line"></i> Potenziale Immobiliare</option>
+                        <option value="buildings"><i class="fas fa-city"></i> Numero Edifici</option>
+                        <option value="flood_risk"><i class="fas fa-water"></i> Rischio alluvione</option>
+                        <option value="land_cover"><i class="fas fa-leaf"></i> Copertura del suolo</option>
+                        <option value="landslide_risk"><i class="fas fa-mountain"></i> Rischio di frana</option>
+                        <option value="coastal_erosion"><i class="fas fa-umbrella-beach"></i> Rischio erosione costiera</option>
+                        <option value="seismic_risk"><i class="fas fa-house-damage"></i> Rischio sismico</option>
+                    </select>
+                </div>
+                
+                <div class="control-section">
+                    <h3> <i class="fas fa-draw-polygon"></i> Perimetri</h3>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="palermo-perimeter">
+                        <span class="checkmark"></span>
+                        Limite Amministrativo Palermo
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="centro-storico-perimeter">
+                        <span class="checkmark"></span>
+                        Centro Storico
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="upl-cs-perimeter" checked>
+                        <span class="checkmark"></span>
+                        Mandamenti
+                    </label>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Pulsante Toggle Pannello -->
-    <button class="panel-toggle" id="panel-toggle" onclick="toggleFloatingPanel()">
-        <i class="fas fa-bars" id="toggle-icon"></i>
-    </button>
 
+    <!-- Handle di Ridimensionamento -->
+    <div class="resize-handle" id="resize-handle"></div>
+
+    <!-- Sezione Legenda con Header Fisso -->
+    <div class="legend-section" id="legend-section">
+        <!-- Header Fisso -->
+        <h2><i class="fas fa-list-ul"></i> Legenda</h2>
+        
+        <!-- Contenuto Scrollabile della Legenda -->
+        <div class="legend" id="legend">
+            <h4 id="legend-title">Legenda</h4>
+            <div id="legend-items"></div>
+        </div>
+    </div>
+</div>
+
+    <!-- Pulsante Toggle -->
+    <button class="panel-toggle" id="panel-toggle" Title="Apri/chiudi controlli e filtri">
+        <i class="fas fa-bars"></i>
+    </button>
         <!-- JAVASCRIPT FILES - STRUTTURA MODULARE CORRETTA -->  
     <script src="js-app/01-config.js"></script>
     <script src="js-app/02-themes.js"></script>
@@ -270,13 +276,12 @@
     <script src="js-app/05-info-panel.js"></script> 
     <script src="js-app/06-search-controls.js"></script>
     <script src="js-app/07-unified-filters.js"></script>
-   <script src="js-app/08-event-handlers.js"></script>
+    <script src="js-app/08-event-handlers.js"></script>
     <script src="js-app/09-utils.js"></script>
     <script src="js-app/10-map-init.js"></script>
     <script src="js-app/11-reset.js"></script>
-
-
-    <!-- FOOTER -->
+	
+	    <!-- FOOTER -->
     <footer class="app-footer">
         <div class="footer-left">
             <span>2025 <a href="https://opendatasicilia.it/" target="_blank" class="footer-link">OpenDataSicilia</a></span>
@@ -293,6 +298,7 @@
         </div>
     </footer>
 
+	
     <!-- Loader -->
     <div class="loader-container" id="loader">
         <div class="loader-content-wrapper">
@@ -414,7 +420,7 @@
             
         })();
     </script>
-   <script src="js-app/12-floating-panel.js"></script>	
+
    
 <div class="synced-buttons-container">
        <!-- Beta version badge -->
@@ -473,7 +479,8 @@
     </div>
 </div>
 </div>
-       <script src="js-app/13-share.js"></script>
-	   <script src="js-app/14-sincro.js"></script>
+   <script src="js-app/12-floating-panel.js"></script>	
+   <script src="js-app/13-share.js"></script>
+   <script src="js-app/14-sincro.js"></script>
 </body>
 </html>

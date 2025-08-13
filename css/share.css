@@ -364,7 +364,7 @@
 
 /* Quando il pannello è aperto, sposta i pulsanti */
 .synced-buttons-container.panel-open {
-    left: 310px; /* 300px larghezza pannello + 10px margine */
+    left: 320px; /* 300px larghezza pannello + 10px margine */
 }
 
 /* Logo Beta */
@@ -496,13 +496,13 @@
 @media (max-width: 768px) {
     .synced-buttons-container {
         left: 5px; /* Più vicino al bordo su mobile */
-        bottom: 80px; /* Più in alto su mobile */
+        bottom: 95px; /* Più in alto su mobile */
         gap: 12px;
 		
     }
     
     .synced-buttons-container.panel-open {
-        left: 305px; /* 300px pannello + 5px margine */
+        left: 320px; /* 300px pannello + 5px margine */
     }
     
     #beta {
@@ -527,7 +527,7 @@
     }
     
     .synced-buttons-container.panel-open {
-        left: 310px;
+        left: 320px;
     }
 }
 
@@ -539,7 +539,7 @@
     }
     
     .synced-buttons-container.panel-open {
-        left: 310px;
+        left: 320px;
     }
 }
 

@@ -1,225 +1,264 @@
-        // ============================================
+// ============================================
         // FUNZIONI PRINCIPALI PANNELLO FLOTTANTE
         // ============================================
         
-        function toggleFloatingPanel() {
-            const panel = document.getElementById('floating-panel');
-            const toggleBtn = document.getElementById('panel-toggle');
-            const toggleIcon = document.getElementById('toggle-icon');
-            
-            if (panel.classList.contains('open')) {
-                // Chiudi il pannello
-                panel.classList.remove('open');
-                toggleBtn.classList.remove('panel-open');
-                toggleIcon.className = 'fas fa-bars';
+         // SISTEMA DI RIDIMENSIONAMENTO MIGLIORATO
+        class PanelResizer {
+            constructor() {
+                this.isDragging = false;
+                this.startY = 0;
+                this.startControlsHeight = 0;
+                this.panelHeight = 0;
+                this.minControlsHeight = 200; // Altezza minima sezione controlli
+                this.minLegendHeight = 150;   // Altezza minima sezione legenda
                 
-                if (window.innerWidth <= 768) {
-                    panel.dataset.manuallyOpened = 'false';
-                }
-            } else {
-                // Apri il pannello
-                panel.classList.add('open');
-                toggleBtn.classList.add('panel-open');
-                toggleIcon.className = 'fa fa-chevron-left';
+                this.controlsSection = document.getElementById('controls-section');
+                this.legendSection = document.getElementById('legend-section');
+                this.resizeHandle = document.getElementById('resize-handle');
+                this.panel = document.getElementById('floating-panel');
                 
-                if (window.innerWidth <= 768) {
-                    panel.dataset.manuallyOpened = 'true';
-                }
+                this.init();
             }
-        }
 
-        // ============================================
-        // SISTEMA DI RESIZE DELLE SEZIONI
-        // ============================================
-        let isResizing = false;
-        let startY = 0;
-        let startHeight = 0;
-        let controlsSection = null;
-        let legendSection = null;
-        let minControlsHeight = 200;
-        let minLegendHeight = 150;
+            init() {
+                // Eventi mouse
+                this.resizeHandle.addEventListener('mousedown', this.startResize.bind(this));
+                document.addEventListener('mousemove', this.handleResize.bind(this));
+                document.addEventListener('mouseup', this.stopResize.bind(this));
 
-        function initializeResize() {
-            const resizeHandle = document.getElementById('resize-handle');
-            controlsSection = document.getElementById('controls-section');
-            legendSection = document.querySelector('.legend-section');
-            
-            if (!resizeHandle || !controlsSection || !legendSection) return;
-            
-            // Mouse events
-            resizeHandle.addEventListener('mousedown', startResize);
-            document.addEventListener('mousemove', doResize);
-            document.addEventListener('mouseup', stopResize);
-            
-            // Touch events per mobile
-            resizeHandle.addEventListener('touchstart', startResize);
-            document.addEventListener('touchmove', doResize);
-            document.addEventListener('touchend', stopResize);
-        }
+                // Eventi touch per dispositivi mobili
+                this.resizeHandle.addEventListener('touchstart', this.startResize.bind(this));
+                document.addEventListener('touchmove', this.handleResize.bind(this));
+                document.addEventListener('touchend', this.stopResize.bind(this));
 
-        function startResize(e) {
-            e.preventDefault();
-            isResizing = true;
-            startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-            startHeight = controlsSection.offsetHeight;
-            
-            // Aggiungi classe per feedback visivo
-            document.body.style.cursor = 'ns-resize';
-            controlsSection.style.userSelect = 'none';
-            legendSection.style.userSelect = 'none';
-        }
-
-        function doResize(e) {
-            if (!isResizing) return;
-            
-            const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-            const deltaY = currentY - startY;
-            const newHeight = startHeight + deltaY;
-            
-            // Calcola l'altezza totale disponibile
-            const panelHeight = document.getElementById('floating-panel').offsetHeight;
-            const maxControlsHeight = panelHeight - minLegendHeight - 100; // 100px per margini e header
-            
-            // Applica i limiti
-            if (newHeight >= minControlsHeight && newHeight <= maxControlsHeight) {
-                controlsSection.style.flex = 'none';
-                controlsSection.style.height = newHeight + 'px';
+                // Impedisci la selezione del testo durante il trascinamento
+                this.resizeHandle.addEventListener('selectstart', (e) => e.preventDefault());
                 
-                // La sezione legenda si adatta automaticamente grazie a flex: 1
-                legendSection.style.flex = '1';
+                // AGGIUNTO: Imposta dimensioni iniziali uguali
+                this.setInitialEqualSections();
             }
-        }
 
-        function stopResize() {
-            if (!isResizing) return;
-            
-            isResizing = false;
-            document.body.style.cursor = '';
-            if (controlsSection) controlsSection.style.userSelect = '';
-            if (legendSection) legendSection.style.userSelect = '';
-        }
-
-   
-        // ============================================
-        // INIZIALIZZAZIONE PANNELLO
-        // ============================================
-        function initializePanel() {
-            const panel = document.getElementById('floating-panel');
-            const toggleBtn = document.getElementById('panel-toggle');
-            const toggleIcon = document.getElementById('toggle-icon');
-            
-            // Su desktop (>768px) il pannello è aperto di default
-            if (window.innerWidth > 768) {
-                panel.classList.add('open');
-                toggleBtn.classList.add('panel-open');
-                toggleIcon.className = 'fa fa-chevron-left';
-            } else {
-                // Su mobile/tablet il pannello è chiuso di default
-                panel.classList.remove('open');
-                toggleBtn.classList.remove('panel-open');
-                toggleIcon.className = 'fas fa-bars';
-            }
-        }
-
-        // ============================================
-        // GESTIONE RESIZE FINESTRA
-        // ============================================
-        function handleWindowResize() {
-            const panel = document.getElementById('floating-panel');
-            const toggleBtn = document.getElementById('panel-toggle');
-            const toggleIcon = document.getElementById('toggle-icon');
-            
-            // Solo su desktop, riapri automaticamente se chiuso
-            if (window.innerWidth > 768 && !panel.classList.contains('open')) {
-                if (!panel.dataset.manuallyOpened || panel.dataset.manuallyOpened !== 'false') {
-                    panel.classList.add('open');
-                    toggleBtn.classList.add('panel-open');
-                    toggleIcon.className = 'fa fa-chevron-left';
-                }
-            }
-            // Su mobile, chiudi se non è stato aperto manualmente
-            else if (window.innerWidth <= 768 && panel.classList.contains('open')) {
-                if (!panel.dataset.manuallyOpened || panel.dataset.manuallyOpened !== 'true') {
-                    panel.classList.remove('open');
-                    toggleBtn.classList.remove('panel-open');
-                    toggleIcon.className = 'fas fa-bars';
-                }
-            }
-            
-            // Disabilita resize su mobile
-            const resizeHandle = document.getElementById('resize-handle');
-            if (resizeHandle) {
-                resizeHandle.style.display = window.innerWidth <= 768 ? 'none' : 'flex';
-            }
-        }
-
-        // ============================================
-        // INIZIALIZZAZIONE AL CARICAMENTO
-        // ============================================
-        window.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Inizializzazione CSPA con Legenda Integrata...');
-            
-            // Inizializza pannello flottante
-            initializePanel();
-            initializeResize();
-            setupEventHandlers();
-            
-            // Event listener per resize finestra
-            window.addEventListener('resize', handleWindowResize);
-            
-            // Simula caricamento iniziale
-            setTimeout(() => {
-                console.log('✅ Pannello flottante inizializzato');
-                console.log('✅ Sistema di resize sezioni attivo');
-                console.log('✅ Legenda dinamica integrata');
-                console.log('✅ Event handlers configurati');
-                console.log('📱 Responsive mode:', window.innerWidth <= 768 ? 'Mobile/Tablet' : 'Desktop');
-                console.log('✅ Sistema CSPA pronto all\'uso');
-                
-                // Demo: carica automaticamente un indicatore dopo 2 secondi
+            // NUOVO METODO: Imposta sezioni uguali all'avvio
+            setInitialEqualSections() {
+                // Piccolo delay per assicurarsi che il DOM sia completamente renderizzato
                 setTimeout(() => {
-                    const demographicSelect = document.getElementById('demographic-select');
-                    if (demographicSelect) {
-                        demographicSelect.value = 'population';
-                        updateLegend('population', generateMockData());
-                        console.log('📊 Demo: Indicatore popolazione caricato automaticamente');
-                    }
-                }, 2000);
-            }, 1000);
-        });
-
-        // ============================================
-        // GESTIONE ERRORI GLOBALE
-        // ============================================
-        window.addEventListener('error', function(e) {
-            console.error('❌ Errore CSPA:', e.message, 'in', e.filename, 'linea', e.lineno);
-        });
-
-        // ============================================
-        // API PUBBLICA PER INTEGRAZIONE
-        // ============================================
-        window.CSPA = {
-            // Aggiorna la legenda con dati reali
-            updateLegend: updateLegend,
-            
-            // Apri/chiudi pannello programmaticamente
-            togglePanel: toggleFloatingPanel,
-            
-            // Mostra popup informazioni
-            showInfo: showInfoPopup,
-            
-            // Reset tutti i controlli
-            reset: function() {
-                document.getElementById('demographic-select').value = '';
-                document.getElementById('economic-select').value = '';
-                document.getElementById('territorial-select').value = '';
-                
-                const legendContainer = document.getElementById('legend-items');
-                legendContainer.innerHTML = `
-                    <div class="legend-empty">
-                        <i class="fas fa-info-circle" style="font-size: 24px; color: #FF9900; margin-bottom: 10px;"></i>
-                        <p>Seleziona un indicatore per visualizzare la legenda dinamica</p>
-                    </div>
-                `;
+                    this.setEqualSections();
+                }, 50);
             }
-        };
+
+            // NUOVO METODO: Imposta sezioni uguali (50% ciascuna)
+            setEqualSections() {
+                const handleHeight = this.resizeHandle.offsetHeight;
+                this.panelHeight = this.panel.offsetHeight;
+                const usableHeight = this.panelHeight - handleHeight;
+                
+                // 50% per ciascuna sezione
+                const sectionHeight = Math.floor(usableHeight / 2);
+                const remainingHeight = usableHeight - sectionHeight;
+
+                this.controlsSection.style.height = `${sectionHeight}px`;
+                this.legendSection.style.height = `${remainingHeight}px`;
+                
+                this.updateSizeIndicators(sectionHeight, remainingHeight);
+            }
+
+            startResize(e) {
+                this.isDragging = true;
+                this.resizeHandle.classList.add('dragging');
+                
+                // Ottieni coordinate Y (mouse o touch)
+                this.startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                
+                // Calcola altezze attuali
+                this.panelHeight = this.panel.offsetHeight;
+                this.startControlsHeight = this.controlsSection.offsetHeight;
+                
+                // Impedisci comportamenti di default
+                e.preventDefault();
+                
+                // Aggiungi classe per feedback visivo
+                document.body.style.cursor = 'ns-resize';
+                document.body.style.userSelect = 'none';
+            }
+
+            handleResize(e) {
+                if (!this.isDragging) return;
+
+                // Ottieni coordinate Y correnti
+                const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                const deltaY = currentY - this.startY;
+
+                // Calcola nuova altezza sezione controlli
+                const newControlsHeight = this.startControlsHeight + deltaY;
+                
+                // Calcola altezza handle (12px)
+                const handleHeight = this.resizeHandle.offsetHeight;
+                
+                // Calcola nuova altezza sezione legenda
+                const newLegendHeight = this.panelHeight - newControlsHeight - handleHeight;
+
+                // Applica limiti minimi
+                const finalControlsHeight = Math.max(
+                    this.minControlsHeight, 
+                    Math.min(newControlsHeight, this.panelHeight - this.minLegendHeight - handleHeight)
+                );
+
+                const finalLegendHeight = this.panelHeight - finalControlsHeight - handleHeight;
+
+                // Applica le nuove altezze
+                this.controlsSection.style.height = `${finalControlsHeight}px`;
+                this.legendSection.style.height = `${finalLegendHeight}px`;
+
+                // Aggiorna indicatori percentuali
+                this.updateSizeIndicators(finalControlsHeight, finalLegendHeight);
+
+                e.preventDefault();
+            }
+
+            stopResize() {
+                if (!this.isDragging) return;
+
+                this.isDragging = false;
+                this.resizeHandle.classList.remove('dragging');
+                
+                // Rimuovi stili temporanei
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+
+            updateSizeIndicators(controlsHeight, legendHeight) {
+                const totalUsableHeight = controlsHeight + legendHeight;
+                const controlsPercentage = Math.round((controlsHeight / totalUsableHeight) * 100);
+                const legendPercentage = Math.round((legendHeight / totalUsableHeight) * 100);
+
+                const controlsIndicator = document.getElementById('controls-size');
+                const legendIndicator = document.getElementById('legend-size');
+
+                if (controlsIndicator) {
+                    controlsIndicator.textContent = `${controlsPercentage}%`;
+                }
+                if (legendIndicator) {
+                    legendIndicator.textContent = `${legendPercentage}%`;
+                }
+            }
+
+            // MODIFICATO: Metodo per reimpostare le proporzioni di default (ora 50-50)
+            resetToDefault() {
+                this.setEqualSections();
+            }
+        }
+
+        // SISTEMA TOGGLE PANNELLO CON RILEVAMENTO MOBILE/DESKTOP
+        class PanelToggle {
+            constructor() {
+                this.panel = document.getElementById('floating-panel');
+                this.toggleButton = document.getElementById('panel-toggle');
+                this.isOpen = false;
+                
+                this.init();
+            }
+
+            // Rileva se il dispositivo è mobile
+            isMobileDevice() {
+                // Combina più metodi di rilevamento per maggiore accuratezza
+                const screenWidth = window.innerWidth;
+                const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                const userAgent = navigator.userAgent.toLowerCase();
+                
+                // Controlli dimensioni schermo
+                const isSmallScreen = screenWidth <= 768;
+                
+                // Controlli user agent per dispositivi mobili comuni
+                const mobileKeywords = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/;
+                const isMobileUserAgent = mobileKeywords.test(userAgent);
+                
+                // Un dispositivo è considerato mobile se:
+                // - Ha schermo piccolo E capacità touch, OPPURE
+                // - È identificato come mobile dall'user agent
+                return (isSmallScreen && isTouchDevice) || isMobileUserAgent;
+            }
+
+            init() {
+                // Imposta stato iniziale in base al tipo di dispositivo
+                this.setInitialState();
+                
+                // Aggiunge event listener per il toggle
+                this.toggleButton.addEventListener('click', this.toggle.bind(this));
+                
+                // Riaggiusta stato se la finestra viene ridimensionata
+                window.addEventListener('resize', this.handleResize.bind(this));
+            }
+
+            setInitialState() {
+                if (this.isMobileDevice()) {
+                    // Mobile: pannello chiuso
+                    this.isOpen = false;
+                    this.panel.classList.remove('open');
+                    this.toggleButton.classList.remove('panel-open');
+                    this.toggleButton.innerHTML = '<i class="fas fa-bars"></i>';
+                } else {
+                    // Desktop: pannello aperto
+                    this.isOpen = true;
+                    this.panel.classList.add('open');
+                    this.toggleButton.classList.add('panel-open');
+                    this.toggleButton.innerHTML = '<i class="fas fa-times"></i>';
+                }
+            }
+
+            toggle() {
+                this.isOpen = !this.isOpen;
+                
+                if (this.isOpen) {
+                    this.panel.classList.add('open');
+                    this.toggleButton.classList.add('panel-open');
+                    this.toggleButton.innerHTML = '<i class="fas fa-times"></i>';
+                } else {
+                    this.panel.classList.remove('open');
+                    this.toggleButton.classList.remove('panel-open');
+                    this.toggleButton.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            }
+
+            // Gestisce il ridimensionamento della finestra
+            handleResize() {
+                // Debounce per evitare troppi controlli durante il resize
+                clearTimeout(this.resizeTimeout);
+                this.resizeTimeout = setTimeout(() => {
+                    // Solo se cambiamo da mobile a desktop o viceversa
+                    const wasMobile = !this.wasDesktop;
+                    const isMobile = this.isMobileDevice();
+                    
+                    if (wasMobile !== isMobile) {
+                        this.setInitialState();
+                    }
+                    
+                    this.wasDesktop = !isMobile;
+                }, 250);
+            }
+        }
+
+        // INIZIALIZZAZIONE
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inizializza toggle pannello (deve essere primo per impostare stato iniziale)
+            const toggle = new PanelToggle();
+            
+            // Inizializza sistema di ridimensionamento
+            const resizer = new PanelResizer();
+
+            // Aggiunge funzionalità di reset (doppio click sull'handle)
+            document.getElementById('resize-handle').addEventListener('dblclick', function() {
+                resizer.resetToDefault();
+            });
+
+            console.log('Sistema di ridimensionamento pannello inizializzato');
+            console.log('Dispositivo mobile rilevato:', toggle.isMobileDevice());
+            console.log('Sezioni impostate a dimensioni uguali (50%-50%)');
+        });
+
+        // GESTIONE RESIZE FINESTRA
+        window.addEventListener('resize', function() {
+            // Ricalcola le dimensioni quando la finestra cambia
+            setTimeout(() => {
+                const resizer = new PanelResizer();
+            }, 100);
+        });

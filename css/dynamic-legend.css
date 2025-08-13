@@ -8,7 +8,7 @@
     width: auto !important;
     min-height: 10vh;
     max-height: 100vh;
-    height: calc(40vh - 30px);
+    height: calc(38vh - 10px);
       overflow: auto !important;
 }
 		
