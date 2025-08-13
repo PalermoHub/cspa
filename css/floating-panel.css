@@ -2,7 +2,7 @@
         /* PANNELLO FLOTTANTE INTEGRATO */
         .floating-panel {
             position: fixed;
-            top: 80px;
+            top: 70px;
             left: -320px;
             width: 300px;
             height: calc(100vh - 90px);
