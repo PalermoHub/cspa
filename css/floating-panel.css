@@ -67,6 +67,7 @@
     flex-shrink: 0;
     /* Rimuovo il padding generale per gestirlo diversamente */
     padding: 0;
+	border-bottom: 5px solid rgba(255,255,255,0.90);
 }
 
 /* HEADER FISSO DELLA SEZIONE CONTROLLI */
@@ -183,6 +184,7 @@
     overflow: hidden;
     /* Rimuovo il padding generale */
     padding: 0;
+	border-bottom: 10px solid rgba(255,255,255,0.90);
 }
 
 /* HEADER FISSO DELLA SEZIONE LEGENDA */
