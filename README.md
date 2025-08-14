@@ -7,21 +7,24 @@ Un'innovativa piattaforma di analisi geospaziale che trasforma i dati catastali 
 - **Analisi Territoriale** - Densità abitativa, caratteristiche morfologiche, valutazione rischi ambientali e potenziale immobiliare.
 - **Filtri Dinamici Interconnessi** - Sistema avanzato per Mandamenti e Fogli di mappa e colori legenda con aggiornamento in tempo reale
 - **Auto-centraggio Intelligente** - La mappa si centra automaticamente sulle aree filtrate
+- **Grafici Dinamici** - Visualizzazione in tempo reale dei dati delle particelle visibili nel viewport con grafici a pile interattivi
+
 #### **Come Utilizzare la Piattaforma:**
 - **Seleziona un Indicatore:** Utilizza i menu tematici per visualizzare Demografia, Economia o Territorio
 - **Esplora i Dettagli:** Clicca su qualsiasi particella per accedere ai dati specifici nel pannello laterale
 - **Filtra per Area:** I filtri si aggiornano automaticamente - seleziona un mandamento per vedere solo i suoi fogli. La mappa si centrerà automaticamente sull'area selezionata. legende interattive che fungono da filtri. Funzionalità standard nelle moderne applicazioni di data visualization e mapping. Cliccare sui colori/elementi della legenda per attivare/disattivare i relativi dataset è una UX pattern molto comune e intuitiva.
 - **Cerca Indirizzi:** Utilizza la ricerca geografica ottimizzata per il centro storico di Palermo
-## 📤 **Funzionalità di Condivisione**
-### **Cattura completa dello stato**:
-- ✅ Basemap selezionato (CartoDB, OSM, Google Maps, Satellite)
-- ✅ Mandamento filtrato
-- ✅ Foglio filtrato  
-- ✅ Tema corrente (sia categorici che Jenks-Fisher)
-- ✅ Perimetri attivi (Palermo, Centro Storico, Mandamenti)
-- ✅ Stato dei bordi
-- ✅ Filtri della legenda
-- ✅ Posizione e zoom della mappa (tramite hash)
+- **Attiva Grafici Dinamic**i: Clicca sull'icona dei grafici nei controlli mappa per visualizzare statistiche in tempo reale delle particelle visibili
+- **Funzionalità di Condivisione**
+  - **Cattura completa dello stato**:
+    - ✅ Basemap selezionato (CartoDB, OSM, Google Maps, Satellite)
+    - ✅ Mandamento filtrato
+    - ✅ Foglio filtrato  
+    - ✅ Tema corrente (sia categorici che Jenks-Fisher)
+    - ✅ Perimetri attivi (Palermo, Centro Storico, Mandamenti)
+    - ✅ Stato dei bordi
+    - ✅ Filtri della legenda
+    - ✅ Posizione e zoom della mappa (tramite hash)
 -----
 **Fonte dati:**\
 [zornade.com](https://zornade.com/) - Italian Cadastral Parcel Data & Geospatial Insights API
