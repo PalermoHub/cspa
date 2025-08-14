@@ -1,5 +1,14 @@
+// ===== FILE: 11-reset.js - Aggiornato con Sistema Grafici =====
+
 function resetMap() {
     console.log('Eseguendo reset completo della mappa...');
+    
+    // NUOVO: Chiudi grafici se aperti
+    if (typeof window.chartsEnabled !== 'undefined' && window.chartsEnabled) {
+        if (typeof window.toggleChartsSystem === 'function') {
+            window.toggleChartsSystem();
+        }
+    }
     
     // Ripristina i selettori
     document.getElementById('demographic-select').value = '';
@@ -38,6 +47,12 @@ function resetMap() {
         bordersControlButton.classList.remove('active');
     }
     
+    // NUOVO: Reset controllo grafici
+    const chartsControlButton = document.querySelector('.maplibre-charts-control');
+    if (chartsControlButton) {
+        chartsControlButton.classList.remove('active');
+    }
+    
     // Ripristina i perimetri
     togglePerimeter('palermo-perimeter', false);
     togglePerimeter('centro-storico-perimeter', false);
@@ -56,6 +71,11 @@ function resetMap() {
     currentMandamentoFilter = null;
     currentFoglioFilter = null; // AGGIUNTA: Reset del filtro foglio
     
+    // NUOVO: Reset filtri legenda se presenti
+    if (typeof window.clearLegendFilters === 'function') {
+        window.clearLegendFilters();
+    }
+    
     // Rimuovi tutti i filtri dai layer
     map.setFilter('catastale-base', null);
     map.setFilter('catastale-outline', null);
@@ -73,7 +93,7 @@ function resetMap() {
         duration: 1000
     });
     
-    console.log('Reset completato - tutti i filtri e impostazioni ripristinati');
+    console.log('Reset completato - tutti i filtri, grafici e impostazioni ripristinati');
 }
 
 // Controllo Reset personalizzato per MapLibre
@@ -149,6 +169,7 @@ function initializeMapLibreControls() {
         try {
             map.addControl(new ResetControl(), 'top-right');
             map.addControl(new BordersControl(), 'top-right');
+		    map.addControl(new ChartsControl())
             console.log('Controlli MapLibre aggiunti con successo');
         } catch (error) {
             console.error('Errore nell\'aggiunta dei controlli MapLibre:', error);
@@ -185,7 +206,7 @@ function triggerMapReset() {
     safeResetMap();
 }
 
-// AGGIUNTA: Gestione errori per il reset - VERSIONE MIGLIORATA
+// AGGIUNTA: Gestione errori per il reset - VERSIONE MIGLIORATA con supporto grafici
 function safeResetMap() {
     try {
         resetMap();
@@ -193,9 +214,21 @@ function safeResetMap() {
         console.error('Errore durante il reset della mappa:', error);
         // Fallback - almeno prova a resettare i filtri base
         try {
+            // Reset base
             currentMandamentoFilter = null;
             if (typeof currentFoglioFilter !== 'undefined') {
                 currentFoglioFilter = null;
+            }
+            
+            // NUOVO: Reset grafici in caso di errore
+            if (typeof window.chartsEnabled !== 'undefined' && window.chartsEnabled) {
+                try {
+                    if (typeof window.toggleChartsSystem === 'function') {
+                        window.toggleChartsSystem();
+                    }
+                } catch (chartsError) {
+                    console.warn('Errore reset grafici:', chartsError);
+                }
             }
             
             if (typeof map !== 'undefined') {
@@ -244,3 +277,24 @@ function toggleBorders(show) {
     }
     syncBordersControls(show);
 }
+
+// NUOVO: Integrazione completa con sistema grafici per reset
+window.addEventListener('load', function() {
+    // Override del reset per includere grafici
+    if (typeof window.resetMap === 'function') {
+        const originalReset = window.resetMap;
+        window.resetMap = function() {
+            // Chiudi grafici prima del reset
+            if (typeof window.chartsEnabled !== 'undefined' && window.chartsEnabled) {
+                if (typeof window.toggleChartsSystem === 'function') {
+                    window.toggleChartsSystem();
+                }
+            }
+            
+            // Esegui reset originale
+            originalReset.apply(this, arguments);
+        };
+    }
+});
+
+console.log('🔄 Reset system v2.0 caricato - Con supporto completo sistema grafici');

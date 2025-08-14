@@ -6,7 +6,12 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="https://palermohub.opendatasicilia.it/favicon.ico"/> 
     <link rel="icon" href="https://palermohub.opendatasicilia.it/favicon.png" type="image/png"/> 
-    <link rel="stylesheet" href="css/cspa.css"> <link rel="stylesheet" href="css/cspa_responsive.css"> <link rel="stylesheet" href="css/dynamic-legend.css">     <link rel="stylesheet" href="css/floating-panel.css"> <link rel="stylesheet" href="css/share.css">
+    <link rel="stylesheet" href="css/cspa.css"> 
+    <link rel="stylesheet" href="css/cspa_responsive.css"> 
+    <link rel="stylesheet" href="css/dynamic-legend.css">     
+    <link rel="stylesheet" href="css/floating-panel.css"> 
+    <link rel="stylesheet" href="css/share.css">
+    <link rel="stylesheet" href="css/charts.css">
   
    <!--  FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,6 +22,12 @@
     
     <!-- Libreria PMTiles -->
     <script src="https://unpkg.com/pmtiles@2.4.0/dist/index.js"></script>
+    
+    <!-- Chart.js per i grafici -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <!-- Turf.js per calcoli geometrici -->
+    <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
     
     <!-- Meta tags per social sharing -->
     <meta property="og:url" content="https://palermohub.github.io/cspa/">
@@ -94,6 +105,7 @@
                 <li><strong>Analisi Territoriale</strong> - Densità abitativa, caratteristiche morfologiche, valutazione rischi ambientali e potenziale immobiliare.</li>
                 <li><strong>Filtri Dinamici Interconnessi</strong> - Sistema avanzato per Mandamenti e Fogli con aggiornamento in tempo reale</li>
                 <li><strong>Auto-centraggio Intelligente</strong> - La mappa si centra automaticamente sulle aree filtrate</li>
+                <li><strong>Grafici Dinamici</strong> - Visualizzazione in tempo reale dei dati delle particelle visibili nel viewport con grafici a pile interattivi</li>
             </ul>
             
             <h4>Come Utilizzare la Piattaforma:</h4>        
@@ -102,6 +114,7 @@
                 <li><strong>Esplora i Dettagli:</strong> Clicca su qualsiasi particella per accedere ai dati specifici nel pannello laterale</li>
                 <li><strong>Filtra per Area:</strong> I filtri si aggiornano automaticamente - seleziona un mandamento per vedere solo i suoi fogli. La mappa si centrerà automaticamente sull'area selezionata</li>
                 <li><strong>Cerca Indirizzi:</strong> Utilizza la ricerca geografica ottimizzata per il centro storico di Palermo</li>
+                <li><strong>Attiva Grafici Dinamici:</strong> Clicca sull'icona dei grafici nei controlli mappa per visualizzare statistiche in tempo reale delle particelle visibili</li>
                 <li><strong>Funzionalità di Condivisione:</strong> Il sistema di condivisione garantisce una cattura completa dello stato dell'applicazione, preservando tutti gli elementi essenziali per una visualizzazione accurata dei dati cartografici.</li>
             </ul> 
             <p style="text-align: center;"><span style="color: #ff0000; font-size: 20px;"><strong><a title="Podcast, audio elaborato da Notebooklm" href="https://notebooklm.google.com/notebook/74230700-ca60-4341-933d-06e04d544560?artifactId=dc88f0f4-14a8-4584-be9a-2a3a38277b68" target="_blank" rel="noopener">Podcast</a> elaborato da Notebooklm</strong></span></p>
@@ -281,6 +294,7 @@
     <script src="js-app/09-utils.js"></script>
     <script src="js-app/10-map-init.js"></script>
     <script src="js-app/11-reset.js"></script>
+    <script src="js-app/15-charts.js"></script>
 	
 	    <!-- FOOTER -->
     <footer class="app-footer">
@@ -309,7 +323,8 @@
 <p>
   <i class="fas fa-file-import"></i> Elaborazione dati territoriali e popolazione...<br>
   <i class="fas fa-map"></i> Generazione mappe tematiche specializzate...<br>
-  <i class="fas fa-filter"></i> Inizializzazione controlli di ricerca dinamici...
+  <i class="fas fa-filter"></i> Inizializzazione controlli di ricerca dinamici...<br>
+  <i class="fas fa-chart-bar"></i> Preparazione sistema grafici dinamici...
 </p>
             </div>
             
