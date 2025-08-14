@@ -1,6 +1,7 @@
 // ===== FILE: map-init.js =====
 /**
  * Inizializzazione mappa e layer base
+ * Versione aggiornata con supporto sistema grafici dinamici
  */
 
 // Inizializza mappa
@@ -106,11 +107,18 @@ function onMapLoad() {
     console.log('Tutti i layer aggiunti');
 	
 	// Aggiungi questo nella funzione onMapLoad
-map.on('idle', () => {
-    if (typeof updateDynamicLegend === 'function') {
-        setTimeout(updateDynamicLegend, 1000);
-    }
-});
+    map.on('idle', () => {
+        if (typeof updateDynamicLegend === 'function') {
+            setTimeout(updateDynamicLegend, 1000);
+        }
+    });
+    
+    // NUOVO: Inizializza sistema grafici quando la mappa è pronta
+    setTimeout(() => {
+        if (typeof initializeChartsSystem === 'function') {
+            initializeChartsSystem();
+        }
+    }, 1000);
 }
 
 function addDataLayers() {
@@ -234,16 +242,17 @@ function addPerimeterLayers() {
 }
 
 function addMapControls() {
+    // Aggiungi controlli standard
     map.addControl(new SearchControl(), 'top-right');
     map.addControl(new maplibregl.NavigationControl());
-  //  map.addControl(new InfoControl(), 'top-right');
+    // NOTA: Il controllo grafici viene aggiunto da 15-charts.js dopo il caricamento
 }
 
 // MODIFICA LA FUNZIONE onSourceData
 function onSourceData(e) {
     if (e.sourceId === 'palermo_catastale' && e.isSourceLoaded) {
         // Non è più necessario popolare i filtri qui
-        // La gestione è ora completamente in dynamic-filters.js
+        // La gestione è ora completamente in unified-filters.js
         setTimeout(() => {
             if (typeof initializeDynamicFilters === 'function') {
                 // Non chiamare qui, verrà chiamato da DOMContentLoaded
