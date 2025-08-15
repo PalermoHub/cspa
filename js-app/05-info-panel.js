@@ -186,6 +186,8 @@ function showFeatureInfo(feature) {
                 <span class="info-label">CAP:</span>
                 <span class="info-value">${props.postal_code || 'N/D'}</span>
             </div>
+            
+            <h4><i class="fas fa-exclamation-triangle"></i> Rischi</h4>
             <div class="info-item">
                 <span class="info-label">Rischio alluvione:</span>
                 <span class="info-value">${floodRiskLabels[props['Ri alluvione']] || props['Ri alluvione'] || 'N/D'}</span>
