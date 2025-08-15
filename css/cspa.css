@@ -87,8 +87,8 @@ body {
     top: 0px;
     bottom: 0; 
     width: 100%; 
-	 /*height: 100%*/
-   height: calc(100vh - 40px);
+	height: 100%
+  /*  height: calc(100vh - 60px);*/
 }
 
 /* Pannello controlli */
@@ -241,8 +241,8 @@ body {
     position: absolute;
     top: 80px;
     right: -310px;
-    width: 300px;
-    height: calc(88vh - 10px);
+    width: 300px!important;
+    height: calc(86.6vh - 10px);
     background: rgba(255,255,255,0.70);
     border-radius: 15px;
     box-shadow: -5px 0 25px rgba(0,0,0,0.15);
@@ -306,6 +306,8 @@ body {
     padding: 10px;
     background: #ffffff;
     border-radius: 0px;
+	    border-radius: 10px;
+    border: 1px solid #cccccca3;
 }
 
 .info-group h3 {
