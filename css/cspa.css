@@ -87,8 +87,8 @@ body {
     top: 0px;
     bottom: 0; 
     width: 100%; 
-	height: 100%
-  /*  height: calc(100vh - 60px);*/
+	 /*height: 100%*/
+   height: calc(100vh - 40px);
 }
 
 /* Pannello controlli */
