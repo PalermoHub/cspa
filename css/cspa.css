@@ -1048,3 +1048,8 @@ hr {
             color: #FF9900;
             font-size: 12px;
         }
+		
+		.legend-sort-controls.active-sort {
+    background: linear-gradient(135deg, #your-color 0%, #your-color-2 100%);
+    border-color: #your-accent-color;
+}
