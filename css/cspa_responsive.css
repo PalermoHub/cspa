@@ -19,7 +19,7 @@
 	.maplibregl-ctrl-top-right, .mapboxgl-ctrl-top-right {top:75px !important; }
 	.header-title {font-size: 1.7rem;}
 	.floating-panel { width: 260px; left: -270px; top:80px!important;  height: calc(88vh - 10px)!important;}
-	.info-panel { top: 80px!important; height: calc(88vh - 10px);   }
+	.info-panel { top: 80px!important; height: calc(88vh - 20px);   }
  }	
 
 
