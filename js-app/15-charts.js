@@ -1,7 +1,7 @@
 // ===== FILE: 15-charts.js =====
 /**
  * Sistema Grafici Dinamici a Pile - Tempo Reale
- * Versione 2.2 - Grafici interattivi con filtri cliccabili + allineamento assi X/Y
+ * Versione 2.3 - Grafici interattivi con filtri cliccabili + allineamento assi X/Y + estrazione icone corretta
  */
 
 // Variabili globali per il sistema grafici
@@ -16,19 +16,60 @@ let isChartsUpdating = false;
 // NUOVO: Variabile per il filtro categoria attivo
 let activeChartFilter = null;
 
-// NUOVO: Mapping delle icone per i temi (corrispondenti al menu di selezione)
-const themeIcons = {
-    'superficie': 'fas fa-expand-arrows-alt',
-    'piano': 'fas fa-layer-group', 
-    'vani': 'fas fa-door-open',
-    'rendita': 'fas fa-coins',
-    'consistenza': 'fas fa-ruler-combined',
-    'zona_censuaria': 'fas fa-map-marked-alt',
-    'categoria': 'fas fa-tags',
-    'classe': 'fas fa-star',
-    'landuse': 'fas fa-map',
-    // Aggiungi tutte le altre icone dal tuo menu di selezione
-    'default': 'fas fa-chart-bar'
+// MAPPING ICONE E TESTI - Sistema ibrido con fallback
+const themeIconsAndTexts = {
+    // Mapping base esistente (fallback)
+    'superficie': { icon: 'fas fa-expand-arrows-alt', text: 'Superficie Particella' },
+    'piano': { icon: 'fas fa-layer-group', text: 'Piano' },
+    'vani': { icon: 'fas fa-door-open', text: 'Vani' },
+    'rendita': { icon: 'fas fa-coins', text: 'Rendita' },
+    'consistenza': { icon: 'fas fa-ruler-combined', text: 'Consistenza' },
+    'zona_censuaria': { icon: 'fas fa-map-marked-alt', text: 'Zona Censuaria' },
+    'categoria': { icon: 'fas fa-tags', text: 'Categoria' },
+    'classe': { icon: 'fas fa-star', text: 'Classe' },
+    'landuse': { icon: 'fas fa-map', text: 'Uso del Suolo' },
+    
+    // Indicatori demografici
+    'population': { icon: 'fas fa-users', text: 'Popolazione Stimata' },
+    'masculinity': { icon: 'fas fa-mars', text: 'Tasso di Mascolinità' },
+    'singlePerson': { icon: 'fas fa-user', text: 'Tasso Persona Singola' },
+    'familySize': { icon: 'fas fa-home-heart', text: 'Dimensione Media Famiglia' },
+    'largeFamilies': { icon: 'fas fa-users', text: 'Tasso Famiglie Numerose' },
+    'age': { icon: 'fas fa-user-clock', text: 'Età Media' },
+    'elderly': { icon: 'fas fa-user-friends', text: 'Tasso Anziani' },
+    'foreign': { icon: 'fas fa-globe', text: 'Popolazione Straniera' },
+    'nonEuForeigners': { icon: 'fas fa-passport', text: 'Stranieri Non-UE' },
+    'youngForeigners': { icon: 'fas fa-child', text: 'Giovani Stranieri' },
+    
+    // Indicatori socio-economici
+    'higherEducation': { icon: 'fas fa-graduation-cap', text: 'Istruzione Superiore' },
+    'lowEducation': { icon: 'fas fa-book', text: 'Basso Tasso Istruzione' },
+    'workIntegration': { icon: 'fas fa-handshake', text: 'Integrazione Lavoro' },
+    'employment': { icon: 'fas fa-briefcase', text: 'Tasso Occupazione' },
+    'femaleEmployment': { icon: 'fas fa-female', text: 'Tasso Occupazione Femminile' },
+    'genderGap': { icon: 'fas fa-balance-scale', text: 'Divario Genere Occupazione' },
+    'resilience': { icon: 'fas fa-shield-alt', text: 'Resilienza Economica' },
+    'cohesion': { icon: 'fas fa-handshake', text: 'Coesione Sociale' },
+    
+    // Indicatori territoriali
+    'density': { icon: 'fas fa-home', text: 'Densità Abitativa' },
+    'surface_area': { icon: 'fas fa-expand-arrows-alt', text: 'Superficie Particella' },
+    'elevation_min': { icon: 'fas fa-mountain', text: 'Elevazione Minima' },
+    'elevation_max': { icon: 'fas fa-mountain', text: 'Elevazione Massima' },
+    'building_occupancy': { icon: 'fas fa-building', text: 'Occupazione Media Edificio' },
+    'structural_dependency': { icon: 'fas fa-tools', text: 'Dipendenza Strutturale' },
+    'robustness': { icon: 'fas fa-shield-alt', text: 'Indice Robustezza' },
+    'requalification_opportunity': { icon: 'fas fa-hammer', text: 'Opportunità Riqualificazione' },
+    'real_estate_potential': { icon: 'fas fa-chart-line', text: 'Potenziale Immobiliare' },
+    'buildings': { icon: 'fas fa-city', text: 'Numero Edifici' },
+    'flood_risk': { icon: 'fas fa-water', text: 'Rischio alluvione' },
+    'land_cover': { icon: 'fas fa-leaf', text: 'Copertura del suolo' },
+    'landslide_risk': { icon: 'fas fa-mountain', text: 'Rischio di frana' },
+    'coastal_erosion': { icon: 'fas fa-umbrella-beach', text: 'Rischio erosione costiera' },
+    'seismic_risk': { icon: 'fas fa-house-damage', text: 'Rischio sismico' },
+    
+    // Fallback
+    'default': { icon: 'fas fa-chart-bar', text: 'Indicatore' }
 };
 
 /**
@@ -60,22 +101,58 @@ class ChartsControl {
 }
 
 /**
- * NUOVO: Funzione per estrarre automaticamente le icone dal menu di selezione
+ * MIGLIORATA: Estrazione dinamica come integrazione (non sostituzione)
  */
-function extractThemeIconsFromSelect() {
-    const territorialSelect = document.getElementById('territorial-select');
-    if (!territorialSelect) return;
+function enhanceThemeIconsFromSelects() {
+    console.log('🔍 Miglioramento mapping icone e testi dai selettori HTML...');
     
-    const options = territorialSelect.querySelectorAll('option');
-    options.forEach(option => {
-        const value = option.value;
-        const iconMatch = option.innerHTML.match(/<i class="([^"]+)"/);
-        
-        if (iconMatch && value && value !== 'landuse') {
-            themeIcons[value] = iconMatch[1];
-            console.log(`🎨 Icona mappata: ${value} -> ${iconMatch[1]}`);
+    const selectorsToCheck = [
+        'demographic-select',
+        'economic-select', 
+        'territorial-select'
+    ];
+    
+    let extractedCount = 0;
+    
+    selectorsToCheck.forEach(selectorId => {
+        const selectElement = document.getElementById(selectorId);
+        if (!selectElement) {
+            console.warn(`⚠️ Selettore ${selectorId} non trovato`);
+            return;
         }
+        
+        const options = selectElement.querySelectorAll('option');
+        options.forEach(option => {
+            const value = option.value;
+            
+            // Salta opzioni vuote o di default
+            if (!value || value === '' || value === 'landuse') return;
+            
+            // Estrai icona
+            const iconMatch = option.innerHTML.match(/<i class="([^"]+)"/);
+            
+            // Estrai testo (rimuove tag HTML)
+            const textContent = option.innerHTML.replace(/<[^>]*>/g, '').trim();
+            
+            if (iconMatch && textContent && value) {
+                // Aggiorna solo se migliora il mapping esistente
+                if (!themeIconsAndTexts[value] || 
+                    themeIconsAndTexts[value].text === 'Indicatore' || 
+                    textContent.length > themeIconsAndTexts[value].text.length) {
+                    
+                    themeIconsAndTexts[value] = {
+                        icon: iconMatch[1],
+                        text: textContent
+                    };
+                    extractedCount++;
+                    console.log(`✅ Aggiornato ${value}: ${iconMatch[1]} | "${textContent}"`);
+                }
+            }
+        });
     });
+    
+    console.log(`📊 Mapping migliorato: ${extractedCount} elementi estratti dinamicamente`);
+    console.log('📋 Mapping finale:', themeIconsAndTexts);
 }
 
 /**
@@ -84,10 +161,10 @@ function extractThemeIconsFromSelect() {
 function initializeChartsSystem() {
     console.log('📊 Inizializzazione sistema grafici dinamici...');
     
-    // NUOVO: Estrai icone dal menu di selezione
+    // Migliora il mapping con estrazione dinamica
     setTimeout(() => {
-        extractThemeIconsFromSelect();
-    }, 1000);
+        enhanceThemeIconsFromSelects();
+    }, 1500);
     
     // Crea la finestra grafici (inizialmente nascosta)
     createChartsWindow();
@@ -804,7 +881,7 @@ function synchronizeChartScales() {
         landuseChart.update('none');
         themeChart.update('none');
         
-        console.log(`📏 Assi sincronizzati: Y max=${maxWithPadding}, X rotation=${optimalRotation}°, fontSize=${fontSize}`);
+        console.log(`🔄 Assi sincronizzati: Y max=${maxWithPadding}, X rotation=${optimalRotation}°, fontSize=${fontSize}`);
     }
 }
 
@@ -848,7 +925,7 @@ function updateChartsData() {
         console.log('📊 Grafici aggiornati (sincronizzati) -', newData.total, 'particelle');
         
     } catch (error) {
-        console.error('⚠ Errore aggiornamento grafici:', error);
+        console.error('⚠️ Errore aggiornamento grafici:', error);
     } finally {
         isChartsUpdating = false;
     }
@@ -903,7 +980,7 @@ function updateLanduseChart() {
 }
 
 /**
- * CORRETTA: Aggiorna grafico tema corrente con icona e nome corretto
+ * CORRETTA: Aggiorna grafico tema corrente con icona e testo dal mapping migliorato
  */
 function updateThemeChart() {
     const chart = chartInstances.theme;
@@ -919,22 +996,33 @@ function updateThemeChart() {
     
     container.style.display = 'block';
     
-    // CORRETTO: Aggiorna titolo e icona dal tema
-    const theme = themes[currentTheme];
+    // Aggiorna titolo e icona usando il mapping migliorato
     const titleElement = document.getElementById('theme-chart-title');
     const iconElement = document.getElementById('theme-chart-icon');
     
-    if (titleElement && theme) {
-        // Usa il nome dal tema (stesso del menu di selezione)
-        titleElement.textContent = theme.name || currentTheme;
+    // Prima prova il mapping migliorato, poi fallback al sistema esistente
+    let themeData = themeIconsAndTexts[currentTheme];
+    
+    if (!themeData) {
+        // Fallback al sistema esistente
+        const theme = themes[currentTheme];
+        themeData = {
+            icon: 'fas fa-chart-bar',
+            text: theme ? theme.name : currentTheme
+        };
+        console.log(`⚠️ Fallback per tema ${currentTheme}, usando sistema base`);
     }
     
-    // CORRETTO: Aggiorna icona del tema
-    if (iconElement) {
-        // Cerca prima nel mapping delle icone, poi usa quella di default
-        const themeIcon = themeIcons[currentTheme] || themeIcons['default'] || 'fas fa-chart-bar';
-        iconElement.className = themeIcon;
-        console.log(`🎨 Icona aggiornata per tema ${currentTheme}: ${themeIcon}`);
+    // Aggiorna testo
+    if (titleElement && themeData) {
+        titleElement.textContent = themeData.text;
+        console.log(`📝 Titolo aggiornato: "${themeData.text}"`);
+    }
+    
+    // Aggiorna icona
+    if (iconElement && themeData) {
+        iconElement.className = themeData.icon;
+        console.log(`🎨 Icona aggiornata: ${themeData.icon}`);
     }
     
     // Se non ci sono dati tema, mostra messaggio
@@ -965,6 +1053,7 @@ function updateThemeChart() {
         data.push(count);
         
         // Usa colori del tema se disponibili
+        const theme = themes[currentTheme];
         if (theme && theme.colors) {
             const colorIndex = labels.length - 1;
             colors.push(theme.colors[colorIndex % theme.colors.length] || '#ff9900');
@@ -985,6 +1074,17 @@ function updateThemeChart() {
     if (themeTotalElement) {
         themeTotalElement.textContent = themeTotal;
     }
+}
+
+/**
+ * NUOVO: Funzione per forzare l'aggiornamento dell'icona quando cambia tema
+ */
+function forceUpdateThemeIcon() {
+    if (!chartsEnabled) return;
+    
+    setTimeout(() => {
+        updateThemeChart(); // Usa la funzione completa invece di logica duplicata
+    }, 50);
 }
 
 /**
@@ -1248,47 +1348,41 @@ if (typeof window.safeResetMap === 'function') {
     };
 }
 
-// CORRETTO: Integrazione con cambio tema
+// CORRETTO: Integrazione completa con cambio tema
 if (typeof window.addEventListener !== 'undefined') {
     // Ascolta cambio tema per aggiornare icona immediatamente
     document.addEventListener('themeChanged', function(e) {
         if (chartsEnabled && e.detail && e.detail.theme) {
-            // Aggiorna icona quando cambia il tema
+            console.log('🎯 Theme changed event ricevuto:', e.detail.theme);
+            forceUpdateThemeIcon();
+            
+            // Risincronizza gli assi dopo cambio tema
             setTimeout(() => {
-                const iconElement = document.getElementById('theme-chart-icon');
-                const titleElement = document.getElementById('theme-chart-title');
-                
-                if (iconElement) {
-                    const themeIcon = themeIcons[e.detail.theme] || themeIcons['default'] || 'fas fa-chart-bar';
-                    iconElement.className = themeIcon;
-                    console.log(`🎨 Icona cambiata per tema: ${e.detail.theme} -> ${themeIcon}`);
-                }
-                
-                // Aggiorna anche il nome se disponibile
-                if (titleElement && themes[e.detail.theme]) {
-                    titleElement.textContent = themes[e.detail.theme].name || e.detail.theme;
-                }
-                
-                // Risincronizza gli assi dopo cambio tema
-                setTimeout(() => {
-                    synchronizeChartScales();
-                }, 200);
-            }, 100);
+                synchronizeChartScales();
+            }, 200);
         }
     });
     
-    // NUOVO: Listener per cambio tema dal menu select (fallback)
-    const territorialSelect = document.getElementById('territorial-select');
-    if (territorialSelect) {
-        territorialSelect.addEventListener('change', function(e) {
-            if (chartsEnabled) {
-                setTimeout(() => {
-                    updateThemeChart();
-                    synchronizeChartScales();
-                }, 200);
-            }
-        });
-    }
+    // NUOVO: Listener per tutti i selettori di indicatori
+    const allIndicatorSelectors = ['demographic-select', 'economic-select', 'territorial-select'];
+    
+    allIndicatorSelectors.forEach(selectorId => {
+        const selector = document.getElementById(selectorId);
+        if (selector) {
+            selector.addEventListener('change', function(e) {
+                if (chartsEnabled) {
+                    console.log(`📊 Cambio indicatore da ${selectorId}:`, e.target.value);
+                    
+                    // Aggiorna immediatamente icona e testo
+                    setTimeout(() => {
+                        forceUpdateThemeIcon();
+                        updateThemeChart();
+                        synchronizeChartScales();
+                    }, 100);
+                }
+            });
+        }
+    });
 }
 
-console.log('📊 Sistema grafici dinamici v2.2 caricato - Allineamento completo assi X/Y + filtri interattivi');
+console.log('📊 Sistema grafici dinamici v2.3 caricato - Sistema ibrido con mapping predefinito e miglioramento dinamico');
