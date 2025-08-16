@@ -2,6 +2,7 @@
 /**
  * Sistema Legenda Dinamica con Conteggio Particelle e Filtri Interattivi
  * Versione 2.1 - Con supporto per filtri via legenda e fix per valori null/zero in Jenks
+ * + FORCE RENDER per inizializzazione corretta
  */
 
 // Costanti per il sistema legenda dinamica
@@ -13,32 +14,693 @@ let lastUpdateHash = '';
 let lastViewportState = { zoom: -1, center: [0, 0] };
 let isFilterApplied = false;
 
+// NUOVO: Variabili per force render e gestione sistema
+let forceRenderTimer = null;
+let legendSystemInitialized = false;
+let originalLegendOrder = [];
+let legendCache = new Map();
+let systemStats = {
+    initAttempts: 0,
+    forceRenderAttempts: 0,
+    sourceDataChecks: 0,
+    successfulCounts: 0
+};
+
 // Stato per filtri legenda
 window.legendFilterState = {
     activeCategories: new Set(),
-    mode: 'all', // 'all' = mostra tutte, 'filter' = mostra solo selezionate
+    mode: 'all',
     isFiltering: false
 };
 
 /**
  * Inizializza il sistema di legenda dinamica
+ * COMPLETAMENTE RIVISTO con popolazione e force render
  */
 function initializeDynamicLegend() {
-    console.log('🎯 Inizializzazione sistema legenda dinamica interattiva...');
+    systemStats.initAttempts++;
+    console.log('🎯 Inizializzazione sistema legenda dinamica - Tentativo', systemStats.initAttempts);
     
     if (!map || !map.isSourceLoaded('palermo_catastale')) {
         setTimeout(initializeDynamicLegend, 1000);
         return;
     }
     
-    validateTotalParticles();
-    setupViewportListeners();
+    try {
+        // PASSO 1: Setup container e popolazione immediata
+        setupLegendContainer();
+        populateLegendOnLoad();
+        
+        // PASSO 2: Setup listeners
+        setupViewportListeners();
+        validateTotalParticles();
+        
+        // PASSO 3: Force render per inizializzazione
+        setTimeout(() => {
+            startAggressiveInitialization();
+        }, 500);
+        
+        console.log('✅ Sistema legenda dinamica interattiva pronto');
+        
+    } catch (error) {
+        console.error('❌ Errore inizializzazione:', error);
+        setTimeout(initializeDynamicLegend, 2000);
+    }
+}
+
+/**
+ * NUOVO: Setup container legenda
+ */
+function setupLegendContainer() {
+    const legendItems = document.getElementById('legend-items');
+    if (!legendItems) return;
+    
+    // Pulisci e prepara container
+    legendItems.innerHTML = '';
+    
+    // NUOVO: Header con statistiche
+    const headerInfo = document.createElement('div');
+    headerInfo.className = 'legend-system-header';
+    headerInfo.innerHTML = `
+        <div class="legend-stats">
+            <div class="stats-main">
+                <span class="visible-count">0</span> / <span class="total-count">${TOTAL_PARTICELLE.toLocaleString()}</span> particelle
+            </div>
+            <div class="stats-secondary">
+                <span class="filter-status">Nessun filtro attivo</span>
+                <span class="zoom-level">Zoom: ${map ? map.getZoom().toFixed(1) : '0'}</span>
+            </div>
+        </div>
+    `;
+    legendItems.appendChild(headerInfo);
+    
+    // Container per elementi sortabili
+    const sortableContainer = document.createElement('div');
+    sortableContainer.id = 'legend-sortable-items';
+    sortableContainer.className = 'legend-sortable-container';
+    legendItems.appendChild(sortableContainer);
+}
+
+/**
+ * NUOVO: Popola legenda al caricamento
+ */
+function populateLegendOnLoad() {
+    console.log('📊 Popolamento legenda...');
+    
+    const currentTheme = getCurrentTheme();
+    console.log('Tema corrente:', currentTheme);
+    
+    if (currentTheme === 'landuse' || !currentTheme) {
+        populateLanduseCategories();
+    } else {
+        populateThematicCategories(currentTheme);
+    }
+    
+    console.log('✅ Popolamento completato');
+}
+
+/**
+ * NUOVO: Popola categorie uso del suolo
+ */
+function populateLanduseCategories() {
+    const container = document.getElementById('legend-sortable-items');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    originalLegendOrder = [];
+    
+    for (const classKey in landUseLabels) {
+        if (landUseLabels.hasOwnProperty(classKey)) {
+            const label = landUseLabels[classKey];
+            const legendItem = createLegendItem({
+                category: classKey,
+                label: label,
+                color: landUseColors[classKey] || 'rgba(200,200,200,0.7)',
+                count: 0,
+                percentage: 0
+            });
+            
+            container.appendChild(legendItem);
+            originalLegendOrder.push(classKey);
+        }
+    }
+}
+
+/**
+ * NUOVO: Popola categorie tematiche
+ */
+function populateThematicCategories(themeKey) {
+    const container = document.getElementById('legend-sortable-items');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    originalLegendOrder = [];
+    
+    const theme = themes[themeKey];
+    if (!theme) return;
+    
+    if (theme.type === 'jenks') {
+        populateJenksCategories(themeKey, theme);
+    } else if (theme.type === 'categorical') {
+        populateCategoricalCategories(themeKey, theme);
+    } else {
+        populateNumericCategories(themeKey, theme);
+    }
+}
+
+/**
+ * NUOVO: Popola categorie Jenks
+ */
+function populateJenksCategories(themeKey, theme) {
+    const container = document.getElementById('legend-sortable-items');
+    const labels = getJenksLabels(themeKey);
+    const numClasses = themeKey === 'population' ? 7 : 8;
+    
+    for (let i = 0; i < numClasses; i++) {
+        const legendItem = createLegendItem({
+            category: i.toString(),
+            label: labels[i] || (`Classe ${i + 1}`),
+            color: theme.colors[i] || '#cccccc',
+            count: 0,
+            percentage: 0,
+            isJenks: true,
+            jenksIndex: i
+        });
+        
+        container.appendChild(legendItem);
+        originalLegendOrder.push(i.toString());
+    }
+}
+
+/**
+ * NUOVO: Popola categorie categoriche
+ */
+function populateCategoricalCategories(themeKey, theme) {
+    const container = document.getElementById('legend-sortable-items');
+    
+    let colorMap = {};
+    let labelMap = {};
+    
+    switch (themeKey) {
+        case 'land_cover':
+            colorMap = landCoverColors;
+            labelMap = landCoverLabels;
+            break;
+        case 'flood_risk':
+            colorMap = floodRiskColors;
+            labelMap = floodRiskLabels;
+            break;
+        case 'landslide_risk':
+            colorMap = landslideRiskColors;
+            labelMap = landslideRiskLabels;
+            break;
+        case 'coastal_erosion':
+            colorMap = coastalErosionColors;
+            labelMap = coastalErosionLabels;
+            break;
+        case 'seismic_risk':
+            colorMap = seismicRiskColors;
+            labelMap = seismicRiskLabels;
+            break;
+    }
+    
+    for (const code in colorMap) {
+        if (colorMap.hasOwnProperty(code)) {
+            const color = colorMap[code];
+            const label = labelMap[code] || code;
+            
+            const legendItem = createLegendItem({
+                category: code,
+                label: label,
+                color: color,
+                count: 0,
+                percentage: 0
+            });
+            
+            container.appendChild(legendItem);
+            originalLegendOrder.push(code);
+        }
+    }
+}
+
+/**
+ * NUOVO: Popola categorie numeriche
+ */
+function populateNumericCategories(themeKey, theme) {
+    const container = document.getElementById('legend-sortable-items');
+    const range = calculateDynamicRange(themeKey) || getStaticRange(themeKey) || { min: 0, max: 100 };
+    const step = (range.max - range.min) / (theme.colors.length - 1);
+    
+    for (let i = 0; i < theme.colors.length; i++) {
+        const color = theme.colors[i];
+        const minVal = Math.round(range.min + (step * i));
+        const maxVal = i === theme.colors.length - 1 ? 
+            range.max : 
+            Math.round(range.min + (step * (i + 1)));
+        
+        const label = `${minVal} - ${maxVal} ${theme.unit || ''}`;
+        const category = `range-${i}`;
+        
+        const legendItem = createLegendItem({
+            category: category,
+            label: label,
+            color: color,
+            count: 0,
+            percentage: 0,
+            isNumeric: true,
+            minVal: minVal,
+            maxVal: maxVal
+        });
+        
+        container.appendChild(legendItem);
+        originalLegendOrder.push(category);
+    }
+}
+
+/**
+ * NUOVO: Crea elemento legenda
+ */
+function createLegendItem(options) {
+    const { category, label, color, count = 0, percentage = 0 } = options;
+    
+    const item = document.createElement('div');
+    item.className = 'legend-item legend-item-dynamic interactive';
+    item.setAttribute('data-category', category);
+    item.setAttribute('data-count', count);
+    item.setAttribute('data-percentage', percentage.toFixed(1));
+    
+    if (options.isJenks) {
+        item.setAttribute('data-jenks-index', options.jenksIndex);
+    }
+    if (options.isNumeric) {
+        item.setAttribute('data-min-val', options.minVal);
+        item.setAttribute('data-max-val', options.maxVal);
+    }
+    
+    item.innerHTML = `
+        <span class="legend-checkbox">
+            <i class="checkbox-icon fas fa-check"></i>
+        </span>
+        <div class="legend-color" style="background-color: ${color}"></div>
+        <div class="legend-label-container">
+            <span class="legend-label">${label}</span>
+            <div class="legend-stats">
+                <span class="count-display">${count.toLocaleString()}</span>
+                <span class="percentage-display">(${percentage.toFixed(1)}%)</span>
+            </div>
+        </div>
+    `;
+    
+    // Setup handler per filtri
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleLegendItemClick(category, e.ctrlKey || e.metaKey);
+    });
+    
+    item.title = 'Click per filtro singolo, Ctrl+Click per selezione multipla';
+    
+    return item;
+}
+
+/**
+ * NUOVO: Ottieni tema corrente
+ */
+function getCurrentTheme() {
+    return window.currentTheme || 'landuse';
+}
+
+/**
+ * NUOVO: Inizializzazione aggressiva con force render
+ */
+function startAggressiveInitialization() {
+    console.log('🎯 Avvio inizializzazione aggressiva con force render...');
+    
+    // Strategia 1: Forza render della mappa
+    forceMapRenderAndCount();
+    
+    // Strategia 2: Aspetta source data event  
+    setupSourceDataListener();
+    
+    // Strategia 3: Fallback con timer per aggiornamento iniziale
+    setTimeout(() => {
+        if (!legendSystemInitialized || Object.keys(currentViewportStats).length === 0) {
+            console.log('⚠️ Fallback: forzo aggiornamento legenda dopo timeout');
+            attemptForceCount('fallback');
+        }
+    }, 3000);
+}
+
+/**
+ * NUOVO: Forza render della mappa per attivare features
+ */
+function forceMapRenderAndCount() {
+    systemStats.forceRenderAttempts++;
+    console.log('🔄 Forzo render mappa - Tentativo', systemStats.forceRenderAttempts);
+    
+    if (!map || !map.triggerRepaint) {
+        console.log('⚠️ map.triggerRepaint non disponibile');
+        return;
+    }
     
     setTimeout(() => {
-        updateDynamicLegend();
+        try {
+            // Forza repaint della mappa
+            map.triggerRepaint();
+            console.log('✅ triggerRepaint() eseguito');
+            
+            // Piccolo movimento per attivare rendering
+            const currentCenter = map.getCenter();
+            const currentZoom = map.getZoom();
+            
+            // Micro-pan e zoom back per attivare il rendering
+            map.easeTo({
+                center: [currentCenter.lng + 0.0001, currentCenter.lat + 0.0001],
+                zoom: currentZoom,
+                duration: 100
+            });
+            
+            setTimeout(() => {
+                map.easeTo({
+                    center: currentCenter,
+                    zoom: currentZoom,
+                    duration: 100
+                });
+                
+                // Tenta conteggio dopo movimento
+                setTimeout(() => {
+                    attemptForceCount('post-render');
+                }, 1000);
+                
+            }, 200);
+            
+        } catch (error) {
+            console.log('❌ Errore force render:', error);
+        }
     }, 500);
+}
+
+/**
+ * NUOVO: Setup listener per source data
+ */
+function setupSourceDataListener() {
+    if (!map) return;
     
-    console.log('✅ Sistema legenda dinamica interattiva pronto');
+    const sourceDataHandler = (e) => {
+        systemStats.sourceDataChecks++;
+        
+        if (e.sourceId === 'palermo_catastale' && e.isSourceLoaded && !legendSystemInitialized) {
+            console.log('📡 Source data loaded - tentativo conteggio');
+            
+            setTimeout(() => {
+                attemptForceCount('source-data');
+            }, 500);
+        }
+    };
+    
+    map.on('sourcedata', sourceDataHandler);
+    
+    // Rimuovi listener dopo 15 secondi
+    setTimeout(() => {
+        map.off('sourcedata', sourceDataHandler);
+    }, 15000);
+}
+
+/**
+ * NUOVO: Tenta conteggio forzato con multiple strategie
+ */
+function attemptForceCount(strategy) {
+    console.log('🎯 Tentativo conteggio forzato via:', strategy);
+    
+    let success = false;
+    
+    try {
+        const countsData = calculateViewportCounts();
+        
+        if (countsData.totalVisible > 0) {
+            console.log('✅ Trovate', countsData.totalVisible, 'particelle');
+            
+            updateLegendUIWithCounts(countsData);
+            updateHeaderStats(countsData.totalVisible);
+            
+            systemStats.successfulCounts++;
+            success = true;
+            legendSystemInitialized = true;
+            
+            console.log('🎉 Successo conteggio via', strategy, '- Particelle:', countsData.totalVisible);
+        }
+    } catch (error) {
+        console.log('⚠️ Errore durante conteggio:', error.message);
+    }
+    
+    if (!success) {
+        console.log('❌ Tentativo fallito:', strategy);
+        
+        // Retry con strategia diversa
+        if (strategy !== 'source-fallback') {
+            setTimeout(() => {
+                attemptForceCount('source-fallback');
+            }, 1000);
+        }
+    }
+}
+
+/**
+ * NUOVO: Calcola conteggi viewport
+ */
+function calculateViewportCounts() {
+    const features = map.queryRenderedFeatures(undefined, {
+        layers: getActiveMapLayers()
+    });
+    
+    const counts = {};
+    const uniqueParticles = new Set();
+    let totalVisible = 0;
+    
+    features.forEach((feature) => {
+        const fid = feature.properties.fid;
+        
+        if (fid && !uniqueParticles.has(fid)) {
+            uniqueParticles.add(fid);
+            totalVisible++;
+            
+            const category = determineFeatureCategory(feature);
+            if (category !== null) {
+                counts[category] = (counts[category] || 0) + 1;
+            }
+        }
+    });
+    
+    return {
+        counts: counts,
+        totalVisible: totalVisible,
+        viewportBounds: map.getBounds(),
+        zoom: map.getZoom()
+    };
+}
+
+/**
+ * NUOVO: Determina categoria feature
+ */
+function determineFeatureCategory(feature) {
+    const currentTheme = getCurrentTheme();
+    
+    if (currentTheme === 'landuse' || !currentTheme) {
+        return feature.properties.class || '';
+    }
+    
+    const theme = themes[currentTheme];
+    if (!theme) return null;
+    
+    if (theme.type === 'jenks') {
+        return getJenksCategory(feature, theme);
+    } else if (theme.type === 'categorical') {
+        return getCategoricalCategory(feature, theme);
+    } else {
+        return getNumericCategory(feature, theme);
+    }
+}
+
+/**
+ * NUOVO: Helper per categoria Jenks
+ */
+function getJenksCategory(feature, theme) {
+    const value = feature.properties[theme.property];
+    
+    if (value === null || value === undefined || value === '') {
+        return '0';
+    }
+    
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return '0';
+    
+    for (let i = theme.jenksBreaks.length - 1; i >= 0; i--) {
+        if (numValue >= theme.jenksBreaks[i]) {
+            return i.toString();
+        }
+    }
+    
+    return '0';
+}
+
+/**
+ * NUOVO: Helper per categoria categorica
+ */
+function getCategoricalCategory(feature, theme) {
+    return feature.properties[theme.property] || 'N/D';
+}
+
+/**
+ * NUOVO: Helper per categoria numerica
+ */
+function getNumericCategory(feature, theme) {
+    const value = feature.properties[theme.property];
+    
+    if (value === null || value === undefined || value === '') {
+        return 'range-0';
+    }
+    
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return 'range-0';
+    
+    const currentTheme = getCurrentTheme();
+    const range = calculateDynamicRange(currentTheme) || getStaticRange(currentTheme) || { min: 0, max: 100 };
+    const step = (range.max - range.min) / 5;
+    
+    for (let i = 4; i >= 0; i--) {
+        const minVal = range.min + (step * i);
+        const maxVal = i === 4 ? range.max : range.min + (step * (i + 1));
+        
+        if (numValue >= minVal && numValue <= maxVal) {
+            return `range-${i}`;
+        }
+    }
+    
+    return 'range-0';
+}
+
+/**
+ * NUOVO: Ottieni layer attivi
+ */
+function getActiveMapLayers() {
+    const layers = ['catastale-base'];
+    
+    if (map.getLayer('catastale-thematic')) {
+        layers.push('catastale-thematic');
+    }
+    
+    return layers;
+}
+
+/**
+ * NUOVO: Aggiorna UI legenda con conteggi
+ */
+function updateLegendUIWithCounts(countsData) {
+    const counts = countsData.counts;
+    const totalVisible = countsData.totalVisible;
+    
+    const legendItems = document.querySelectorAll('#legend-sortable-items .legend-item-dynamic');
+    
+    legendItems.forEach((item) => {
+        const category = item.getAttribute('data-category');
+        const count = counts[category] || 0;
+        const percentage = totalVisible > 0 ? (count / totalVisible) * 100 : 0;
+        
+        item.setAttribute('data-count', count);
+        item.setAttribute('data-percentage', percentage.toFixed(1));
+        
+        const countDisplay = item.querySelector('.count-display');
+        const percentageDisplay = item.querySelector('.percentage-display');
+        
+        if (countDisplay) {
+            countDisplay.textContent = count.toLocaleString();
+        }
+        
+        if (percentageDisplay) {
+            percentageDisplay.textContent = `(${percentage.toFixed(1)}%)`;
+        }
+        
+        if (count > 0) {
+            item.classList.add('has-particles');
+            item.style.opacity = '1';
+        } else {
+            item.classList.remove('has-particles');
+            item.style.opacity = '0.5';
+        }
+    });
+    
+    // NUOVO: Ordinamento automatico per legenda base (landuse)
+    const currentTheme = getCurrentTheme();
+    if (currentTheme === 'landuse' || !currentTheme) {
+        sortLegendByCountDescending();
+    }
+    
+    // Salva stats correnti
+    currentViewportStats = {
+        total: totalVisible,
+        byCategory: counts,
+        byTheme: counts,
+        uniqueParticles: new Set()
+    };
+}
+
+/**
+ * NUOVO: Aggiorna header stats
+ */
+function updateHeaderStats(totalVisible) {
+    const visibleCountEl = document.querySelector('.legend-stats .visible-count');
+    if (visibleCountEl) {
+        visibleCountEl.textContent = totalVisible.toLocaleString();
+    }
+    
+    const zoomEl = document.querySelector('.zoom-level');
+    if (zoomEl && map) {
+        zoomEl.textContent = `Zoom: ${map.getZoom().toFixed(1)}`;
+    }
+}
+
+/**
+ * NUOVO: Ordina legenda per conteggio decrescente (dal più alto al più basso)
+ */
+function sortLegendByCountDescending() {
+    const container = document.getElementById('legend-sortable-items');
+    if (!container) return;
+    
+    const items = Array.from(container.querySelectorAll('.legend-item-dynamic'));
+    if (items.length === 0) return;
+    
+    console.log('🔄 Ordinamento legenda per conteggio decrescente...');
+    
+    // Ordina gli elementi per conteggio decrescente
+    items.sort((a, b) => {
+        const countA = parseInt(a.getAttribute('data-count')) || 0;
+        const countB = parseInt(b.getAttribute('data-count')) || 0;
+        
+        // Prima per conteggio decrescente
+        if (countB !== countA) {
+            return countB - countA;
+        }
+        
+        // Se il conteggio è uguale, ordina alfabeticamente
+        const labelA = a.querySelector('.legend-label').textContent;
+        const labelB = b.querySelector('.legend-label').textContent;
+        return labelA.localeCompare(labelB);
+    });
+    
+    // Riappendi gli elementi nell'ordine corretto con animazione
+    items.forEach((item, index) => {
+        // Aggiungi una piccola animazione per rendere visibile il riordinamento
+        item.style.transition = 'opacity 0.3s ease';
+        item.style.opacity = '0.7';
+        
+        setTimeout(() => {
+            container.appendChild(item);
+            item.style.opacity = '';
+            item.style.transition = '';
+        }, index * 20); // Stagger l'animazione
+    });
+    
+    console.log('✅ Ordinamento completato -', items.length, 'elementi riordinati');
 }
 
 /**
@@ -371,90 +1033,53 @@ window.toggleAllLegendItems = function() {
 
 /**
  * Calcola statistiche delle particelle nel viewport corrente
- * Con gestione migliorata per valori null/undefined
+ * AGGIORNATO per compatibilità
  */
 function calculateViewportStatistics() {
     if (!map || !map.getLayer('catastale-base')) {
         return { total: 0, byCategory: {}, byTheme: {}, uniqueParticles: new Set() };
     }
     
-    const currentZoom = map.getZoom();
-    const currentCenter = map.getCenter();
-    if (currentZoom === lastViewportState.zoom && 
-        currentCenter.lng === lastViewportState.center[0] && 
-        currentCenter.lat === lastViewportState.center[1] &&
-        Object.keys(currentViewportStats).length > 0 &&
-        !window.legendFilterState.isFiltering) {
-        return currentViewportStats;
+    // Se il sistema è già inizializzato e abbiamo stats valide, usale
+    if (legendSystemInitialized && currentViewportStats.total > 0) {
+        const currentZoom = map.getZoom();
+        const currentCenter = map.getCenter();
+        
+        if (currentZoom === lastViewportState.zoom && 
+            currentCenter.lng === lastViewportState.center[0] && 
+            currentCenter.lat === lastViewportState.center[1] &&
+            !window.legendFilterState.isFiltering) {
+            return currentViewportStats;
+        }
     }
     
-    const features = map.queryRenderedFeatures(undefined, {
-        layers: ['catastale-base', 'catastale-thematic'].filter(l => {
-            try {
-                return map.getLayer(l) !== undefined;
-            } catch {
-                return false;
-            }
-        })
-    });
+    // Calcola nuove statistiche
+    const countsData = calculateViewportCounts();
     
-    const stats = {
-        total: 0,
-        byCategory: {},
-        byTheme: {},
+    return {
+        total: countsData.totalVisible,
+        byCategory: countsData.counts,
+        byTheme: countsData.counts,
         uniqueParticles: new Set()
     };
-    
-    features.forEach(feature => {
-        const fid = feature.properties.fid;
-        
-        if (fid && !stats.uniqueParticles.has(fid)) {
-            stats.uniqueParticles.add(fid);
-            stats.total++;
-            
-            // Statistiche per categoria uso del suolo
-            const landUse = feature.properties.class || '';
-            if (!stats.byCategory[landUse]) {
-                stats.byCategory[landUse] = 0;
-            }
-            stats.byCategory[landUse]++;
-            
-            // Gestione migliorata per temi
-            if (currentTheme && currentTheme !== 'landuse') {
-                const theme = themes[currentTheme];
-                if (theme) {
-                    if (theme.type === 'categorical') {
-                        const value = feature.properties[theme.property];
-                        // Gestisci valori null/undefined come categoria separata
-                        const categoryKey = (value === null || value === undefined || value === '') 
-                            ? 'N/D' 
-                            : value;
-                        
-                        if (!stats.byTheme[categoryKey]) {
-                            stats.byTheme[categoryKey] = 0;
-                        }
-                        stats.byTheme[categoryKey]++;
-                    } else if (theme.property) {
-                        const value = feature.properties[theme.property];
-                        const category = getThemeCategory(value, theme);
-                        if (!stats.byTheme[category]) {
-                            stats.byTheme[category] = 0;
-                        }
-                        stats.byTheme[category]++;
-                    }
-                }
-            }
-        }
-    });
-    
-    return stats;
 }
 
 /**
  * Aggiorna legenda tematica con conteggi
- * Con fix per valori null/zero in Jenks
+ * SEMPLIFICATO per compatibilità
  */
 function updateThematicLegendWithCounts(stats) {
+    // Usa la nuova funzione se disponibile
+    if (legendSystemInitialized) {
+        updateLegendUIWithCounts({
+            counts: stats.byTheme,
+            totalVisible: stats.total
+        });
+        updateHeaderStats(stats.total);
+        return;
+    }
+    
+    // Fallback al sistema originale
     const legend = document.getElementById('legend');
     if (!legend || !legend.classList.contains('visible')) return;
     
@@ -656,6 +1281,7 @@ function validateTotalParticles() {
 
 /**
  * Configura listener per aggiornamenti viewport
+ * AGGIORNATO con force render iniziale
  */
 function setupViewportListeners() {
     map.on('moveend', () => {
@@ -685,7 +1311,21 @@ function debounceUpdateLegend() {
     
     clearTimeout(legendUpdateTimer);
     legendUpdateTimer = setTimeout(() => {
-        updateDynamicLegend();
+        if (legendSystemInitialized) {
+            const countsData = calculateViewportCounts();
+            updateLegendUIWithCounts(countsData);
+            updateHeaderStats(countsData.totalVisible);
+            
+            // NUOVO: Assicura ordinamento anche negli aggiornamenti automatici
+            const currentTheme = getCurrentTheme();
+            if (currentTheme === 'landuse' || !currentTheme) {
+                setTimeout(() => {
+                    sortLegendByCountDescending();
+                }, 100);
+            }
+        } else {
+            updateDynamicLegend();
+        }
     }, 700);
 }
 
@@ -699,6 +1339,7 @@ function createUpdateHash(stats) {
 
 /**
  * Aggiorna la legenda con conteggi dinamici
+ * MODIFICATO per integrazione con nuovo sistema
  */
 function updateDynamicLegend() {
     if (isUpdatingLegend) return;
@@ -731,6 +1372,12 @@ function updateDynamicLegend() {
         }
         
         currentViewportStats = stats;
+        
+        // Log per debug inizializzazione
+        if (systemStats.successfulCounts === 1) {
+            console.log('🎉 Prima popolazione legenda completata:', stats.total, 'particelle visibili');
+        }
+        
     } catch (error) {
         console.error('❌ Errore aggiornamento legenda:', error);
     } finally {
@@ -742,8 +1389,20 @@ function updateDynamicLegend() {
 
 /**
  * Aggiorna legenda base con conteggi
+ * AGGIORNATO per nuovo sistema + ordinamento automatico
  */
 function updateBaseLegendWithCounts(stats) {
+    // Se il nuovo sistema è attivo, usa quello
+    if (legendSystemInitialized) {
+        updateLegendUIWithCounts({
+            counts: stats.byCategory,
+            totalVisible: stats.total
+        });
+        updateHeaderStats(stats.total);
+        return;
+    }
+    
+    // Fallback al sistema originale CON ordinamento
     const legend = document.getElementById('legend');
     if (!legend || !legend.classList.contains('visible')) return;
     
@@ -771,6 +1430,10 @@ function updateBaseLegendWithCounts(stats) {
                 const count = stats.byCategory[classKey] || 0;
                 const percentage = ((count / TOTAL_PARTICELLE) * 100).toFixed(1);
                 
+                // Aggiorna attributi per ordinamento
+                item.setAttribute('data-count', count);
+                item.setAttribute('data-percentage', percentage);
+                
                 const statsElement = item.querySelector('.category-stats');
                 if (statsElement) {
                     statsElement.textContent = `${formatNumber(count)} (${percentage}%)`;
@@ -784,6 +1447,8 @@ function updateBaseLegendWithCounts(stats) {
             }
         });
         
+        // NUOVO: Applica ordinamento anche nel fallback
+        sortLegendByCountDescending();
         return;
     }
     
@@ -794,14 +1459,37 @@ function updateBaseLegendWithCounts(stats) {
     
     items.appendChild(createSeparator());
     
+    // Crea array per ordinamento
+    const categoriesArray = [];
     for (const [className, color] of Object.entries(landUseColors)) {
         const label = landUseLabels[className];
         const count = stats.byCategory[className] || 0;
         const percentage = ((count / TOTAL_PARTICELLE) * 100).toFixed(1);
         
+        categoriesArray.push({
+            className,
+            label,
+            color,
+            count,
+            percentage: parseFloat(percentage)
+        });
+    }
+    
+    // NUOVO: Ordina per conteggio decrescente prima di creare gli elementi
+    categoriesArray.sort((a, b) => {
+        if (b.count !== a.count) {
+            return b.count - a.count; // Conteggio decrescente
+        }
+        return a.label.localeCompare(b.label); // Alfabetico se conteggio uguale
+    });
+    
+    // Crea elementi nell'ordine ordinato
+    categoriesArray.forEach(({className, label, color, count, percentage}) => {
         const item = document.createElement('div');
         item.className = 'legend-item-dynamic interactive';
         item.setAttribute('data-category', className);
+        item.setAttribute('data-count', count);
+        item.setAttribute('data-percentage', percentage.toFixed(1));
         item.setAttribute('data-tooltip', 'Clicca per filtrare');
         
         item.addEventListener('click', (e) => {
@@ -814,7 +1502,7 @@ function updateBaseLegendWithCounts(stats) {
             <div class="legend-color" style="background-color: ${color}"></div>
             <span class="legend-label-dynamic">
                 <span class="category-name">${label}</span>
-                <span class="category-stats">${formatNumber(count)} (${percentage}%)</span>
+                <span class="category-stats">${formatNumber(count)} (${percentage.toFixed(1)}%)</span>
             </span>
         `;
         
@@ -823,7 +1511,7 @@ function updateBaseLegendWithCounts(stats) {
         }
         
         items.appendChild(item);
-    }
+    });
     
     updateLegendUI();
 }
@@ -888,5 +1576,154 @@ function formatNumber(num) {
  */
 function forceLegendUpdate() {
     lastUpdateHash = '';
-    updateDynamicLegend();
+    if (legendSystemInitialized) {
+        const countsData = calculateViewportCounts();
+        updateLegendUIWithCounts(countsData);
+        updateHeaderStats(countsData.totalVisible);
+        
+        // NUOVO: Applica ordinamento anche nel force update
+        const currentTheme = getCurrentTheme();
+        if (currentTheme === 'landuse' || !currentTheme) {
+            setTimeout(() => {
+                sortLegendByCountDescending();
+            }, 100);
+        }
+    } else {
+        updateDynamicLegend();
+    }
+}
+
+// NUOVO: Aggiungi CSS per il nuovo sistema
+function addLegendSystemStyles() {
+    if (document.getElementById('legend-system-styles')) return;
+    
+    const styles = document.createElement('style');
+    styles.id = 'legend-system-styles';
+    styles.textContent = `
+        .legend-system-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .legend-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .stats-main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+        }
+        .stats-secondary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        .visible-count {
+            color: #ff9900;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .filter-status {
+            color: #6c757d;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+        }
+        .filter-status.active {
+            background: rgba(255, 153, 0, 0.2);
+            color: #ff9900;
+            font-weight: 600;
+        }
+        .legend-label-container {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-width: 0;
+        }
+        .legend-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #495057;
+            flex: 1;
+            margin-right: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .legend-stats {
+            display: flex;
+            gap: 4px;
+            font-size: 10px;
+            color: #6c757d;
+            flex-shrink: 0;
+        }
+        .count-display {
+            font-weight: 600;
+            color: #ff9900;
+            font-family: monospace;
+        }
+        .percentage-display {
+            opacity: 0.8;
+            font-style: italic;
+        }
+        .legend-checkbox {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #ced4da;
+            border-radius: 3px;
+            margin-right: 8px;
+            position: relative;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .legend-checkbox.checked {
+            background: #ff9900;
+            border-color: #ff9900;
+        }
+        .checkbox-icon {
+            font-size: 8px;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .legend-checkbox.checked .checkbox-icon {
+            opacity: 1;
+        }
+        .legend-item-dynamic.selected {
+            background: #fff3cd;
+            border-color: #ff9900;
+            box-shadow: 0 2px 8px rgba(255, 153, 0, 0.2);
+        }
+        .legend-item-dynamic.has-particles {
+            opacity: 1;
+        }
+        .legend-item-dynamic:not(.has-particles) {
+            opacity: 0.5;
+            background: #f8f9fa;
+        }
+    `;
+    
+    document.head.appendChild(styles);
+}
+
+// Inizializza CSS al caricamento
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addLegendSystemStyles);
+} else {
+    addLegendSystemStyles();
 }

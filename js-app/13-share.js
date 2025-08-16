@@ -1,6 +1,5 @@
 // ====================================
-// SISTEMA DI CONDIVISIONE COMPLETO v2.1
-// Con supporto sistema grafici dinamici
+// SISTEMA DI CONDIVISIONE COMPLETO
 // ====================================
 
 /**
@@ -30,10 +29,6 @@ function captureCurrentConfiguration() {
         
         // Bordi
         borders: map.getLayoutProperty('catastale-outline', 'visibility') === 'visible',
-        
-        // NUOVO: Stato grafici
-        chartsEnabled: window.chartsEnabled || false,
-        chartsMinimized: document.getElementById('charts-window')?.classList.contains('minimized') || false,
         
         // Filtri legenda (se presenti)
         legendFilters: window.legendFilterState ? 
@@ -110,15 +105,6 @@ function generateShareUrl(config) {
     if (config.borders) {
         params.set('borders', '1');
     }
-    
-    // NUOVO: Parametri grafici
-    if (config.chartsEnabled) {
-        params.set('charts', '1');
-        if (config.chartsMinimized) {
-            params.set('chartsMin', '1');
-        }
-    }
-    
     if (config.legendFilters && config.legendFilters.length > 0) {
         params.set('lf', config.legendFilters.join(','));
     }
@@ -181,12 +167,6 @@ function updateConfigDetails(config) {
         if (theme) {
             items.push(`<li><strong>Indicatore:</strong> <span>${theme.name}</span></li>`);
         }
-    }
-    
-    // NUOVO: Stato grafici
-    if (config.chartsEnabled) {
-        const chartsStatus = config.chartsMinimized ? 'Attivi (minimizzati)' : 'Attivi';
-        items.push(`<li><strong>Grafici dinamici:</strong> <span>${chartsStatus}</span></li>`);
     }
     
     // Perimetri attivi
@@ -355,40 +335,17 @@ function applyThemeFromUrl(theme, category) {
 }
 
 /**
- * NUOVO: Applica stato grafici da URL
- */
-function applyChartsFromUrl(chartsEnabled, chartsMinimized) {
-    console.log('📊 Applicando stato grafici da URL:', chartsEnabled, 'minimizzati:', chartsMinimized);
-    
-    if (chartsEnabled && typeof window.toggleChartsSystem === 'function') {
-        // Attiva grafici se non sono già attivi
-        if (!window.chartsEnabled) {
-            setTimeout(() => {
-                window.toggleChartsSystem();
-                
-                // Minimizza se richiesto
-                if (chartsMinimized && typeof window.minimizeChartsWindow === 'function') {
-                    setTimeout(() => {
-                        window.minimizeChartsWindow();
-                    }, 500);
-                }
-            }, 1500);
-        }
-    }
-}
-
-/**
  * Applica configurazione da URL al caricamento
  */
 function applyConfigurationFromUrl() {
     const params = new URLSearchParams(window.location.search);
     
     if (!params.toString()) {
-        console.log('🔍 Nessun parametro URL da applicare');
+        console.log('📍 Nessun parametro URL da applicare');
         return;
     }
     
-    console.log('🔍 Applicazione configurazione da URL con parametri:', params.toString());
+    console.log('📍 Applicazione configurazione da URL con parametri:', params.toString());
     
     // Funzione per applicare la configurazione
     const applyConfig = () => {
@@ -397,7 +354,7 @@ function applyConfigurationFromUrl() {
         // 1. Basemap (immediato)
         const basemap = params.get('basemap');
         if (basemap) {
-            console.log('🗺️ Applicando basemap:', basemap);
+            console.log('📍 Applicando basemap:', basemap);
             const basemapSelect = document.getElementById('basemap-select');
             if (basemapSelect) {
                 basemapSelect.value = basemap;
@@ -442,7 +399,7 @@ function applyConfigurationFromUrl() {
         const mandamento = params.get('mandamento');
         if (mandamento) {
             setTimeout(() => {
-                console.log('🏛️ Applicando mandamento:', mandamento);
+                console.log('📍 Applicando mandamento:', mandamento);
                 const mandamentoSelect = document.getElementById('mandamento-filter');
                 if (mandamentoSelect) {
                     mandamentoSelect.value = mandamento;
@@ -457,7 +414,7 @@ function applyConfigurationFromUrl() {
         const foglio = params.get('foglio');
         if (foglio) {
             setTimeout(() => {
-                console.log('📄 Applicando foglio:', foglio);
+                console.log('📍 Applicando foglio:', foglio);
                 const foglioSelect = document.getElementById('foglio-filter');
                 if (foglioSelect) {
                     foglioSelect.value = foglio;
@@ -473,32 +430,23 @@ function applyConfigurationFromUrl() {
         const category = params.get('cat');
         if (theme && theme !== 'landuse') {
             setTimeout(() => {
-                console.log('🎨 Applicando tema:', theme, 'con categoria:', category);
+                console.log('📍 Applicando tema:', theme, 'con categoria:', category);
                 applyThemeFromUrl(theme, category || 'demographic');
             }, 3000);
         }
         
-        // 7. NUOVO: Grafici (dopo 4s)
-        const chartsEnabled = params.get('charts') === '1';
-        const chartsMinimized = params.get('chartsMin') === '1';
-        if (chartsEnabled) {
-            setTimeout(() => {
-                applyChartsFromUrl(chartsEnabled, chartsMinimized);
-            }, 4000);
-        }
-        
-        // 8. Filtri legenda (dopo 5s)
+        // 7. Filtri legenda (dopo 4s)
         const legendFilters = params.get('lf');
         if (legendFilters && window.legendFilterState) {
             setTimeout(() => {
-                console.log('🔍 Applicando filtri legenda:', legendFilters);
+                console.log('📍 Applicando filtri legenda:', legendFilters);
                 const filters = legendFilters.split(',');
                 filters.forEach(filter => {
                     if (typeof handleLegendItemClick === 'function') {
                         handleLegendItemClick(filter, true);
                     }
                 });
-            }, 5000);
+            }, 4000);
         }
         
         console.log('✅ Configurazione applicata da URL');
@@ -577,4 +525,4 @@ document.getElementById('share-popup')?.addEventListener('click', function(e) {
     }
 });
 
-console.log('📤 Sistema di condivisione v2.1 caricato - Con supporto grafici dinamici');
+console.log('📤 Sistema di condivisione v2.0 caricato - con fix indicatori e select personalizzati');
