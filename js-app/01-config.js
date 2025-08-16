@@ -45,7 +45,7 @@ const landUseColors = {
 const landUseLabels = {
     "servizi": "Servizi",
     "military": "Militare",
-    "park": "Verde Pubblico",
+    "park": "Verde Pubbl.",
     "pedestrian": "Pedonale",
     "protected": "Storico",
     "recreation": "Ricreativo",
@@ -54,7 +54,7 @@ const landUseLabels = {
     "education": "Educativo",
     "medical": "Ospedale",
     "transportation": "Trasporti",
-    "": "Non Classificato"
+    "": "Non Clas.to"
 };
 
 // Definizioni per le mappe tematiche categoriche
