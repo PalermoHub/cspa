@@ -515,7 +515,7 @@ function determineFeatureCategory(feature) {
     if (theme.type === 'jenks') {
         return getJenksCategory(feature, theme);
     } else if (theme.type === 'categorical') {
-        return getCategoricalCategory(feature, theme);
+        return getCategoricalCategory_FIXED(feature, theme);
     } else {
         return getNumericCategory(feature, theme);
     }
@@ -546,7 +546,7 @@ function getJenksCategory(feature, theme) {
 /**
  * NUOVO: Helper per categoria categorica
  */
-function getCategoricalCategory(feature, theme) {
+function getCategoricalCategory_FIXED(feature, theme) {
     return feature.properties[theme.property] || 'N/D';
 }
 
