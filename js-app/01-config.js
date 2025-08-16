@@ -66,9 +66,9 @@ const landCoverColors = {
 };
 
 const landCoverLabels = {
-    "1110": "Superfici artificiali (Aree urbane)",
-    "2111": "Vegetazione erbacea permanente",
-    "2112": "Vegetazione erbacea temporanee",
+    "1110": "Aree urbane",
+    "2111": "Veget. permanente",
+    "2112": "Veget. temporanee",
     "2212": "Foreste"
 };
 
