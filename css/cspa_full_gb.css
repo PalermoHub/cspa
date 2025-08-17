@@ -2101,3 +2101,22 @@ hr {
         transition: none !important;
     }
 }
+
+/* SCROLLBAR PERSONALIZZATA */
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #FF9900;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ff6600;
+}
