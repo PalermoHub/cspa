@@ -1026,9 +1026,8 @@ hr {
 }
 
 .controls-content {
-    padding: 0 15px 15px 15px;
-    padding-top: 5px;
-}
+    padding: 2px 8px 5px 5px;
+  }
 /*@opendatasicilia*/
 .legend-section {
     background: rgba(255, 255, 255, 0.98);
@@ -2101,6 +2100,7 @@ hr {
         transition: none !important;
     }
 }
+
 
 /* SCROLLBAR PERSONALIZZATA */
 ::-webkit-scrollbar {
