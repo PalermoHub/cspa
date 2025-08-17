@@ -535,7 +535,7 @@ hr {
     transition: none !important;
     display: flex;
     flex-direction: column;
-    padding: 5px 15px 15px 15px;
+    padding: 4px 2px 2px 4px;
     flex: 1;
 }
 
