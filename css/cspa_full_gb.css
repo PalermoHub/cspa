@@ -1026,9 +1026,8 @@ hr {
 }
 
 .controls-content {
-    padding: 0 15px 15px 15px;
-    padding-top: 5px;
-}
+    padding: 2px 8px 5px 5px;
+  }
 /*@opendatasicilia*/
 .legend-section {
     background: rgba(255, 255, 255, 0.98);
@@ -2102,24 +2101,6 @@ hr {
     }
 }
 
-/* SCROLLBAR PERSONALIZZATA */
-::-webkit-scrollbar {
-    width: 4px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #FF9900;
-    border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #ff6600;
-}
 
 /* SCROLLBAR PERSONALIZZATA */
 ::-webkit-scrollbar {
