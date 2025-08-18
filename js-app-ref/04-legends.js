@@ -1,16 +1,27 @@
-// ===== legends.js =====
+// ===== legends.js - CORRETTO =====
 /**
  * Gestione legende per tutti i tipi di tema
- * Versione 2.0 - Con supporto per legende interattive e filtri
+ * RISOLTO: Aggiunto controllo sicurezza CONFIG e gestione errori
  */
 
 /**
  * Mostra legenda Jenks-Fisher con interattività
  */
 function showJenksLegend(theme) {
+    // CONTROLLO SICUREZZA
+    if (!CONFIG || !CONFIG.fields) {
+        console.warn('⚠️ CONFIG non disponibile per Jenks legend');
+        return;
+    }
+    
     const legend = document.getElementById('legend');
     const title = document.getElementById('legend-title');
     const items = document.getElementById('legend-items');
+    
+    if (!legend || !title || !items) {
+        console.warn('⚠️ Elementi legenda non trovati');
+        return;
+    }
     
     let titleText = theme.name + ' (Jenks-Fisher)';
     if (currentMandamentoFilter || currentFoglioFilter) {
@@ -77,9 +88,20 @@ function showJenksLegend(theme) {
  * Mostra legenda standard con interattività
  */
 function showLegend(theme, range) {
+    // CONTROLLO SICUREZZA
+    if (!CONFIG || !CONFIG.fields) {
+        console.warn('⚠️ CONFIG non disponibile per standard legend');
+        return;
+    }
+    
     const legend = document.getElementById('legend');
     const title = document.getElementById('legend-title');
     const items = document.getElementById('legend-items');
+    
+    if (!legend || !title || !items) {
+        console.warn('⚠️ Elementi legenda non trovati');
+        return;
+    }
     
     let titleText = theme.name;
     if (currentMandamentoFilter || currentFoglioFilter) {
@@ -207,12 +229,39 @@ function showLegend(theme, range) {
 }
 
 /**
- * Mostra legenda base uso del suolo con interattività
+ * Mostra legenda base uso del suolo con interattività - CORRETTO
  */
 function showBaseLegenda() {
+    console.log('🏗️ Mostrando legenda base...');
+    
+    // CONTROLLO SICUREZZA RAFFORZATO
+    if (!CONFIG) {
+        console.error('❌ CONFIG non definito! Riprovo tra 500ms...');
+        setTimeout(showBaseLegenda, 500);
+        return;
+    }
+    
+    if (!CONFIG.fields || !CONFIG.fields.geography) {
+        console.error('❌ CONFIG.fields.geography non definito! Riprovo tra 500ms...');
+        setTimeout(showBaseLegenda, 500);
+        return;
+    }
+    
+    if (typeof landUseColors === 'undefined' || typeof landUseLabels === 'undefined') {
+        console.error('❌ landUseColors/landUseLabels non definiti! Riprovo tra 500ms...');
+        setTimeout(showBaseLegenda, 500);
+        return;
+    }
+    
     const legend = document.getElementById('legend');
     const title = document.getElementById('legend-title');
     const items = document.getElementById('legend-items');
+    
+    if (!legend || !title || !items) {
+        console.warn('⚠️ Elementi legenda non trovati, riprovo...');
+        setTimeout(showBaseLegenda, 300);
+        return;
+    }
     
     let titleText = 'Base catastale';
     if (currentMandamentoFilter || currentFoglioFilter) {
@@ -226,50 +275,78 @@ function showBaseLegenda() {
     items.innerHTML = '';
     
     // Aggiungi controlli toggle
-    if (window.createToggleControls) {
-        const toggleControls = window.createToggleControls();
-        items.appendChild(toggleControls);
+    if (window.createToggleControls && typeof window.createToggleControls === 'function') {
+        try {
+            const toggleControls = window.createToggleControls();
+            items.appendChild(toggleControls);
+        } catch (error) {
+            console.warn('⚠️ Errore creazione toggle controls:', error);
+        }
     }
     
-    for (const [className, color] of Object.entries(landUseColors)) {
-        const label = landUseLabels[className];
+    // SICUREZZA: Controllo esistenza oggetti
+    if (!landUseColors || !landUseLabels) {
+        console.error('❌ landUseColors o landUseLabels non disponibili');
+        return;
+    }
+    
+    try {
+        for (const [className, color] of Object.entries(landUseColors)) {
+            const label = landUseLabels[className] || className || 'N/D';
+            
+            const item = document.createElement('div');
+            item.className = 'legend-item legend-item-dynamic interactive';
+            
+            // Attributi interattività
+            item.setAttribute('data-category', className);
+            item.setAttribute('data-tooltip', 'Clicca per filtrare');
+            
+            // Event listener per filtro interattivo
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (window.handleLegendItemClick && typeof window.handleLegendItemClick === 'function') {
+                    window.handleLegendItemClick(className, e.ctrlKey || e.metaKey);
+                }
+            });
+            
+            item.innerHTML = `
+                <span class="legend-checkbox"></span>
+                <div class="legend-color" style="background-color: ${color}"></div>
+                <span class="legend-label legend-label-dynamic">
+                    <span class="category-name">${label}</span>
+                    <span class="category-stats">0 (0.0%)</span>
+                </span>
+            `;
+            items.appendChild(item);
+        }
         
-        const item = document.createElement('div');
-        item.className = 'legend-item legend-item-dynamic interactive';
+        legend.classList.add('visible');
+        console.log('✅ Legenda base mostrata con successo');
         
-        // Attributi interattività
-        item.setAttribute('data-category', className);
-        item.setAttribute('data-tooltip', 'Clicca per filtrare');
+        // Aggiorna UI se ci sono filtri attivi
+        if (window.updateLegendUI && typeof window.updateLegendUI === 'function') {
+            setTimeout(() => window.updateLegendUI(), 100);
+        }
         
-        // Event listener per filtro interattivo
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (window.handleLegendItemClick) {
-                window.handleLegendItemClick(className, e.ctrlKey || e.metaKey);
-            }
-        });
+        // Chiama la funzione di aggiornamento dinamico se esiste
+        if (window.updateDynamicLegend && typeof window.updateDynamicLegend === 'function') {
+            setTimeout(() => window.updateDynamicLegend(), 200);
+        }
         
-        item.innerHTML = `
-            <span class="legend-checkbox"></span>
-            <div class="legend-color" style="background-color: ${color}"></div>
-            <span class="legend-label legend-label-dynamic">
-                <span class="category-name">${label}</span>
-                <span class="category-stats">0 (0.0%)</span>
-            </span>
+    } catch (error) {
+        console.error('❌ Errore durante creazione elementi legenda:', error);
+        
+        // Fallback: crea legenda minimale
+        items.innerHTML = `
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: rgba(255,153,0,0.7)"></div>
+                <span class="legend-label">Uso del suolo (caricamento...)</span>
+            </div>
         `;
-        items.appendChild(item);
-    }
-    
-    legend.classList.add('visible');
-    
-    // Aggiorna UI se ci sono filtri attivi
-    if (window.updateLegendUI) {
-        setTimeout(() => window.updateLegendUI(), 100);
-    }
-    
-    // Chiama la funzione di aggiornamento dinamico se esiste
-    if (window.updateDynamicLegend) {
-        setTimeout(() => window.updateDynamicLegend(), 200);
+        legend.classList.add('visible');
+        
+        // Riprova dopo un po'
+        setTimeout(showBaseLegenda, 1000);
     }
 }
 

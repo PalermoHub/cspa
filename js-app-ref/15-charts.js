@@ -2,6 +2,7 @@
 /**
  * Sistema Grafici Dinamici a Pile - Tempo Reale
  * Versione 2.3 - Grafici interattivi con filtri cliccabili + allineamento assi X/Y + estrazione icone corretta
+ * REFACTORED: Usa CONFIG.fields per centralizzazione campi catastali
  */
 
 // Variabili globali per il sistema grafici
@@ -16,7 +17,7 @@ let isChartsUpdating = false;
 // NUOVO: Variabile per il filtro categoria attivo
 let activeChartFilter = null;
 
-// MAPPING ICONE E TESTI - Sistema ibrido con fallback
+// MAPPING ICONE E TESTI - Sistema ibrido con fallback (REFACTORED: usa CONFIG per alcuni riferimenti)
 const themeIconsAndTexts = {
     // Mapping base esistente (fallback)
     'superficie': { icon: 'fas fa-expand-arrows-alt', text: 'Superficie Particella' },
@@ -321,7 +322,7 @@ function toggleChartsSystem() {
 }
 
 /**
- * NUOVO: Gestisce il click su una categoria del grafico uso del suolo
+ * NUOVO: Gestisce il click su una categoria del grafico uso del suolo (REFACTORED: usa CONFIG.fields)
  */
 function handleLanduseChartClick(chart, elements) {
     if (elements.length === 0) return;
@@ -354,25 +355,27 @@ function handleLanduseChartClick(chart, elements) {
 }
 
 /**
- * NUOVO: Applica filtro categoria alla mappa
+ * NUOVO: Applica filtro categoria alla mappa (REFACTORED: usa CONFIG.fields)
  */
 function applyChartFilter(category, displayLabel) {
     activeChartFilter = category;
     
     // Aggiorna il layer della mappa per mostrare solo la categoria selezionata
     if (map && map.getLayer('catastale-base')) {
+        // REFACTORED: usa CONFIG.fields.geography.landUseClass invece di 'class'
         map.setPaintProperty('catastale-base', 'fill-opacity', [
             'case',
-            ['==', ['get', 'class'], category],
+            ['==', ['get', CONFIG.fields.geography.landUseClass], category],
             0.75,  // Opacità normale per categoria selezionata
             0.15   // Opacità ridotta per altre categorie
         ]);
         
         // Aggiorna anche il colore per evidenziare la selezione
         const categoryColor = landUseColors[category] || 'rgba(200,200,200,0.7)';
+        // REFACTORED: usa CONFIG.fields.geography.landUseClass invece di 'class'
         map.setPaintProperty('catastale-base', 'fill-color', [
             'case',
-            ['==', ['get', 'class'], category],
+            ['==', ['get', CONFIG.fields.geography.landUseClass], category],
             categoryColor,
             'rgba(200,200,200,0.3)'  // Grigio chiaro per categorie non selezionate
         ]);
@@ -390,7 +393,7 @@ function applyChartFilter(category, displayLabel) {
 }
 
 /**
- * NUOVO: Rimuove filtro categoria attivo
+ * NUOVO: Rimuove filtro categoria attivo (REFACTORED: usa CONFIG.fields)
  */
 function clearChartFilter() {
     if (!activeChartFilter) return;
@@ -399,10 +402,10 @@ function clearChartFilter() {
     
     // Ripristina visualizzazione normale della mappa
     if (map && map.getLayer('catastale-base')) {
-        // Ripristina paint expression originale
+        // Ripristina paint expression originale (REFACTORED: usa CONFIG.fields)
         map.setPaintProperty('catastale-base', 'fill-color', [
             'match',
-            ['get', 'class'],
+            ['get', CONFIG.fields.geography.landUseClass], // CAMBIATO: era 'class'
             'servizi', landUseColors.servizi,
             'military', landUseColors.military,
             'park', landUseColors.park,
@@ -648,7 +651,7 @@ function debounceChartsUpdate() {
 }
 
 /**
- * MODIFICATA: Calcola dati per i grafici dalle particelle visibili (con filtro)
+ * MODIFICATA: Calcola dati per i grafici dalle particelle visibili (con filtro) (REFACTORED: usa CONFIG.fields)
  */
 function calculateChartsData() {
     if (!map || !map.getLayer('catastale-base')) {
@@ -674,13 +677,15 @@ function calculateChartsData() {
     };
     
     features.forEach(feature => {
-        const fid = feature.properties.fid;
+        // REFACTORED: usa CONFIG.fields.identifiers.fid invece di 'fid'
+        const fid = feature.properties[CONFIG.fields.identifiers.fid];
         
         if (fid && !data.uniqueParticles.has(fid)) {
             data.uniqueParticles.add(fid);
             
             // NUOVO: Se c'è un filtro attivo, considera solo le particelle filtrate per il secondo grafico
-            const landUse = feature.properties.class || 'N/D';
+            // REFACTORED: usa CONFIG.fields.geography.landUseClass invece di 'class'
+            const landUse = feature.properties[CONFIG.fields.geography.landUseClass] || 'N/D';
             const isFiltered = activeChartFilter && landUse !== activeChartFilter;
             
             // Per il primo grafico (uso del suolo), conta sempre tutto
@@ -695,7 +700,9 @@ function calculateChartsData() {
                 if (currentTheme && currentTheme !== 'landuse') {
                     const theme = themes[currentTheme];
                     if (theme) {
-                        const value = feature.properties[theme.property];
+                        // REFACTORED: usa THEME_FIELD_MAPPING quando possibile
+                        const fieldName = THEME_FIELD_MAPPING[currentTheme] || theme.property;
+                        const value = feature.properties[fieldName];
                         let category;
                         
                         if (theme.type === 'categorical') {
@@ -720,7 +727,7 @@ function calculateChartsData() {
 }
 
 /**
- * Ottiene la classe Jenks per un valore
+ * Ottiene la classe Jenks per un valore (REFACTORED: usa THEME_FIELD_MAPPING quando disponibile)
  */
 function getJenksClassForValue(value, theme) {
     if (value === null || value === undefined || value === '') {
@@ -745,7 +752,7 @@ function getJenksClassForValue(value, theme) {
 }
 
 /**
- * Ottiene la classe range per un valore
+ * Ottiene la classe range per un valore (REFACTORED: usa THEME_FIELD_MAPPING quando disponibile)
  */
 function getRangeClassForValue(value, theme) {
     if (value === null || value === undefined || value === '') {
@@ -1016,7 +1023,7 @@ function updateThemeChart() {
     // Aggiorna testo
     if (titleElement && themeData) {
         titleElement.textContent = themeData.text;
-        console.log(`📝 Titolo aggiornato: "${themeData.text}"`);
+        console.log(`🔍 Titolo aggiornato: "${themeData.text}"`);
     }
     
     // Aggiorna icona

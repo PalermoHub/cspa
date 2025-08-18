@@ -1,13 +1,14 @@
-// =====themes.js =====
+// =====themes.js - REFACTORIZZATO =====
 /**
  * Definizioni temi e tematizzazioni
+ * AGGIORNATO: Utilizza THEME_FIELD_MAPPING dal config per centralizzazione campi
  */
 
 // Configurazioni tematizzazioni con Jenks-Fisher
 const themes = {
     population: {
         name: 'Popolazione Stimata',
-        property: 'popolazione_stimata',
+        property: THEME_FIELD_MAPPING.population, // ✅ Era: 'popolazione_stimata'
         colors: ['#ffffff', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1e88e5', '#1976d2'],
         unit: 'abitanti',
         format: (val) => `${val || 'N/D'} abitanti`,
@@ -17,7 +18,7 @@ const themes = {
     
     familySize: {
         name: 'Dimensione Media Famiglia',
-        property: 'dimensione media della famiglia',
+        property: THEME_FIELD_MAPPING.familySize, // ✅ Era: 'dimensione media della famiglia'
         colors: ['#ffffff', '#e8f5e8', '#c8e6c8', '#a5d6a5', '#82c782', '#5fb85f', '#3ca83c', '#2e7d32'],
         unit: 'componenti',
         format: (val) => `${val || 'N/D'} componenti`,
@@ -27,7 +28,7 @@ const themes = {
     
     masculinity: {
         name: 'Tasso di Mascolinità',
-        property: 'tasso di mascolinità',
+        property: THEME_FIELD_MAPPING.masculinity, // ✅ Era: 'tasso di mascolinità'
         colors: ['#ffffff', '#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1976d2'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -37,7 +38,7 @@ const themes = {
     
     singlePerson: {
         name: 'Tasso Persona Singola',
-        property: 'tasso_persona singola',
+        property: THEME_FIELD_MAPPING.singlePerson, // ✅ Era: 'tasso_persona singola'
         colors: ['#ffffff', '#fff3e0', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#f57c00'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -47,7 +48,7 @@ const themes = {
     
     largeFamilies: {
         name: 'Tasso Famiglie Numerose',
-        property: 'tasso_famiglie_numerose',
+        property: THEME_FIELD_MAPPING.largeFamilies, // ✅ Era: 'tasso_famiglie_numerose'
         colors: ['#ffffff', '#f1f8e9', '#dcedc8', '#c5e1a5', '#aed581', '#9ccc65', '#8bc34a', '#689f38'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -57,7 +58,7 @@ const themes = {
     
     femaleEmployment: {
         name: 'Tasso Occupazione Femminile',
-        property: 'tasso di occupazione femminile',
+        property: THEME_FIELD_MAPPING.femaleEmployment, // ✅ Era: 'tasso di occupazione femminile'
         colors: ['#ffffff', '#fce4ec', '#f8bbd9', '#f48fb1', '#f06292', '#ec407a', '#e91e63', '#c2185b'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -67,7 +68,7 @@ const themes = {
 
     higherEducation: {
         name: 'Tasso Istruzione Superiore',
-        property: 'tasso di istruzione superiore',
+        property: THEME_FIELD_MAPPING.higherEducation, // ✅ Era: 'tasso di istruzione superiore'
         colors: ['#ffffff', '#e8f5e8', '#c8e6c8', '#a5d6a5', '#82c782', '#5fb85f', '#3ca83c', '#1b5e20'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -77,7 +78,7 @@ const themes = {
     
     lowEducation: {
         name: 'Basso Tasso Istruzione',
-        property: 'basso_tasso_di_istruzione',
+        property: THEME_FIELD_MAPPING.lowEducation, // ✅ Era: 'basso_tasso_di_istruzione'
         colors: ['#ffffff', '#ffebee', '#ffcdd2', '#ef9a9a', '#e57373', '#ef5350', '#f44336', '#d32f2f'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -87,7 +88,7 @@ const themes = {
     
     workIntegration: {
         name: 'Tasso Integrazione Lavoro',
-        property: 'tasso di integrazione del lavoro',
+        property: THEME_FIELD_MAPPING.workIntegration, // ✅ Era: 'tasso di integrazione del lavoro'
         colors: ['#ffffff', '#e0f2f1', '#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#009688', '#00695c'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -97,7 +98,7 @@ const themes = {
     
     nonEuForeigners: {
         name: 'Tasso Stranieri Non-UE',
-        property: 'tasso_stranieri_non_ue',
+        property: THEME_FIELD_MAPPING.nonEuForeigners, // ✅ Era: 'tasso_stranieri_non_ue'
         colors: ['#ffffff', '#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#7b1fa2'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -107,7 +108,7 @@ const themes = {
     
     youngForeigners: {
         name: 'Tasso Giovani Stranieri',
-        property: 'tasso_giovani_stranieri',
+        property: THEME_FIELD_MAPPING.youngForeigners, // ✅ Era: 'tasso_giovani_stranieri'
         colors: ['#ffffff', '#fff8e1', '#ffecb3', '#ffe082', '#ffd54f', '#ffca28', '#ffc107', '#ffa000'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -117,7 +118,7 @@ const themes = {
     
     age: {
         name: 'Età Media',
-        property: 'età_media',
+        property: THEME_FIELD_MAPPING.age, // ✅ Era: 'età_media'
         colors: ['#ffffff', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#fb8c00', '#f57c00'],
         unit: 'anni',
         format: (val) => `${val || 'N/D'} anni`,
@@ -127,7 +128,7 @@ const themes = {
     
     elderly: {
         name: 'Tasso Anziani',
-        property: 'tasso_anziani',
+        property: THEME_FIELD_MAPPING.elderly, // ✅ Era: 'tasso_anziani'
         colors: ['#f1f8e9', '#dcedc8', '#c5e1a5', '#aed581', '#9ccc65', '#8bc34a', '#7cb342', '#689f38'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -137,7 +138,7 @@ const themes = {
     
     density: {
         name: 'Densità Abitativa',
-        property: 'densità abitativa',
+        property: THEME_FIELD_MAPPING.density, // ✅ Era: 'densità abitativa'
         colors: ['#fce4ec', '#f8bbd9', '#f48fb1', '#f06292', '#ec407a', '#e91e63', '#d81b60', '#c2185b'],
         unit: 'ab/km²',
         format: (val) => `${val?.toLocaleString() || 'N/D'} ab/km²`,
@@ -147,7 +148,7 @@ const themes = {
     
     foreign: {
         name: 'Popolazione Straniera',
-        property: 'tasso_di_popolazione_straniera',
+        property: THEME_FIELD_MAPPING.foreign, // ✅ Era: 'tasso_di_popolazione_straniera'
         colors: ['#e0f2f1', '#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#009688', '#00897b', '#00695c'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -157,7 +158,7 @@ const themes = {
 
     employment: {
         name: 'Tasso Occupazione',
-        property: 'tasso_di_occupazione',
+        property: THEME_FIELD_MAPPING.employment, // ✅ Era: 'tasso_di_occupazione'
         colors: ['#ffffff', '#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#8e24aa'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -167,7 +168,7 @@ const themes = {
 
     genderGap: {
         name: 'Divario Genere Occupazione',
-        property: 'divario di genere nell\'occupazione',
+        property: THEME_FIELD_MAPPING.genderGap, // ✅ Era: 'divario di genere nell\'occupazione'
         colors: ['#4caf50', '#81c784', '#fff59d', '#ffcc02', '#ff9800', '#ff5722', '#d32f2f', '#b71c1c'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -177,7 +178,7 @@ const themes = {
 
     resilience: {
         name: 'Resilienza Economica',
-        property: 'resilienza_economica',
+        property: THEME_FIELD_MAPPING.resilience, // ✅ Era: 'resilienza_economica'
         colors: ['#ffffff', '#fff8e1', '#ffecb3', '#ffe082', '#ffd54f', '#ffca28', '#ffc107', '#ffa000'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -187,7 +188,7 @@ const themes = {
 
     cohesion: {
         name: 'Coesione Sociale',
-        property: 'indice_coesione_sociale',
+        property: THEME_FIELD_MAPPING.cohesion, // ✅ Era: 'indice_coesione_sociale'
         colors: ['#ffffff', '#e1f5fe', '#b3e5fc', '#81d4fa', '#4fc3f7', '#29b6f6', '#03a9f4', '#0288d1'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -197,7 +198,7 @@ const themes = {
     
     surface_area: {
         name: 'Superficie Particella',
-        property: 'superfice mq',
+        property: THEME_FIELD_MAPPING.surface_area, // ✅ Era: 'superfice mq'
         colors: ['#ffffff', '#f0f4c3', '#dce775', '#cddc39', '#aed581', '#8bc34a', '#689f38', '#33691e'],
         unit: 'm²',
         format: (val) => `${val?.toLocaleString('it-IT', {maximumFractionDigits: 2}) || 'N/D'} m²`,
@@ -207,7 +208,7 @@ const themes = {
 
     elevation_min: {
         name: 'Elevazione Minima',
-        property: 'elevation_min',
+        property: THEME_FIELD_MAPPING.elevation_min, // ✅ Era: 'elevation_min'
         colors: ['#ffffff', '#e8f5e8', '#c8e6c8', '#a5d6a5', '#82c782', '#5fb85f', '#3ca83c', '#1b5e20'],
         unit: 'm',
         format: (val) => `${val || 'N/D'} m`,
@@ -217,7 +218,7 @@ const themes = {
 
     elevation_max: {
         name: 'Elevazione Massima',
-        property: 'elevation_max',
+        property: THEME_FIELD_MAPPING.elevation_max, // ✅ Era: 'elevation_max'
         colors: ['#ffffff', '#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#0d47a1'],
         unit: 'm',
         format: (val) => `${val || 'N/D'} m`,
@@ -227,7 +228,7 @@ const themes = {
 
     building_occupancy: {
         name: 'Occupazione Media Edificio',
-        property: 'occupazione media dell\'edificio',
+        property: THEME_FIELD_MAPPING.building_occupancy, // ✅ Era: 'occupazione media dell\'edificio'
         colors: ['#ffffff', '#fff3e0', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#e65100'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -237,7 +238,7 @@ const themes = {
 
     structural_dependency: {
         name: 'Indice Dipendenza Strutturale',
-        property: 'indice_dipendenza_strutturale',
+        property: THEME_FIELD_MAPPING.structural_dependency, // ✅ Era: 'indice_dipendenza_strutturale'
         colors: ['#ffffff', '#ffebee', '#ffcdd2', '#ef9a9a', '#e57373', '#ef5350', '#f44336', '#b71c1c'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -247,7 +248,7 @@ const themes = {
 
     robustness: {
         name: 'Indice di Robustezza',
-        property: 'indice di robustezza',
+        property: THEME_FIELD_MAPPING.robustness, // ✅ Era: 'indice di robustezza'
         colors: ['#ffffff', '#f1f8e9', '#dcedc8', '#c5e1a5', '#aed581', '#9ccc65', '#8bc34a', '#33691e'],
         unit: '',
         format: (val) => `${val || 'N/D'}`,
@@ -257,7 +258,7 @@ const themes = {
 
     requalification_opportunity: {
         name: 'Opportunità di Riqualificazione',
-        property: 'opport_riqualificazione',
+        property: THEME_FIELD_MAPPING.requalification_opportunity, // ✅ Era: 'opport_riqualificazione'
         colors: ['#ffffff', '#f3e5f5', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#9c27b0', '#4a148c'],
         unit: '',
         format: (val) => `${val || 'N/D'}`,
@@ -267,7 +268,7 @@ const themes = {
 
     real_estate_potential: {
         name: 'Potenziale Immobiliare',
-        property: 'potenziale_immobiliare',
+        property: THEME_FIELD_MAPPING.real_estate_potential, // ✅ Era: 'potenziale_immobiliare'
         colors: ['#ffffff', '#e0f2f1', '#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#009688', '#004d40'],
         unit: '%',
         format: (val) => `${val || 'N/D'}%`,
@@ -277,7 +278,7 @@ const themes = {
 
     buildings: {
         name: 'Numero edifici per particella',
-        property: 'buildings_count',
+        property: THEME_FIELD_MAPPING.buildings, // ✅ Era: 'buildings_count'
         colors: ['#ffffff', '#ffebee', '#ffcdd2', '#ef9a9a', '#e57373', '#ef5350', '#f44336', '#d32f2f'],
         unit: 'edifici',
         format: (val) => `${val || 'N/D'} edifici`,
@@ -287,7 +288,7 @@ const themes = {
     
     land_cover: {
         name: 'Copertura del suolo',
-        property: 'copertura del suolo',
+        property: THEME_FIELD_MAPPING.land_cover, // ✅ Era: 'copertura del suolo'
         colors: ['#FFFF64', '#228B22', '#90EE90', '#006400'],
         unit: '',
         format: (val) => landCoverLabels[val] || val || 'N/D',
@@ -296,7 +297,7 @@ const themes = {
     
     flood_risk: {
         name: 'Rischio alluvione',
-        property: 'Ri alluvione',
+        property: THEME_FIELD_MAPPING.flood_risk, // ✅ Era: 'Ri alluvione'
         colors: ['#FF0000', '#C8C8C8'],
         unit: '',
         format: (val) => floodRiskLabels[val] || val || 'N/D',
@@ -305,7 +306,7 @@ const themes = {
     
     landslide_risk: {
         name: 'Rischio di frana',
-        property: 'rischio di frana',
+        property: THEME_FIELD_MAPPING.landslide_risk, // ✅ Era: 'rischio di frana'
         colors: ['#C8C8C8'],
         unit: '',
         format: (val) => landslideRiskLabels[val] || val || 'N/D',
@@ -314,7 +315,7 @@ const themes = {
     
     coastal_erosion: {
         name: 'Rischio erosione costiera',
-        property: 'rischio di erosione costiera',
+        property: THEME_FIELD_MAPPING.coastal_erosion, // ✅ Era: 'rischio di erosione costiera'
         colors: ['#C8C8C8'],
         unit: '',
         format: (val) => coastalErosionLabels[val] || val || 'N/D',
@@ -323,7 +324,7 @@ const themes = {
     
     seismic_risk: {
         name: 'Rischio sismico',
-        property: 'rischio sismico',
+        property: THEME_FIELD_MAPPING.seismic_risk, // ✅ Era: 'rischio sismico'
         colors: ['#00FF00'],
         unit: '',
         format: (val) => seismicRiskLabels[val] || val || 'N/D',
@@ -333,6 +334,7 @@ const themes = {
 
 /**
  * Applica tema alla mappa
+ * INVARIATA: La logica rimane identica, ora usa i campi centralizzati
  */
 function applyTheme(themeKey) {
     const theme = themes[themeKey];
@@ -416,7 +418,7 @@ function applyTheme(themeKey) {
         if (themeKey === 'land_cover') {
             layerConfig.paint['fill-color'] = [
                 'match',
-                ['get', 'copertura del suolo'],
+                ['get', THEME_FIELD_MAPPING.land_cover], // ✅ Era: 'copertura del suolo'
                 '1110', landCoverColors['1110'],
                 '2111', landCoverColors['2111'],
                 '2112', landCoverColors['2112'],
@@ -426,7 +428,7 @@ function applyTheme(themeKey) {
         } else if (themeKey === 'flood_risk') {
             layerConfig.paint['fill-color'] = [
                 'match',
-                ['downcase', ['coalesce', ['get', 'Ri alluvione'], '']],
+                ['downcase', ['coalesce', ['get', THEME_FIELD_MAPPING.flood_risk], '']], // ✅ Era: 'Ri alluvione'
                 'alto', floodRiskColors['alto'],
                 'no', floodRiskColors['no'],
                 floodRiskColors['no']
@@ -436,10 +438,10 @@ function applyTheme(themeKey) {
                 'case',
                 [
                     'any',
-                    ['==', ['downcase', ['to-string', ['get', 'rischio di frana']]], 'none'],
-                    ['==', ['get', 'rischio di frana'], 'none'],
-                    ['==', ['get', 'rischio di frana'], null],
-                    ['==', ['get', 'rischio di frana'], '']
+                    ['==', ['downcase', ['to-string', ['get', THEME_FIELD_MAPPING.landslide_risk]]], 'none'], // ✅ Era: 'rischio di frana'
+                    ['==', ['get', THEME_FIELD_MAPPING.landslide_risk], 'none'],
+                    ['==', ['get', THEME_FIELD_MAPPING.landslide_risk], null],
+                    ['==', ['get', THEME_FIELD_MAPPING.landslide_risk], '']
                 ],
                 landslideRiskColors['none'],
                 'rgba(200,200,200,0.5)'
@@ -449,10 +451,10 @@ function applyTheme(themeKey) {
                 'case',
                 [
                     'any',
-                    ['==', ['downcase', ['to-string', ['get', 'rischio di erosione costiera']]], 'none'],
-                    ['==', ['get', 'rischio di erosione costiera'], 'none'],
-                    ['==', ['get', 'rischio di erosione costiera'], null],
-                    ['==', ['get', 'rischio di erosione costiera'], '']
+                    ['==', ['downcase', ['to-string', ['get', THEME_FIELD_MAPPING.coastal_erosion]]], 'none'], // ✅ Era: 'rischio di erosione costiera'
+                    ['==', ['get', THEME_FIELD_MAPPING.coastal_erosion], 'none'],
+                    ['==', ['get', THEME_FIELD_MAPPING.coastal_erosion], null],
+                    ['==', ['get', THEME_FIELD_MAPPING.coastal_erosion], '']
                 ],
                 coastalErosionColors['none'],
                 'rgba(200,200,200,0.5)'
@@ -462,9 +464,9 @@ function applyTheme(themeKey) {
                 'case',
                 [
                     'any',
-                    ['==', ['downcase', ['to-string', ['get', 'rischio sismico']]], 'low'],
-                    ['==', ['get', 'rischio sismico'], 'low'],
-                    ['==', ['get', 'rischio sismico'], 'LOW']
+                    ['==', ['downcase', ['to-string', ['get', THEME_FIELD_MAPPING.seismic_risk]]], 'low'], // ✅ Era: 'rischio sismico'
+                    ['==', ['get', THEME_FIELD_MAPPING.seismic_risk], 'low'],
+                    ['==', ['get', THEME_FIELD_MAPPING.seismic_risk], 'LOW']
                 ],
                 seismicRiskColors['low'],
                 'rgba(200,200,200,0.5)'
@@ -511,6 +513,7 @@ function applyTheme(themeKey) {
 
 /**
  * Rimuove tema corrente
+ * INVARIATA: Logica identica
  */
 function removeTheme() {
     if (map.getLayer('catastale-thematic')) {
@@ -528,6 +531,7 @@ function removeTheme() {
 
 /**
  * Calcola range dinamico per tema
+ * INVARIATA: Logica identica
  */
 function calculateDynamicRange(themeKey) {
     if (!currentMandamentoFilter && !currentFoglioFilter) return null;
@@ -548,6 +552,7 @@ function calculateDynamicRange(themeKey) {
 
 /**
  * Ottiene range statico per tema
+ * INVARIATA: Logica identica
  */
 function getStaticRange(themeKey) {
     const valueRanges = {
