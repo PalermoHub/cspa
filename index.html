@@ -278,24 +278,41 @@
     <button class="panel-toggle" id="panel-toggle" Title="Apri/chiudi controlli e filtri">
         <i class="fas fa-bars"></i>
     </button>
-        <!-- JAVASCRIPT FILES - STRUTTURA MODULARE CORRETTA -->  
-    <script src="js-app/01-config.js"></script>
-    <script src="js-app/02-themes.js"></script>
-    <script src="js-app/03-legends.js"></script>
-    <script src="js-app/04-dynamic-legend.js"></script>
-  <script src="js-app/04-dynamic-legend-fixes.js"></script>
-    <script src="js-app/05-info-panel.js"></script> 
-    <script src="js-app/06-search-controls.js"></script>
-    <script src="js-app/07-unified-filters.js"></script>
-    <script src="js-app/08-event-handlers.js"></script>
-    <script src="js-app/09-utils.js"></script>
-    <script src="js-app/10-map-init.js"></script>
-    <script src="js-app/11-reset.js"></script>
-    <script src="js-app/15-charts.js"></script>
-  <!--  <script src="js-app/16-charts-fixes.js"></script> 
-	<script src="js-app/17-legend-sorting.js"></script>-->  
+
+    <!-- ========================================= -->
+    <!-- JAVASCRIPT FILES - STRUTTURA RIORGANIZZATA -->
+    <!-- ========================================= -->		
 	
-	    <!-- FOOTER -->
+<!-- LIVELLO 1: CORE (Configurazione e Costanti) -->
+<script src="js-app/01-config.js"></script>
+	  
+<!-- LIVELLO 2: DATA (Gestione Dati) -->  
+<script src="js-app/02-themes.js"></script>
+<script src="js-app/03-unified-filters.js"></script>
+	
+	<!-- LIVELLO 3: UI COMPONENTS (Componenti Interfaccia) -->
+<script src="js-app/04-legends.js"></script>	
+<script src="js-app/05-info-panel.js"></script> 	
+<script src="js-app/06-dynamic-legend.js"></script> 
+<script src="js-app/07-floating-panel.js"></script>	
+
+<!-- LIVELLO 4: MAP (Funzionalità Mappa) -->
+<script src="js-app/08-map-init.js"></script>
+	 
+<!-- LIVELLO 5: CONTROLLERS (Logica Applicativa) -->
+<script src="js-app/09-share.js"></script>
+<script src="js-app/10-sincro.js"></script>
+<script src="js-app/11-event-handlers.js"></script>	
+<script src="js-app/12-search-controls.js"></script>
+<script src="js-app/13-reset.js"></script>	
+
+<!-- LIVELLO 6: UTILITIES -->
+<script src="js-app/14-utils.js"></script>	
+	
+<!-- LIVELLO 7: INITIALIZATION -->
+<script src="js-app/15-charts.js"></script>
+	
+    <!-- FOOTER -->
     <footer class="app-footer">
         <div class="footer-left">
             <span>2025 <a href="https://opendatasicilia.it/" target="_blank" class="footer-link">OpenDataSicilia</a></span>
@@ -494,8 +511,6 @@
     </div>
 </div>
 </div>
-   <script src="js-app/12-floating-panel.js"></script>	
-   <script src="js-app/13-share.js"></script>
-   <script src="js-app/14-sincro.js"></script>
+
 </body>
 </html>
