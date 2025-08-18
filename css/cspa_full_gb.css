@@ -1864,11 +1864,11 @@ hr {
         width: 260px;
         left: -270px;
         top: 80px!important;
-        height: calc(98vh - 60px)!important;
+        height: calc(89vh - 20px)!important;
     }
-    .legend {
+    /*.legend {
         height: calc(43vh - 20px)!important;
-    }
+    }*/
 }
 
 /* Full HD (1920x1080) */
