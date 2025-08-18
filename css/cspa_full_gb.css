@@ -1629,6 +1629,7 @@ hr {
     border-bottom: 2px solid #ff9900;
     flex-shrink: 0;
 	color: #ff9900;
+	font-size: 12px;
 }
 
 .chart-wrapper {
