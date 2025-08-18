@@ -3,6 +3,7 @@
  * Sistema Legenda Dinamica con Conteggio Particelle e Filtri Interattivi
  * Versione 2.1 - Con supporto per filtri via legenda e fix per valori null/zero in Jenks
  * + FORCE RENDER per inizializzazione corretta
+ * REFACTORED: Usa CONFIG.fields per centralizzazione campi catastali
  */
 
 // Costanti per il sistema legenda dinamica
@@ -466,7 +467,7 @@ function attemptForceCount(strategy) {
 }
 
 /**
- * NUOVO: Calcola conteggi viewport
+ * NUOVO: Calcola conteggi viewport (REFACTORED: usa CONFIG.fields)
  */
 function calculateViewportCounts() {
     const features = map.queryRenderedFeatures(undefined, {
@@ -478,7 +479,8 @@ function calculateViewportCounts() {
     let totalVisible = 0;
     
     features.forEach((feature) => {
-        const fid = feature.properties.fid;
+        // REFACTORED: usa CONFIG.fields.identifiers.fid invece di 'fid'
+        const fid = feature.properties[CONFIG.fields.identifiers.fid];
         
         if (fid && !uniqueParticles.has(fid)) {
             uniqueParticles.add(fid);
@@ -500,13 +502,14 @@ function calculateViewportCounts() {
 }
 
 /**
- * NUOVO: Determina categoria feature
+ * NUOVO: Determina categoria feature (REFACTORED: usa CONFIG.fields)
  */
 function determineFeatureCategory(feature) {
     const currentTheme = getCurrentTheme();
     
     if (currentTheme === 'landuse' || !currentTheme) {
-        return feature.properties.class || '';
+        // REFACTORED: usa CONFIG.fields.geography.landUseClass invece di 'class'
+        return feature.properties[CONFIG.fields.geography.landUseClass] || '';
     }
     
     const theme = themes[currentTheme];
@@ -522,10 +525,12 @@ function determineFeatureCategory(feature) {
 }
 
 /**
- * NUOVO: Helper per categoria Jenks
+ * NUOVO: Helper per categoria Jenks (REFACTORED: usa mapping centralizzato quando possibile)
  */
 function getJenksCategory(feature, theme) {
-    const value = feature.properties[theme.property];
+    // REFACTORED: usa THEME_FIELD_MAPPING quando disponibile
+    const fieldName = THEME_FIELD_MAPPING[getCurrentTheme()] || theme.property;
+    const value = feature.properties[fieldName];
     
     if (value === null || value === undefined || value === '') {
         return '0';
@@ -544,17 +549,21 @@ function getJenksCategory(feature, theme) {
 }
 
 /**
- * NUOVO: Helper per categoria categorica
+ * NUOVO: Helper per categoria categorica (REFACTORED: usa mapping centralizzato quando possibile)
  */
 function getCategoricalCategory_FIXED(feature, theme) {
-    return feature.properties[theme.property] || 'N/D';
+    // REFACTORED: usa THEME_FIELD_MAPPING quando disponibile
+    const fieldName = THEME_FIELD_MAPPING[getCurrentTheme()] || theme.property;
+    return feature.properties[fieldName] || 'N/D';
 }
 
 /**
- * NUOVO: Helper per categoria numerica
+ * NUOVO: Helper per categoria numerica (REFACTORED: usa mapping centralizzato quando possibile)
  */
 function getNumericCategory(feature, theme) {
-    const value = feature.properties[theme.property];
+    // REFACTORED: usa THEME_FIELD_MAPPING quando disponibile
+    const fieldName = THEME_FIELD_MAPPING[getCurrentTheme()] || theme.property;
+    const value = feature.properties[fieldName];
     
     if (value === null || value === undefined || value === '') {
         return 'range-0';
@@ -740,7 +749,7 @@ window.handleLegendItemClick = function(category, isCtrlPressed) {
 };
 
 /**
- * Applica filtri basati su selezione legenda
+ * Applica filtri basati su selezione legenda (REFACTORED: usa CONFIG.fields)
  */
 function applyLegendFilters() {
     let filter = null;
@@ -750,26 +759,28 @@ function applyLegendFilters() {
         
         // Costruisci filtro basato sul tipo di tema corrente
         if (currentTheme === 'landuse' || !currentTheme) {
-            // Filtro per uso del suolo
+            // REFACTORED: usa CONFIG.fields.geography.landUseClass invece di 'class'
             const conditions = Array.from(window.legendFilterState.activeCategories).map(cat => 
-                ['==', ['get', 'class'], cat]
+                ['==', ['get', CONFIG.fields.geography.landUseClass], cat]
             );
             filter = conditions.length === 1 ? conditions[0] : ['any', ...conditions];
         } else {
             const theme = themes[currentTheme];
             if (theme) {
                 if (theme.type === 'categorical') {
-                    // Filtro per temi categorici
+                    // REFACTORED: usa THEME_FIELD_MAPPING quando disponibile
+                    const fieldName = THEME_FIELD_MAPPING[currentTheme] || theme.property;
                     const conditions = Array.from(window.legendFilterState.activeCategories).map(cat => {
                         // Gestione speciale per valori che potrebbero essere in formati diversi
                         if (currentTheme === 'flood_risk') {
-                            return ['==', ['downcase', ['coalesce', ['get', theme.property], '']], cat.toLowerCase()];
+                            return ['==', ['downcase', ['coalesce', ['get', fieldName], '']], cat.toLowerCase()];
                         }
-                        return ['==', ['get', theme.property], cat];
+                        return ['==', ['get', fieldName], cat];
                     });
                     filter = conditions.length === 1 ? conditions[0] : ['any', ...conditions];
                 } else if (theme.type === 'jenks') {
-                    // Filtro per classi Jenks
+                    // REFACTORED: usa THEME_FIELD_MAPPING quando disponibile
+                    const fieldName = THEME_FIELD_MAPPING[currentTheme] || theme.property;
                     const conditions = Array.from(window.legendFilterState.activeCategories).map(cat => {
                         const classIndex = parseInt(cat);
                         if (isNaN(classIndex)) return null;
@@ -778,8 +789,8 @@ function applyLegendFilters() {
                         const maxVal = theme.jenksBreaks[classIndex + 1] || Infinity;
                         
                         return ['all',
-                            ['>=', ['get', theme.property], minVal],
-                            ['<', ['get', theme.property], maxVal]
+                            ['>=', ['get', fieldName], minVal],
+                            ['<', ['get', fieldName], maxVal]
                         ];
                     }).filter(c => c !== null);
                     
@@ -821,7 +832,7 @@ function applyLegendFilters() {
 }
 
 /**
- * Zoom automatico sulle particelle filtrate
+ * Zoom automatico sulle particelle filtrate (REFACTORED: usa CONFIG.fields)
  */
 function zoomToFilteredFeatures(filter) {
     if (!filter) return;
@@ -845,7 +856,8 @@ function zoomToFilteredFeatures(filter) {
         const uniqueFeatures = new Map();
         
         features.forEach(feature => {
-            const fid = feature.properties.fid;
+            // REFACTORED: usa CONFIG.fields.identifiers.fid invece di 'fid'
+            const fid = feature.properties[CONFIG.fields.identifiers.fid];
             if (fid && !uniqueFeatures.has(fid)) {
                 uniqueFeatures.set(fid, feature);
                 
@@ -1032,8 +1044,8 @@ window.toggleAllLegendItems = function() {
 };
 
 /**
- * Calcola statistiche delle particelle nel viewport corrente
- * AGGIORNATO per compatibilità
+ * Calcola statistiche delle particelle nel viewport corrente (REFACTORED: usa CONFIG.fields)
+ * AGGIORNATO per compatibilità 
  */
 function calculateViewportStatistics() {
     if (!map || !map.getLayer('catastale-base')) {
@@ -1065,8 +1077,8 @@ function calculateViewportStatistics() {
 }
 
 /**
- * Aggiorna legenda tematica con conteggi
- * SEMPLIFICATO per compatibilità
+ * Aggiorna legenda tematica con conteggi (REFACTORED: usa CONFIG.fields)
+ * SEMPLIFICATO per compatibilità 
  */
 function updateThematicLegendWithCounts(stats) {
     // Usa la nuova funzione se disponibile
@@ -1133,7 +1145,7 @@ function updateThematicLegendWithCounts(stats) {
                 count = stats.byTheme[category];
             }
         } else if (theme.type === 'jenks') {
-            // Gestione migliorata per classi Jenks con valori null/zero
+            // Gestione migliorata per classi Jenks con valori null/zero (REFACTORED: usa CONFIG.fields)
             const features = map.queryRenderedFeatures(undefined, {
                 layers: ['catastale-thematic'].filter(l => {
                     try {
@@ -1146,8 +1158,11 @@ function updateThematicLegendWithCounts(stats) {
             
             const uniqueInClass = new Set();
             features.forEach(f => {
-                const value = f.properties[theme.property];
-                const fid = f.properties.fid;
+                // REFACTORED: usa THEME_FIELD_MAPPING quando possibile
+                const fieldName = THEME_FIELD_MAPPING[currentTheme] || theme.property;
+                const value = f.properties[fieldName];
+                // REFACTORED: usa CONFIG.fields.identifiers.fid invece di 'fid'
+                const fid = f.properties[CONFIG.fields.identifiers.fid];
                 
                 // Solo conta se il FID è unico
                 if (fid && !uniqueInClass.has(fid)) {
@@ -1191,7 +1206,7 @@ function updateThematicLegendWithCounts(stats) {
 }
 
 /**
- * Ottiene la categoria per un valore tematico
+ * Ottiene la categoria per un valore tematico (REFACTORED: usa THEME_FIELD_MAPPING)
  * Con gestione corretta dei valori null/undefined
  */
 function getThemeCategory(value, theme) {
@@ -1252,7 +1267,7 @@ function isInJenksClass(value, classIndex, breaks) {
 }
 
 /**
- * Valida che il numero totale di particelle sia corretto
+ * Valida che il numero totale di particelle sia corretto (REFACTORED: usa CONFIG.fields)
  */
 function validateTotalParticles() {
     try {
@@ -1262,8 +1277,10 @@ function validateTotalParticles() {
         
         const uniqueParticles = new Set();
         allFeatures.forEach(f => {
-            if (f.properties.fid) {
-                uniqueParticles.add(f.properties.fid);
+            // REFACTORED: usa CONFIG.fields.identifiers.fid invece di 'fid'
+            const fid = f.properties[CONFIG.fields.identifiers.fid];
+            if (fid) {
+                uniqueParticles.add(fid);
             }
         });
         
@@ -1388,7 +1405,7 @@ function updateDynamicLegend() {
 }
 
 /**
- * Aggiorna legenda base con conteggi
+ * Aggiorna legenda base con conteggi (REFACTORED: usa CONFIG.fields)
  * AGGIORNATO per nuovo sistema + ordinamento automatico
  */
 function updateBaseLegendWithCounts(stats) {
@@ -1744,31 +1761,32 @@ if (document.readyState === 'loading') {
      */
     function applySimplePatch() {
         
-        // PATCH 1: getCategoricalCategory migliorata
+        // PATCH 1: getCategoricalCategory migliorata (REFACTORED: usa THEME_FIELD_MAPPING)
         window.getCategoricalCategory_FIXED = function(feature, theme) {
             if (!feature || !feature.properties || !theme) {
                 return 'N/D';
             }
             
-            const rawValue = feature.properties[theme.property];
-            const themeProperty = theme.property;
+            // REFACTORED: usa THEME_FIELD_MAPPING quando disponibile
+            const fieldName = THEME_FIELD_MAPPING[getCurrentTheme()] || theme.property;
+            const rawValue = feature.properties[fieldName];
             
             // Logica basata sulla proprietà invece del tema corrente
-            switch (themeProperty) {
-                case 'Ri alluvione': // flood_risk
+            switch (fieldName) {
+                case CONFIG.fields.risks.flood: // 'Ri alluvione' - flood_risk
                     const floodVal = (rawValue || '').toString().toLowerCase();
                     return floodVal === 'alto' ? 'alto' : 'no';
                 
-                case 'rischio di frana': // landslide_risk  
+                case CONFIG.fields.risks.landslide: // 'rischio di frana' - landslide_risk  
                     return 'none';
                 
-                case 'rischio di erosione costiera': // coastal_erosion
+                case CONFIG.fields.risks.coastalErosion: // 'rischio di erosione costiera' - coastal_erosion
                     return 'none';
                 
-                case 'rischio sismico': // seismic_risk
+                case CONFIG.fields.risks.seismic: // 'rischio sismico' - seismic_risk
                     return 'low';
                 
-                case 'copertura del suolo': // land_cover
+                case CONFIG.fields.geography.landCover: // 'copertura del suolo' - land_cover
                     return rawValue ? rawValue.toString() : 'N/D';
                 
                 default:
@@ -1814,7 +1832,8 @@ if (document.readyState === 'loading') {
                         let total = 0;
                         
                         features.forEach(feature => {
-                            const fid = feature.properties.fid;
+                            // REFACTORED: usa CONFIG.fields.identifiers.fid invece di 'fid'
+                            const fid = feature.properties[CONFIG.fields.identifiers.fid];
                             if (fid && !uniqueParticles.has(fid)) {
                                 uniqueParticles.add(fid);
                                 total++;
@@ -2258,7 +2277,7 @@ function updateExistingSortSystem() {
  * Inizializza sistema di ordinamento
  */
 function initializeLegendSorting() {
-    // Aggiungi controlli se non esistono già
+    // Aggiungi controlli se non esistono già 
     if (!document.querySelector('.legend-sorting-controls')) {
         addLegendSortingControls();
     }
@@ -2479,4 +2498,3 @@ window.updateSortButtonsDisplay = updateSortButtonsDisplay;
 console.log('🔤 Sistema ordinamento legenda BIDIREZIONALE caricato');
 
 console.log('🔧 Fix semplice categorici caricato - Nessuna dipendenza');
-

@@ -1,6 +1,7 @@
 // ===== FILE: unified-filters.js =====
 /**
  * SISTEMA FILTRI UNIFICATO CON SELECT PERSONALIZZATI E ICONE FONT AWESOME
+ * REFACTORED: Usa CONFIG.fields per centralizzazione campi catastali
  */
 
 // ===== STRUTTURE DATI UNIFICATE =====
@@ -194,7 +195,7 @@ function handleCustomSelectChange(selectId, value) {
             break;
     }
     
-    // Trigger evento personalizzato per compatibilità
+    // Trigger evento personalizzato per compatibilità 
     const event = new CustomEvent('customSelectChanged', {
         detail: { 
             selectId: selectId, 
@@ -234,7 +235,7 @@ function setCustomSelectValue(selectId, value) {
  * Aggiunge gli stili CSS per i select personalizzati
  */
 function addCustomSelectStyles() {
-    // Controlla se gli stili esistono già
+    // Controlla se gli stili esistono già 
     if (document.getElementById('custom-select-styles')) return;
     
     const styles = document.createElement('style');
@@ -388,7 +389,7 @@ function addCustomSelectStyles() {
     document.head.appendChild(styles);
 }
 
-// ===== FUNZIONI CORE UNIFICATE (MANTENUTE COME ORIGINALE) =====
+// ===== FUNZIONI CORE UNIFICATE (REFACTORED) =====
 
 /**
  * Inizializzazione completa del sistema filtri
@@ -417,7 +418,7 @@ function initializeUnifiedFilters() {
 }
 
 /**
- * Costruisce le relazioni tra mandamenti e fogli (UNIFICATA)
+ * Costruisce le relazioni tra mandamenti e fogli (UNIFICATA) (REFACTORED: usa CONFIG.fields)
  */
 function buildUnifiedRelations() {
     try {
@@ -435,8 +436,9 @@ function buildUnifiedRelations() {
         
         features.forEach(feature => {
             const props = feature.properties;
-            let mandamento = props.Mandamento;
-            const foglio = props.foglio;
+            // REFACTORED: usa CONFIG.fields invece di nomi hardcoded
+            let mandamento = props[CONFIG.fields.identifiers.mandamento];
+            const foglio = props[CONFIG.fields.identifiers.foglio];
             
             // Normalizza il nome del mandamento
             if (mandamento === 'Castellamare') mandamento = 'Castellammare';
@@ -694,7 +696,7 @@ function applyUnifiedFoglioFilter(selectedFoglio) {
 }
 
 /**
- * Costruisce il filtro per la mappa (UNIFICATA)
+ * Costruisce il filtro per la mappa (UNIFICATA) (REFACTORED: usa CONFIG.fields)
  */
 function buildUnifiedMapFilter() {
     const filters = [];
@@ -703,11 +705,13 @@ function buildUnifiedMapFilter() {
         let dbValue = currentMandamentoFilter;
         // Normalizza per il database
         if (dbValue === 'Castellammare') dbValue = 'Castellamare';
-        filters.push(['==', ['get', 'Mandamento'], dbValue]);
+        // REFACTORED: usa CONFIG.fields.identifiers.mandamento invece di 'Mandamento'
+        filters.push(['==', ['get', CONFIG.fields.identifiers.mandamento], dbValue]);
     }
     
     if (currentFoglioFilter) {
-        filters.push(['==', ['get', 'foglio'], currentFoglioFilter]);
+        // REFACTORED: usa CONFIG.fields.identifiers.foglio invece di 'foglio'
+        filters.push(['==', ['get', CONFIG.fields.identifiers.foglio], currentFoglioFilter]);
     }
     
     if (filters.length === 0) {
@@ -1108,7 +1112,7 @@ window.getCurrentFilter = getCurrentFilter;  // CRITICO!
 window.getMandamentoForFoglio = getMandamentoForFoglio;
 window.getFogliForMandamento = getFogliForMandamento;
 window.getUnifiedFilterStats = getUnifiedFilterStats;
-window.getFilterStats = getUnifiedFilterStats; // Alias per compatibilità
+window.getFilterStats = getUnifiedFilterStats; // Alias per compatibilità 
 window.hasActiveFilters = hasActiveFilters;
 window.resetUnifiedFilters = resetUnifiedFilters;
 window.applyUnifiedFoglioFilter = applyUnifiedFoglioFilter;

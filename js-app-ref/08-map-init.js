@@ -1,7 +1,7 @@
-// ===== FILE: map-init.js =====
+// ===== FILE: map-init.js - CORRETTO =====
 /**
  * Inizializzazione mappa e layer base
- * Versione aggiornata con supporto sistema grafici dinamici
+ * RISOLTO: Aggiunto controllo esistenza CONFIG e gestione errori
  */
 
 // Inizializza mappa
@@ -92,21 +92,48 @@ function createMapStyle() {
 }
 
 function onMapLoad() {
-    console.log('Mappa caricata');
+    console.log('🗺️ Mappa caricata');
     
-    addDataLayers();
-    addMapControls();
-    setupEventHandlers();
+    // CONTROLLO SICUREZZA: Verifica che CONFIG sia disponibile
+    if (typeof CONFIG === 'undefined' || !CONFIG.fields) {
+        console.error('❌ CONFIG non disponibile! Riprovo tra 500ms...');
+        setTimeout(onMapLoad, 500);
+        return;
+    }
     
-    // Imposta il valore di default per uso del suolo
-    document.getElementById('territorial-select').value = 'landuse';
+    try {
+        addDataLayers();
+        addMapControls();
+        setupEventHandlers();
+        
+        // Imposta il valore di default per uso del suolo
+        const territorialSelect = document.getElementById('territorial-select');
+        if (territorialSelect) {
+            territorialSelect.value = 'landuse';
+        }
+        
+        // SICUREZZA: Mostra legenda di base con controllo
+        setTimeout(() => {
+            if (typeof showBaseLegenda === 'function') {
+                showBaseLegenda();
+                console.log('✅ Legenda di base mostrata');
+            } else {
+                console.warn('⚠️ showBaseLegenda non disponibile');
+            }
+        }, 300);
+        
+        console.log('✅ Tutti i layer aggiunti');
+        
+    } catch (error) {
+        console.error('❌ Errore in onMapLoad:', error);
+        // Retry dopo un breve ritardo
+        setTimeout(() => {
+            console.log('🔄 Retry inizializzazione mappa...');
+            onMapLoad();
+        }, 1000);
+    }
     
-    // Mostra legenda di base
-    showBaseLegenda();
-    
-    console.log('Tutti i layer aggiunti');
-	
-	// Aggiungi questo nella funzione onMapLoad
+    // Aggiungi questo nella funzione onMapLoad
     map.on('idle', () => {
         if (typeof updateDynamicLegend === 'function') {
             setTimeout(updateDynamicLegend, 1000);
@@ -122,6 +149,13 @@ function onMapLoad() {
 }
 
 function addDataLayers() {
+    // CONTROLLO SICUREZZA: Verifica CONFIG.fields
+    if (!CONFIG || !CONFIG.fields || !CONFIG.fields.geography) {
+        throw new Error('CONFIG.fields.geography non disponibile');
+    }
+    
+    console.log('📦 Aggiungendo data layers...');
+    
     // Aggiungi sorgente PMTiles
     map.addSource('palermo_catastale', {
         type: 'vector',
@@ -137,7 +171,7 @@ function addDataLayers() {
         paint: {
             'fill-color': [
                 'match',
-                ['get', 'class'],
+                ['get', CONFIG.fields.geography.landUseClass],
                 'servizi', landUseColors.servizi,
                 'military', landUseColors.military,
                 'park', landUseColors.park,
@@ -166,7 +200,7 @@ function addDataLayers() {
             'fill-color': '#ff9900',
             'fill-opacity': 0.8
         },
-        filter: ['==', ['get', 'fid'], '']
+        filter: ['==', ['get', CONFIG.fields.identifiers.fid], '']
     });
 
     // Layer contorni - inizialmente nascosti
@@ -186,6 +220,7 @@ function addDataLayers() {
     });
 
     addPerimeterLayers();
+    console.log('✅ Data layers aggiunti');
 }
 
 function addPerimeterLayers() {
@@ -194,7 +229,7 @@ function addPerimeterLayers() {
         id: 'palermo-perimeter',
         type: 'line',
         source: 'palermo_catastale',
-        'source-layer': 'Palermo',
+        'source-layer': 'Palermo', // Fallback fisso per compatibilità
         paint: {
             'line-color': '#ff0000',
             'line-width': 2,
@@ -211,7 +246,7 @@ function addPerimeterLayers() {
         id: 'centro-storico-perimeter',
         type: 'line',
         source: 'palermo_catastale',
-        'source-layer': 'centro_storico',
+        'source-layer': 'centro_storico', // Fallback fisso per compatibilità
         paint: {
             'line-color': '#4a4a4a',
             'line-width': 1.5,
@@ -228,7 +263,7 @@ function addPerimeterLayers() {
         id: 'upl-cs-perimeter',
         type: 'line',
         source: 'palermo_catastale',
-        'source-layer': 'upl_cs',
+        'source-layer': 'upl_cs', // Fallback fisso per compatibilità
         paint: {
             'line-color': '#4a4a4a',
             'line-width': 1,
@@ -242,15 +277,31 @@ function addPerimeterLayers() {
 }
 
 function addMapControls() {
-    // Aggiungi controlli standard
-    map.addControl(new SearchControl(), 'top-right');
-    map.addControl(new maplibregl.NavigationControl());
-    // NOTA: Il controllo grafici viene aggiunto da 15-charts.js dopo il caricamento
+    console.log('🎮 Aggiungendo controlli mappa...');
+    
+    try {
+        // Aggiungi controlli standard con posizionamento corretto
+        map.addControl(new SearchControl(), 'top-right');
+        
+        // CORREZIONE: NavigationControl per zoom +/-
+        const navigationControl = new maplibregl.NavigationControl({
+            showCompass: false,
+            showZoom: true,
+            visualizePitch: false
+        });
+        map.addControl(navigationControl, 'top-right');
+        
+        console.log('✅ Controlli mappa aggiunti');
+        
+    } catch (error) {
+        console.error('❌ Errore aggiunta controlli:', error);
+    }
 }
 
-// MODIFICA LA FUNZIONE onSourceData
 function onSourceData(e) {
     if (e.sourceId === 'palermo_catastale' && e.isSourceLoaded) {
+        console.log('📊 Source data caricato');
+        
         // Non è più necessario popolare i filtri qui
         // La gestione è ora completamente in unified-filters.js
         setTimeout(() => {
